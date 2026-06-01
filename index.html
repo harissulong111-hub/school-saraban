@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Sarabun', sans-serif; background: radial-gradient(at top right, #f8fafc 60%, #e0e7ff 100%); }
-        /* สไตล์ Scrollbar หรูหราแบบ Minimal */
+        /* Minimal Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; border: 2px solid #f1f5f9; }
@@ -22,7 +22,6 @@
 </head>
 <body class="text-slate-800 antialiased selection:bg-indigo-500 selection:text-white min-h-screen">
 
-    <!-- LOADING SCREEN (AI Tech Aura) -->
     <div id="loading-spinner" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xl flex flex-col items-center justify-center text-white z-50 hidden transition-all">
         <div class="relative flex items-center justify-center mb-6">
             <div class="w-20 h-20 border-4 border-indigo-500/10 rounded-full"></div>
@@ -32,7 +31,6 @@
         <p class="text-base font-semibold tracking-wider text-indigo-200 animate-pulse" id="loading-text">กำลังประมวลผลผ่านระบบคลาวด์อัจฉริยะ...</p>
     </div>
 
-    <!-- LOGIN SCREEN (Luxury Tech Style) -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
         <div class="bg-white/70 backdrop-blur-2xl p-10 rounded-3xl border border-white/60 shadow-2xl max-w-md w-full space-y-8 ring-1 ring-black/[0.02] ai-glow">
             <div class="text-center space-y-3">
@@ -57,7 +55,7 @@
                     <input type="password" id="password" required placeholder="••••••••" class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all shadow-inner">
                 </div>
                 <div class="p-3 bg-slate-900/5 rounded-xl text-xs text-slate-500 border border-black/[0.03] leading-relaxed">
-                    ⚙️ <span class="font-bold text-slate-700">Account Test:</span> admin / 1234
+                    ⚙ shrink-0 <span class="font-bold text-slate-700">Account Test:</span> admin / 1234
                 </div>
                 <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-950/20 active:scale-[0.99] transition-all cursor-pointer">
                     ยืนยันเข้าสู่ระบบ
@@ -66,9 +64,7 @@
         </div>
     </div>
 
-    <!-- MAIN APPLICATION -->
     <div id="main-app" class="hidden">
-        <!-- HEADER (Premium Thin Luxury) -->
         <header class="bg-white/60 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                 <div class="flex items-center gap-4">
@@ -94,7 +90,6 @@
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
             
-            <!-- DASHBOARD COUNTERS -->
             <section class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div class="premium-card p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-between group ai-glow">
                     <div class="space-y-2">
@@ -119,7 +114,6 @@
                 </div>
             </section>
 
-            <!-- CONTROLS & SEARCH -->
             <section class="premium-card p-5 rounded-3xl shadow-sm flex flex-col md:flex-row gap-5 items-center justify-between ai-glow">
                 <div class="flex bg-slate-100 p-1.5 rounded-xl w-full md:w-auto">
                     <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold text-indigo-600 bg-white shadow-sm transition-all cursor-pointer">
@@ -141,7 +135,6 @@
                 </div>
             </section>
 
-            <!-- DATA TABLE -->
             <section class="bg-white rounded-3xl border border-slate-200/70 shadow-sm overflow-hidden ai-glow">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse" id="doc-table">
@@ -154,26 +147,24 @@
                                 <th class="py-5 px-4">ถึง</th>
                                 <th class="py-5 px-6 w-1/4 text-sm">เรื่อง</th>
                                 <th class="py-5 px-4">การปฏิบัติ (ฝ่ายงาน)</th>
-                                <th class="py-5 px-4 text-center">สถานะ</th>
+                                <th class="py-5 px-4 text-center">Visual Status</th>
                                 <th class="py-5 px-4 text-center">ไฟล์แนบ</th>
                                 <th class="py-5 px-6 text-right">การจัดการ</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm font-medium text-slate-600" id="table-body">
-                            <!-- แถวตารางถูกเรนเดอร์โดย JavaScript -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- REGISTRATION / EDIT MODAL (ซ่อมแซมส่วนอนิเมชันเพื่อให้ปุ่มเปิดใช้งานได้ปกติ) -->
     <div id="doc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-md flex items-center justify-center hidden z-50 p-4 transition-all">
         <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden transform transition-all duration-300">
             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2" id="modal-title">📄 ลงทะเบียนเอกสาร</h3>
-                <button onclick="closeModal()" class="w-8 h-8 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-base transition-all cursor-pointer shadow-xs">&times;</button>
+                <button type="button" onclick="closeModal()" class="w-8 h-8 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-base transition-all cursor-pointer shadow-xs">&times;</button>
             </div>
             <form id="doc-form" onsubmit="handleSubmit(event)" class="p-6 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -237,7 +228,6 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymw3gS8p4tj40k0L-0807RQnuFQmlHN1RjSyRhFGbSyggrpe6NsC__7efQUoALcFEeRg/exec";
         const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
@@ -271,8 +261,8 @@
                 if (!response.ok) throw new Error("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
                 const result = await response.json();
                 if (result.status === "success") {
-                    inboundDocs = result.data.filter(doc => doc.internalId.startsWith("รับ"));
-                    outboundDocs = result.data.filter(doc => doc.internalId.startsWith("ส่ง"));
+                    inboundDocs = result.data.filter(doc => doc.internalId && doc.internalId.startsWith("รับ"));
+                    outboundDocs = result.data.filter(doc => doc.internalId && doc.internalId.startsWith("ส่ง"));
                     renderTable();
                     updateCounters();
                 } else {
@@ -400,7 +390,7 @@
             const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
 
             const filteredData = rawData.filter(doc => {
-                return doc.internalId.toLowerCase().includes(searchQuery) ||
+                return (doc.internalId && doc.internalId.toLowerCase().includes(searchQuery)) ||
                        (doc.docId && doc.docId.toLowerCase().includes(searchQuery)) ||
                        (doc.title && doc.title.toLowerCase().includes(searchQuery)) ||
                        (doc.department && doc.department.toLowerCase().includes(searchQuery)) ||
@@ -468,14 +458,15 @@
             
             const isInc = currentTab === 'inbound';
             document.getElementById('modal-title').innerText = isInc ? '📥 ลงทะเบียนหนังสือรับระบบ AI' : '📤 ลงทะเบียนหนังสือส่งระบบ AI';
-            document.getElementById('label-internal-id').innerText = isInc ? 'เลขประจำทะเบียนรับ' : 'เลขประจำทะเบียนส่ง';
             
             const currentDataList = isInc ? inboundDocs : outboundDocs;
             let nextNum = 1;
             if (currentDataList.length > 0) {
-                const lastId = currentDataList[0].internalId;
-                const match = lastId.match(/\d+/);
-                if (match) nextNum = parseInt(match[0]) + 1;
+                const lastId = currentDataList[currentDataList.length - 1].internalId;
+                if(lastId) {
+                    const match = lastId.match(/\d+/);
+                    if (match) nextNum = parseInt(match[0]) + 1;
+                }
             }
             
             const prefix = isInc ? 'รับ' : 'ส่ง';
@@ -489,7 +480,6 @@
             const data = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
             
             document.getElementById('modal-title').innerText = currentTab === 'inbound' ? '✏️ แก้ไขข้อมูลทะเบียนรับ' : '✏️ แก้ไขข้อมูลทะเบียนส่ง';
-            document.getElementById('label-internal-id').innerText = currentTab === 'inbound' ? 'เลขประจำทะเบียนรับ' : 'เลขประจำทะเบียนส่ง';
             
             document.getElementById('form-internal-id').value = data.internalId;
             document.getElementById('form-doc-id').value = data.docId || '';
