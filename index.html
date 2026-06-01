@@ -31,16 +31,16 @@
             <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้ใช้งาน (Username)</label>
-                    <input type="text" id="username" required placeholder="admin" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input type="text" id="username" required placeholder="admin" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-500 mb-1">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
                 <div class="text-xs text-slate-400">
                     * บัญชีทดสอบระบบ: ใช้ <span class="font-semibold text-slate-600">admin</span> และรหัสผ่าน <span class="font-semibold text-slate-600">1234</span>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-sm transition-colors cursor-pointer">
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-xs transition-colors cursor-pointer">
                     เข้าสู่ระบบ
                 </button>
             </form>
@@ -74,21 +74,21 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
             <section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-slate-500 mb-1">หนังสือรับทั้งหมด</p>
                         <h3 class="text-3xl font-bold text-slate-900" id="count-in">0</h3>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-semibold">📥</div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-slate-500 mb-1">หนังสือส่งทั้งหมด</p>
                         <h3 class="text-3xl font-bold text-slate-900" id="count-out">0</h3>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-semibold">📤</div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-slate-500 mb-1">รอดำเนินการ/ลงนาม</p>
                         <h3 class="text-3xl font-bold text-amber-600" id="count-pending">0</h3>
@@ -97,9 +97,9 @@
                 </div>
             </section>
 
-            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
-                    <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-sm transition-all">
+                    <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all">
                         📥 หนังสือรับ (Inbound)
                     </button>
                     <button onclick="switchTab('outbound')" id="tab-outbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all">
@@ -109,15 +109,15 @@
                 
                 <div class="flex gap-3 w-full sm:w-auto justify-end">
                     <div class="relative flex-1 sm:flex-none w-full sm:w-64">
-                        <input type="text" id="search-input" onkeyup="searchTable()" placeholder="ค้นหาเลขที่, เรื่อง, หรือฝ่ายงาน..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                        <input type="text" id="search-input" onkeyup="renderTable()" placeholder="ค้นหาเลขที่, เรื่อง, หรือฝ่ายงาน..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                     </div>
-                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl shadow-sm flex items-center gap-2 shrink-0 cursor-pointer transition-colors">
+                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl shadow-xs flex items-center gap-2 shrink-0 cursor-pointer transition-colors">
                         ➕ ลงทะเบียนหนังสือ
                     </button>
                 </div>
             </section>
 
-            <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse" id="doc-table">
                         <thead>
@@ -134,7 +134,6 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm" id="table-body">
-                            <tr><td colspan="9" class="py-8 text-center text-slate-400">กำลังโหลดข้อมูลจาก Google Sheets...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -208,8 +207,15 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRKcSuVw-bQTSWDeF6RCDXLfZEogFmOP8vf3pti4AdDTZLuZ-H1uSB2Nkg9zp6SO098g/exec";
         const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
 
-        let inboundDocs = [];
-        let outboundDocs = [];
+        let inboundDocs = JSON.parse(localStorage.getItem("inboundDocs")) || [
+            { internalId: "รับ 001/2569", docId: "ศธ 0201/124", date: "2026-05-28", department: "ฝ่ายบริหารงานวิชาการ", title: "ขอเชิญเข้าร่วมประชุมการพัฒนาหลักสูตรท้องถิ่น", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "#" },
+            { internalId: "รับ 002/2569", docId: "มท 0307/582", date: "2026-05-30", department: "ฝ่ายงานบริหารทั่วไป", title: "แนวทางการเฝ้าระวังความปลอดภัยในสถานศึกษา", source: "ที่ว่าการอำเภอ", status: "รอดำเนินการ", fileUrl: "" }
+        ];
+
+        let outboundDocs = JSON.parse(localStorage.getItem("outboundDocs")) || [
+            { internalId: "ส่ง 001/2569", docId: "บก 001/2569", date: "2026-05-29", department: "ฝ่ายบริหารงบประมาณ", title: "รายงานผลการจัดกิจกรรมงบประมาณประจำปี", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" }
+        ];
+
         let currentTab = 'inbound';
         let editTargetIndex = null;
 
@@ -217,30 +223,41 @@
             checkAuth();
         };
 
+        function saveToLocalStorage() {
+            localStorage.setItem("inboundDocs", JSON.stringify(inboundDocs));
+            localStorage.setItem("outboundDocs", JSON.stringify(outboundDocs));
+        }
+
         function startLiveClock() {
             function updateClock() {
                 const userDisplay = document.getElementById("user-display");
                 if (!userDisplay) return;
 
-                const baseName = MOCK_USER.displayName;
+                const baseName = localStorage.getItem("userDisplayName") || MOCK_USER.displayName;
                 const now = new Date();
 
                 const dateString = now.toLocaleDateString('th-TH', {
-                    day: 'numeric', month: 'short', year: 'numeric'
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
                 });
 
                 const timeString = now.toLocaleTimeString('th-TH', {
-                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
                 });
 
                 userDisplay.innerText = `${baseName} | ${dateString} ${timeString} น.`;
             }
+
             updateClock();
             setInterval(updateClock, 1000);
         }
 
         function checkAuth() {
-            const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
             const loginScreen = document.getElementById("login-screen");
             const mainApp = document.getElementById("main-app");
 
@@ -248,7 +265,8 @@
                 loginScreen.classList.add("hidden");
                 mainApp.classList.remove("hidden");
                 startLiveClock();
-                loadDataFromSheets();
+                renderTable();
+                updateCounters();
             } else {
                 mainApp.classList.add("hidden");
                 loginScreen.classList.remove("hidden");
@@ -262,7 +280,8 @@
             const errorDiv = document.getElementById("login-error");
 
             if (userInp === MOCK_USER.username && passInp === MOCK_USER.password) {
-                sessionStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("userDisplayName", MOCK_USER.displayName);
                 errorDiv.classList.add("hidden");
                 document.getElementById("login-form").reset();
                 checkAuth();
@@ -273,42 +292,10 @@
 
         function handleLogout() {
             if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                sessionStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userDisplayName");
                 checkAuth();
             }
-        }
-
-        async function loadDataFromSheets() {
-            const tbody = document.getElementById('table-body');
-            if(tbody) tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-blue-600">กำลังเชื่อมต่อฐานข้อมูลกลางออนไลน์...</td></tr>`;
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
-                if (!response.ok) throw new Error("HTTP " + response.status);
-                
-                const result = await response.json();
-                if (result && result.status === "success") {
-                    inboundDocs = result.inbound || [];
-                    outboundDocs = result.outbound || [];
-                } else {
-                    setDefaultMockData();
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                setDefaultMockData();
-            }
-            renderTable();
-            updateCounters();
-        }
-
-        function setDefaultMockData() {
-            inboundDocs = [
-                { internalId: "รับ 001/2569", docId: "ศธ 0201/124", date: "2026-05-28", department: "ฝ่ายบริหารงานวิชาการ", title: "ขอเชิญเข้าร่วมประชุมการพัฒนาหลักสูตรท้องถิ่น", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" },
-                { internalId: "รับ 002/2569", docId: "มท 0307/582", date: "2026-05-30", department: "ฝ่ายงานบริหารทั่วไป", title: "แนวทางการเฝ้าระวังความปลอดภัยในสถานศึกษา", source: "ที่ว่าการอำเภอ", status: "รอดำเนินการ", fileUrl: "" }
-            ];
-            outboundDocs = [
-                { internalId: "ส่ง 001/2569", docId: "บก 001/2569", date: "2026-05-29", department: "ฝ่ายบริหารงบประมาณ", title: "รายงานผลการจัดกิจกรรมงบประมาณประจำปี", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" }
-            ];
         }
 
         function switchTab(tab) {
@@ -319,12 +306,12 @@
             const thSource = document.getElementById('th-source');
 
             if (tab === 'inbound') {
-                tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-sm transition-all";
+                tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
                 tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
                 thNumber.innerText = "เลขที่รับ";
                 thSource.innerText = "จากหน่วยงาน";
             } else {
-                tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-sm transition-all";
+                tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
                 tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
                 thNumber.innerText = "เลขที่ส่ง";
                 thSource.innerText = "ส่งถึงหน่วยงาน";
@@ -336,14 +323,28 @@
             const tbody = document.getElementById('table-body');
             if(!tbody) return; 
             tbody.innerHTML = '';
-            const data = currentTab === 'inbound' ? inboundDocs : outboundDocs;
+            
+            const rawData = currentTab === 'inbound' ? inboundDocs : outboundDocs;
+            const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
 
-            if(data.length === 0) {
+            // รองรับการกรองค้นหาจากช่อง Input ในกระบวนการเรนเดอร์ตารางโดยตรง
+            const filteredData = rawData.filter(doc => {
+                return doc.internalId.toLowerCase().includes(searchQuery) ||
+                       doc.docId.toLowerCase().includes(searchQuery) ||
+                       doc.title.toLowerCase().includes(searchQuery) ||
+                       doc.department.toLowerCase().includes(searchQuery) ||
+                       doc.source.toLowerCase().includes(searchQuery);
+            });
+
+            if(filteredData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">ไม่พบข้อมูลเอกสารในระบบ</td></tr>`;
                 return;
             }
 
-            data.forEach((doc, index) => {
+            filteredData.forEach((doc, index) => {
+                // ค้นหาดัชนีจริงในอาร์เรย์หลัก เผื่อกรณีลบหรือแก้ไขขณะกรองข้อมูลอยู่
+                const realIndex = rawData.findIndex(d => d.internalId === doc.internalId);
+                
                 const statusClass = doc.status === 'สำเร็จแล้ว' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200';
                 
                 let deptColor = "bg-slate-100 text-slate-700";
@@ -371,14 +372,14 @@
                             <span class="px-2.5 py-1 text-xs border rounded-md font-medium ${statusClass}">${doc.status}</span>
                         </td>
                         <td class="py-4 px-6 text-center">${fileIcon}</td>
-                        
                         <td class="py-4 px-6 text-right space-x-2">
-                            <button onclick="editDoc(${index})" class="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
-                            <button onclick="deleteDoc(${index})" class="text-xs font-medium text-rose-600 hover:text-rose-800 cursor-pointer">ลบ</button>
+                            <button onclick="editDoc(${realIndex})" class="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteDoc(${realIndex})" class="text-xs font-medium text-rose-600 hover:text-rose-800 cursor-pointer">ลบ</button>
                         </td>
                     </tr>
                 `;
             });
+            updateCounters();
         }
 
         function updateCounters() {
@@ -392,11 +393,9 @@
         }
 
         function openModal() {
-            // ล้างฟอร์มเคลียร์ข้อมูลเก่าออกก่อนเป็นอันดับแรก
-            document.getElementById('doc-form').reset();
+            const modal = document.getElementById('doc-modal');
             editTargetIndex = null; 
             
-            const modal = document.getElementById('doc-modal');
             document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'ลงทะเบียนหนังสือรับ' : 'ลงทะเบียนหนังสือส่ง';
             document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
             
@@ -424,7 +423,7 @@
 
             const fileStatus = document.getElementById('form-file-status');
             if (data.fileUrl && data.fileUrl !== "" && data.fileUrl !== "#") {
-                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a>`;
+                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a> (อัพโหลดไฟล์ใหม่เพื่อทดแทนไฟล์เดิมได้)`;
                 fileStatus.classList.remove('hidden');
             } else {
                 fileStatus.classList.add('hidden');
@@ -454,7 +453,7 @@
             let uploadedUrl = currentData ? currentData.fileUrl : "";
             let fileDataJson = { fileData: null, fileName: null, mimeType: null };
             
-            submitBtn.innerText = "กำลังอัพเดตฐานข้อมูลกลางออนไลน์...";
+            submitBtn.innerText = "กำลังประมวลผลและส่งข้อมูล...";
             submitBtn.disabled = true;
 
             if (fileInput.files.length > 0) {
@@ -473,9 +472,6 @@
             }
 
             const docObject = {
-                action: editTargetIndex !== null ? "edit" : "create", 
-                tabType: currentTab, 
-                index: editTargetIndex,
                 internalId: document.getElementById('form-internal-id').value,
                 docId: document.getElementById('form-doc-id').value,
                 date: document.getElementById('form-date').value,
@@ -493,19 +489,43 @@
                     body: JSON.stringify(docObject)
                 });
                 
-                if (!response.ok) throw new Error("HTTP " + response.status);
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
 
                 const result = await response.json();
                 if (result && result.status === "success") {
-                    alert("🎉 บันทึกข้อมูลไปยังคลาวด์สำเร็จแล้ว ทุกเครื่องจะเห็นข้อมูลชุดนี้ทันที");
+                    docObject.fileUrl = result.url;
+                } else if (result) {
+                    throw new Error(result.message || "เกิดข้อผิดพลาดที่ระบุไม่ได้จากสคริปต์");
                 }
             } catch (error) {
                 console.error("Google Script Error:", error);
-                alert("⚠️ เกิดข้อผิดพลาดออนไลน์: ข้อมูลไม่สามารถบันทึกข้ามเครื่องได้ในขณะนี้ กรุณาตรวจสอบอินเทอร์เน็ตหรือ App Script");
+                alert("⚠️ ไม่สามารถบันทึกออนไลน์ไปยัง Google Sheets ได้ชั่วคราว ข้อมูลจะบันทึกไว้ในเบราว์เซอร์แทน รายละเอียด: " + error.message);
             }
 
+            // เคลียร์ไฟล์ Base64 ออกเพื่อไม่ให้หน่วงหน่วยความจำฝั่ง Client Storage
+            delete docObject.fileData;
+            delete docObject.fileName;
+            delete docObject.mimeType;
+
+            if (editTargetIndex !== null) {
+                if (currentTab === 'inbound') {
+                    inboundDocs[editTargetIndex] = docObject;
+                } else {
+                    outboundDocs[editTargetIndex] = docObject;
+                }
+            } else {
+                if (currentTab === 'inbound') {
+                    inboundDocs.unshift(docObject);
+                } else {
+                    outboundDocs.unshift(docObject);
+                }
+            }
+
+            saveToLocalStorage(); 
             closeModal();
-            loadDataFromSheets(); 
+            renderTable();
         }
 
         function convertFileToBase64(file) {
@@ -520,41 +540,16 @@
             });
         }
 
-        async function deleteDoc(index) {
-            if(confirm('คุณต้องการลบรายการเอกสารนี้จากฐานข้อมูลกลางออนไลน์ใช่หรือไม่? (เครื่องอื่นจะถูกลบด้วย)')) {
-                const docObject = {
-                    action: "delete",
-                    tabType: currentTab,
-                    index: index
-                };
-
-                try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: "POST",
-                        body: JSON.stringify(docObject)
-                    });
-                    if(response.ok) {
-                        alert("ลบข้อมูลสำเร็จ");
-                    }
-                } catch(e) {
-                    alert("ลบข้อมูลออนไลน์ผิดพลาด");
-                }
-                loadDataFromSheets(); 
-            }
-        }
-
-        function searchTable() {
-            const input = document.getElementById('search-input').value.toLowerCase();
-            const rows = document.querySelectorAll('#table-body tr');
-            
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                if(text.includes(input)) {
-                    row.style.display = '';
+        function deleteDoc(index) {
+            if(confirm('คุณต้องการลบรายการข้อมูลเอกสารนี้ใช่หรือไม่?')) {
+                if (currentTab === 'inbound') {
+                    inboundDocs.splice(index, 1);
                 } else {
-                    row.style.display = 'none';
+                    outboundDocs.splice(index, 1);
                 }
-            });
+                saveToLocalStorage(); 
+                renderTable();
+            }
         }
     </script>
 </body>
