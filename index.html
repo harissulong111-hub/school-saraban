@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบงานสารบรรณอิเล็กทรอนิกส์ (Online)</title>
+    <title>ระบบงานสารบรรณอิเล็กทรอนิกส์ (ตารางเวอร์ชันใหม่)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,21 +127,22 @@
                 </div>
             </section>
 
-            <!-- DATA TABLE -->
+            <!-- DATA TABLE (ปรับโครงสร้างใหม่เป็น 10 คอลัมน์) -->
             <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse" id="doc-table">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                <th class="py-4 px-6" id="th-number">เลขที่รับ</th>
-                                <th class="py-4 px-6">เลขที่หนังสือ</th>
-                                <th class="py-4 px-6">ลงวันที่</th>
-                                <th class="py-4 px-6">หมวดหมู่ฝ่ายงาน</th>
-                                <th class="py-4 px-6 w-1/4">เรื่อง</th>
-                                <th class="py-4 px-6" id="th-source">จากหน่วยงาน</th>
-                                <th class="py-4 px-6 text-center">สถานะ</th>
-                                <th class="py-4 px-6 text-center">ไฟล์แนบ</th>
-                                <th class="py-4 px-6 text-right">การจัดการ</th>
+                                <th class="py-4 px-4" id="th-number">เลขทะเบียนรับ</th>
+                                <th class="py-4 px-4">ที่</th>
+                                <th class="py-4 px-4">ลงวันที่</th>
+                                <th class="py-4 px-4">จาก</th>
+                                <th class="py-4 px-4">ถึง</th>
+                                <th class="py-4 px-4 w-1/4">เรื่อง</th>
+                                <th class="py-4 px-4">การปฏิบัติ (ฝ่ายงาน)</th>
+                                <th class="py-4 px-4 text-center">สถานะ</th>
+                                <th class="py-4 px-4 text-center">ไฟล์แนบ</th>
+                                <th class="py-4 px-4 text-right">แก้ไข และ ลบหนังสือ</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm" id="table-body">
@@ -162,46 +163,52 @@
             <form id="doc-form" onsubmit="handleSubmit(event)" class="p-6 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่รับ / เลขที่ส่งภายใน</label>
+                        <label class="block text-xs font-medium text-slate-500 mb-1" id="label-internal-id">เลขทะเบียนรับ</label>
                         <input type="text" id="form-internal-id" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-100" readonly>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่หนังสือต้นฉบับ</label>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ที่ (เลขที่หนังสือต้นฉบับ)</label>
                         <input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">ลงวันที่ในเอกสาร</label>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ลงวันที่</label>
                         <input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">หมวดหมู่ฝ่ายงาน</label>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">การปฏิบัติ (ฝ่ายงาน)</label>
                         <select id="form-department" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white" required>
-                            <option value="ฝ่ายงานบริหารทั่วไป">📁 ฝ่ายงานบริหารทั่วไป</option>
-                            <option value="ฝ่ายบริหารงบประมาณ">💰 ฝ่ายบริหารงบประมาณ</option>
-                            <option value="ฝ่ายบริหารงานวิชาการ">📖 ฝ่ายบริหารงานวิชาการ</option>
-                            <option value="ฝ่ายบริหารงานบุคคล">👥 ฝ่ายบริหารงานบุคคล</option>
+                            <option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option>
+                            <option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option>
+                            <option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option>
+                            <option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option>
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1" id="label-source">ส่งมาจากหน่วยงาน</label>
-                    <input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">จาก</label>
+                        <input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ถึง</label>
+                        <input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1">เรื่อง / ชื่อนโยบาย</label>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">เรื่อง</label>
                     <input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1">อัพโหลดไฟล์แนบ (.pdf, .png, .doc, .docx)</label>
-                    <input type="file" id="form-file" accept=".pdf, .png, .doc, .docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-lg p-1.5 bg-slate-50">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">อัพโหลดไฟล์แนบ</label>
+                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg, .doc, .docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-lg p-1.5 bg-slate-50">
                     <p id="form-file-status" class="text-xs text-slate-400 mt-1 hidden"></p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1">สถานะดำเนินการ</label>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">สถานะ</label>
                     <select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
                         <option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option>
                         <option value="รอดำเนินการ">⏳ รอดำเนินการ</option>
@@ -209,7 +216,7 @@
                 </div>
                 <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 cursor-pointer">ยกเลิก</button>
-                    <button type="submit" id="submit-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm cursor-pointer flex items-center gap-2">บันทึกข้อมูล</button>
+                    <button type="submit" id="submit-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm cursor-pointer">บันทึกข้อมูล</button>
                 </div>
             </form>
         </div>
@@ -217,12 +224,11 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // ⚠️ วาง URL สคริปต์ที่ได้จากการ Deploy ใน Google Apps Script ตรงนี้
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxub2AVU9r1Bn4WZ35lB_ZrFVRReBSu-GgSKJCvQegEUZOxBsBSv_R0FLSga6RPB1hVDQ/exec";
+        // ⚠️ สคริปต์นี้ผูกเข้ากับตารางรูปแบบใหม่ 10 คอลัมน์โดยสมบูรณ์
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymw3gS8p4tj40k0L-0807RQnuFQmlHN1RjSyRhFGbSyggrpe6NsC__7efQUoALcFEeRg/exec";
         const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
-        const SESSION_TIMEOUT_MS = 20 * 60 * 1000; // ตั้งเวลาโครงสร้างหมดอายุ 20 นาที (มิลลิวินาที)
+        const SESSION_TIMEOUT_MS = 20 * 60 * 1000; // ล็อกเอาท์อัตโนมัติ 20 นาที
 
-        // ตัวแปรชั่วคราวบน RAM ของเบราว์เซอร์
         let inboundDocs = [];
         let outboundDocs = [];
         let currentTab = 'inbound';
@@ -231,8 +237,8 @@
 
         window.onload = function() {
             checkAuth();
-            setupActivityListeners(); // เปิดระบบตรวจการขยับเพื่อรีเซ็ตเวลา 20 นาทีใหม่
-            setInterval(checkSessionExpiry, 10000); // วิ่งเช็คตรรกะหมดเวลาหลังบ้านทุก 10 วินาที
+            setupActivityListeners(); 
+            setInterval(checkSessionExpiry, 10000); 
         };
 
         function showLoading(text) {
@@ -244,12 +250,11 @@
             document.getElementById('loading-spinner').classList.add('hidden');
         }
 
-        // ดึงข้อมูลสดจากชีตแบบ Real-time
         async function fetchOnlineData() {
-            showLoading("กำลังโหลดข้อมูลจาก Google Sheets...");
+            showLoading("กำลังโหลดข้อมูลออนไลน์...");
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
-                if (!response.ok) throw new Error("การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว");
+                if (!response.ok) throw new Error("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
                 
                 const result = await response.json();
                 if (result.status === "success") {
@@ -262,8 +267,8 @@
                     throw new Error(result.message);
                 }
             } catch (error) {
-                console.error("Fetch Data Error:", error);
-                alert("⚠️ ไม่สามารถดึงข้อมูลจากระบบออนไลน์ได้: " + error.message);
+                console.error(error);
+                alert("⚠️ เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
             } finally {
                 hideLoading();
             }
@@ -273,33 +278,26 @@
             function updateClock() {
                 const userDisplay = document.getElementById("user-display");
                 if (!userDisplay) return;
-
                 const baseName = sessionUser || MOCK_USER.displayName;
                 const now = new Date();
-
                 const dateString = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
                 const timeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-
                 userDisplay.innerText = `${baseName} | ${dateString} ${timeString} น.`;
             }
             updateClock();
             setInterval(updateClock, 1000);
         }
 
-        // ฟังก์ชันเช็คสิทธิ์ตัวแปร (รองรับการกด Refresh หน้าเว็บแล้วไม่หลุดออกจากระบบ)
         function checkAuth() {
             const loginScreen = document.getElementById("login-screen");
             const mainApp = document.getElementById("main-app");
-
             const savedUser = localStorage.getItem("saraban_user");
             const loginTime = localStorage.getItem("saraban_login_time");
             const currentTime = new Date().getTime();
 
-            // เช็คว่าเคยล็อกอินไว้ไหม และเวลาหมดอายุเกิน 20 นาทียัง
             if (savedUser && loginTime && (currentTime - parseInt(loginTime) < SESSION_TIMEOUT_MS)) {
                 sessionUser = savedUser;
-                localStorage.setItem("saraban_login_time", currentTime.toString()); // ต่อเวลาทันทีที่โหลดหน้าจอสำเร็จ
-                
+                localStorage.setItem("saraban_login_time", currentTime.toString());
                 loginScreen.classList.add("hidden");
                 mainApp.classList.remove("hidden");
                 startLiveClock();
@@ -309,11 +307,9 @@
             }
         }
 
-        // เติมเวลากิจกรรมเพิ่ม 20 นาทีอัตโนมัติหากผู้ใช้ขยับเมาส์ พิมพ์ หรือคลิกทำงานอยู่
         function updateSessionTimestamp() {
             if (sessionUser) {
-                const currentTime = new Date().getTime();
-                localStorage.setItem("saraban_login_time", currentTime.toString());
+                localStorage.setItem("saraban_login_time", new Date().getTime().toString());
             }
         }
 
@@ -324,14 +320,12 @@
             window.addEventListener('scroll', updateSessionTimestamp);
         }
 
-        // ระบบคอยเตะออกอัตโนมัติหากหน้าจอค้างเฉย ๆ เกิน 20 นาที
         function checkSessionExpiry() {
             if (sessionUser) {
                 const loginTime = localStorage.getItem("saraban_login_time");
                 const currentTime = new Date().getTime();
-                
                 if (loginTime && (currentTime - parseInt(loginTime) >= SESSION_TIMEOUT_MS)) {
-                    alert("⏰ เซสชันของคุณหมดอายุแล้ว (ไม่มีการเคลื่อนไหวเกิน 20 นาที) กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อความปลอดภัย");
+                    alert("⏰ คุณไม่ได้ใช้งานเกิน 20 นาที ระบบได้ทำการล็อกเอาท์โดยอัตโนมัติเพื่อความปลอดภัย");
                     handleLogoutSilent();
                 }
             }
@@ -345,11 +339,8 @@
 
             if (userInp === MOCK_USER.username && passInp === MOCK_USER.password) {
                 sessionUser = MOCK_USER.displayName;
-                
-                const currentTime = new Date().getTime();
                 localStorage.setItem("saraban_user", sessionUser);
-                localStorage.setItem("saraban_login_time", currentTime.toString());
-
+                localStorage.setItem("saraban_login_time", new Date().getTime().toString());
                 errorDiv.classList.add("hidden");
                 document.getElementById("login-form").reset();
                 checkAuth();
@@ -362,19 +353,12 @@
             sessionUser = null;
             localStorage.removeItem("saraban_user");
             localStorage.removeItem("saraban_login_time");
-            
-            const loginScreen = document.getElementById("login-screen");
-            const mainApp = document.getElementById("main-app");
-            if(mainApp && loginScreen) {
-                mainApp.classList.add("hidden");
-                loginScreen.classList.remove("hidden");
-            }
+            if(document.getElementById("main-app")) document.getElementById("main-app").classList.add("hidden");
+            if(document.getElementById("login-screen")) document.getElementById("login-screen").classList.remove("hidden");
         }
 
         function handleLogout() {
-            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                handleLogoutSilent();
-            }
+            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) handleLogoutSilent();
         }
 
         function switchTab(tab) {
@@ -382,22 +366,20 @@
             const tabIn = document.getElementById('tab-inbound');
             const tabOut = document.getElementById('tab-outbound');
             const thNumber = document.getElementById('th-number');
-            const thSource = document.getElementById('th-source');
 
             if (tab === 'inbound') {
                 tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
                 tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
-                thNumber.innerText = "เลขที่รับ";
-                thSource.innerText = "จากหน่วยงาน";
+                thNumber.innerText = "เลขทะเบียนรับ";
             } else {
                 tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
                 tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
-                thNumber.innerText = "เลขที่ส่ง";
-                thSource.innerText = "ส่งถึงหน่วยงาน";
+                thNumber.innerText = "เลขทะเบียนส่ง";
             }
             renderTable();
         }
 
+        // ฟังก์ชันวาดตารางเวอร์ชันใหม่ 10 คอลัมน์เรียงตามสั่ง
         function renderTable() {
             const tbody = document.getElementById('table-body');
             if(!tbody) return; 
@@ -408,50 +390,52 @@
 
             const filteredData = rawData.filter(doc => {
                 return doc.internalId.toLowerCase().includes(searchQuery) ||
-                       doc.docId.toLowerCase().includes(searchQuery) ||
-                       doc.title.toLowerCase().includes(searchQuery) ||
-                       doc.department.toLowerCase().includes(searchQuery) ||
-                       doc.source.toLowerCase().includes(searchQuery);
+                       (doc.docId && doc.docId.toLowerCase().includes(searchQuery)) ||
+                       (doc.title && doc.title.toLowerCase().includes(searchQuery)) ||
+                       (doc.department && doc.department.toLowerCase().includes(searchQuery)) ||
+                       (doc.source && doc.source.toLowerCase().includes(searchQuery)) ||
+                       (doc.destination && doc.destination.toLowerCase().includes(searchQuery));
             });
 
             if(filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">ไม่พบข้อมูลเอกสารในระบบ</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">ไม่พบข้อมูลเอกสารในระบบ</td></tr>`;
                 return;
             }
 
-            filteredData.forEach((doc, index) => {
+            filteredData.forEach((doc) => {
                 const realIndex = rawData.findIndex(d => d.internalId === doc.internalId);
                 const statusClass = doc.status === 'สำเร็จแล้ว' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200';
                 
                 let deptColor = "bg-slate-100 text-slate-700";
-                if(doc.department === "ฝ่ายงานบริหารทั่วไป") deptColor = "bg-sky-50 text-sky-700 border-sky-100";
-                if(doc.department === "ฝ่ายบริหารงบประมาณ") deptColor = "bg-amber-50 text-amber-700 border-amber-100";
-                if(doc.department === "ฝ่ายบริหารงานวิชาการ") deptColor = "bg-indigo-50 text-indigo-700 border-indigo-100";
-                if(doc.department === "ฝ่ายบริหารงานบุคคล") deptColor = "bg-purple-50 text-purple-700 border-purple-100";
+                if(doc.department && doc.department.includes("ทั่วไป")) deptColor = "bg-sky-50 text-sky-700 border-sky-100";
+                if(doc.department && doc.department.includes("งบประมาณ")) deptColor = "bg-amber-50 text-amber-700 border-amber-100";
+                if(doc.department && doc.department.includes("วิชาการ")) deptColor = "bg-indigo-50 text-indigo-700 border-indigo-100";
+                if(doc.department && doc.department.includes("บุคคล")) deptColor = "bg-purple-50 text-purple-700 border-purple-100";
 
-                const thaiDate = new Date(doc.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+                const thaiDate = doc.date ? new Date(doc.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : "-";
                 const fileIcon = doc.fileUrl && doc.fileUrl !== "#" && doc.fileUrl !== ""
                     ? `<a href="${doc.fileUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1">📄 เปิดไฟล์</a>` 
                     : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50/80 transition-colors">
-                        <td class="py-4 px-6 font-medium text-slate-900">${doc.internalId}</td>
-                        <td class="py-4 px-6 text-slate-600">${doc.docId}</td>
-                        <td class="py-4 px-6 text-slate-600">${thaiDate}</td>
-                        <td class="py-4 px-6">
-                            <span class="px-2.5 py-1 text-xs border rounded-md font-medium ${deptColor}">${doc.department}</span>
-                        </td>
-                        <td class="py-4 px-6 font-medium text-slate-800">${doc.title}</td>
-                        <td class="py-4 px-6 text-slate-600">${doc.source}</td>
-                        <td class="py-4 px-6 text-center">
-                            <span class="px-2.5 py-1 text-xs border rounded-md font-medium ${statusClass}">${doc.status}</span>
-                        </td>
-                        <td class="py-4 px-6 text-center">${fileIcon}</td>
-                        <td class="py-4 px-6 text-right space-x-2">
-                            <button onclick="editDoc(${realIndex})" class="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
-                            <button onclick="deleteDoc(${realIndex})" class="text-xs font-medium text-rose-600 hover:text-rose-800 cursor-pointer">ลบ</button>
-                        </td>
+                        <!-- คอลัมน์ 1 --> <td class="py-4 px-4 font-medium text-slate-900">${doc.internalId}</td>
+                        <!-- คอลัมน์ 2 --> <td class="py-4 px-4 text-slate-600">${doc.docId || ''}</td>
+                        <!-- คอลัมน์ 3 --> <td class="py-4 px-4 text-slate-600">${thaiDate}</td>
+                        <!-- คอลัมน์ 4 --> <td class="py-4 px-4 text-slate-600">${doc.source || ''}</td>
+                        <!-- คอลัมน์ 5 --> <td class="py-4 px-4 text-slate-600">${doc.destination || ''}</td>
+                        <!-- คอลัมน์ 6 --> <td class="py-4 px-4 font-medium text-slate-800">${doc.title || ''}</td>
+                        <!-- คอลัมน์ 7 --> <td class="py-4 px-4">
+                                            <span class="px-2.5 py-1 text-xs border rounded-md font-medium ${deptColor}">${doc.department || 'ไม่ระบุ'}</span>
+                                        </td>
+                        <!-- คอลัมน์ 8 --> <td class="py-4 px-4 text-center">
+                                            <span class="px-2.5 py-1 text-xs border rounded-md font-medium ${statusClass}">${doc.status || 'รอดำเนินการ'}</span>
+                                        </td>
+                        <!-- คอลัมน์ 9 --> <td class="py-4 px-4 text-center">${fileIcon}</td>
+                        <!-- คอลัมน์ 10 --> <td class="py-4 px-4 text-right space-x-2 whitespace-nowrap">
+                                            <button onclick="editDoc(${realIndex})" class="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
+                                            <button onclick="deleteDoc(${realIndex})" class="text-xs font-medium text-rose-600 hover:text-rose-800 cursor-pointer">ลบ</button>
+                                        </td>
                     </tr>
                 `;
             });
@@ -471,10 +455,11 @@
             const modal = document.getElementById('doc-modal');
             editTargetIndex = null; 
             
-            document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'ลงทะเบียนหนังสือรับ' : 'ลงทะเบียนหนังสือส่ง';
-            document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
+            const isInc = currentTab === 'inbound';
+            document.getElementById('modal-title').innerText = isInc ? 'ลงทะเบียนหนังสือรับ' : 'ลงทะเบียนหนังสือส่ง';
+            document.getElementById('label-internal-id').innerText = isInc ? 'เลขทะเบียนรับ' : 'เลขทะเบียนส่ง';
             
-            const currentDataList = currentTab === 'inbound' ? inboundDocs : outboundDocs;
+            const currentDataList = isInc ? inboundDocs : outboundDocs;
             let nextNum = 1;
             if (currentDataList.length > 0) {
                 const lastId = currentDataList[0].internalId;
@@ -482,7 +467,7 @@
                 if (match) nextNum = parseInt(match[0]) + 1;
             }
             
-            const prefix = currentTab === 'inbound' ? 'รับ' : 'ส่ง';
+            const prefix = isInc ? 'รับ' : 'ส่ง';
             document.getElementById('form-internal-id').value = `${prefix} ${String(nextNum).padStart(3, '0')}/2569`;
             document.getElementById('form-file-status').classList.add('hidden');
             modal.classList.remove('hidden');
@@ -493,19 +478,20 @@
             const data = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
             
             document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'แก้ไขข้อมูลหนังสือรับ' : 'แก้ไขข้อมูลหนังสือส่ง';
-            document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
+            document.getElementById('label-internal-id').innerText = currentTab === 'inbound' ? 'เลขทะเบียนรับ' : 'เลขทะเบียนส่ง';
             
             document.getElementById('form-internal-id').value = data.internalId;
-            document.getElementById('form-doc-id').value = data.docId;
-            document.getElementById('form-date').value = data.date;
-            document.getElementById('form-department').value = data.department;
-            document.getElementById('form-source').value = data.source;
-            document.getElementById('form-title').value = data.title;
-            document.getElementById('form-status').value = data.status;
+            document.getElementById('form-doc-id').value = data.docId || '';
+            document.getElementById('form-date').value = data.date || '';
+            document.getElementById('form-department').value = data.department || 'ฝ่ายบริหารงานทั่วไป';
+            document.getElementById('form-source').value = data.source || '';
+            document.getElementById('form-destination').value = data.destination || '';
+            document.getElementById('form-title').value = data.title || '';
+            document.getElementById('form-status').value = data.status || 'รอดำเนินการ';
 
             const fileStatus = document.getElementById('form-file-status');
             if (data.fileUrl && data.fileUrl !== "" && data.fileUrl !== "#") {
-                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a> (อัพโหลดไฟล์ใหม่เพื่อเปลี่ยนได้)`;
+                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a>`;
                 fileStatus.classList.remove('hidden');
             } else {
                 fileStatus.classList.add('hidden');
@@ -532,7 +518,7 @@
             let uploadedUrl = currentData ? currentData.fileUrl : "";
             let fileDataJson = { fileData: null, fileName: null, mimeType: null };
             
-            showLoading("กำลังส่งข้อมูลและอัปโหลดไฟล์ไปยังเซิร์ฟเวอร์...");
+            showLoading("กำลังส่งข้อมูลไปยังเซิร์ฟเวอร์ฐานข้อมูล...");
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
@@ -554,8 +540,9 @@
                 docId: document.getElementById('form-doc-id').value,
                 date: document.getElementById('form-date').value,
                 department: document.getElementById('form-department').value,
-                title: document.getElementById('form-title').value,
                 source: document.getElementById('form-source').value,
+                destination: document.getElementById('form-destination').value, // ดึงข้อมูลคอลัมน์ "ถึง" ใหม่
+                title: document.getElementById('form-title').value,
                 status: document.getElementById('form-status').value,
                 fileUrl: uploadedUrl,
                 ...fileDataJson
@@ -566,19 +553,16 @@
                     method: "POST",
                     body: JSON.stringify(docObject)
                 });
-                
-                if (!response.ok) throw new Error("เครือข่ายมีปัญหา HTTP " + response.status);
-
+                if (!response.ok) throw new Error("Network Error");
                 const result = await response.json();
                 if (result && result.status === "success") {
                     closeModal();
                     await fetchOnlineData();
                 } else {
-                    throw new Error(result.message || "เกิดข้อผิดพลาดในการบันทึก");
+                    throw new Error(result.message);
                 }
             } catch (error) {
-                console.error("Google Script Error:", error);
-                alert("⚠️ เกิดข้อผิดพลาดในการบันทึกข้อมูลออนไลน์: " + error.message);
+                alert("⚠️ บันทึกข้อมูลไม่สำเร็จ: " + error.message);
             } finally {
                 hideLoading();
             }
@@ -595,19 +579,13 @@
 
         async function deleteDoc(index) {
             const targetData = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
-            if(confirm(`คุณต้องการลบเอกสารเลขที่ ${targetData.internalId} จากระบบฐานข้อมูลออนไลน์ใช่หรือไม่?`)) {
-                showLoading("กำลังดำเนินการลบข้อมูลบนฐานข้อมูลออนไลน์...");
+            if(confirm(`คุณต้องการลบเอกสารเลขทะเบียน ${targetData.internalId} ใช่หรือไม่?`)) {
+                showLoading("กำลังลบข้อมูล...");
                 try {
                     const response = await fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
-                        body: JSON.stringify({
-                            action: "delete",
-                            internalId: targetData.internalId
-                        })
+                        body: JSON.stringify({ action: "delete", internalId: targetData.internalId })
                     });
-                    
-                    if (!response.ok) throw new Error("HTTP " + response.status);
-                    
                     const result = await response.json();
                     if (result && result.status === "success") {
                         await fetchOnlineData();
@@ -615,8 +593,7 @@
                         throw new Error(result.message);
                     }
                 } catch (error) {
-                    console.error("Delete Error:", error);
-                    alert("⚠️ ไม่สามารถลบข้อมูลได้: " + error.message);
+                    alert("⚠️ ลบข้อมูลล้มเหลว: " + error.message);
                 } finally {
                     hideLoading();
                 }
