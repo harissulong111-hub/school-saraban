@@ -134,6 +134,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm" id="table-body">
+                            <tr><td colspan="9" class="py-8 text-center text-slate-400">กำลังโหลดข้อมูลจาก Google Sheets...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -189,7 +190,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1">สถานะดำเนินการ</label>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">防สถานะดำเนินการ</label>
                     <select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
                         <option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option>
                         <option value="รอดำเนินการ">⏳ รอดำเนินการ</option>
@@ -207,50 +208,40 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRKcSuVw-bQTSWDeF6RCDXLfZEogFmOP8vf3pti4AdDTZLuZ-H1uSB2Nkg9zp6SO098g/exec";
         const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
 
-        let inboundDocs = JSON.parse(localStorage.getItem("inboundDocs")) || [
-            { internalId: "รับ 001/2569", docId: "ศธ 0201/124", date: "2026-05-28", department: "ฝ่ายบริหารงานวิชาการ", title: "ขอเชิญเข้าร่วมประชุมการพัฒนาหลักสูตรท้องถิ่น", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "#" },
-            { internalId: "รับ 002/2569", docId: "มท 0307/582", date: "2026-05-30", department: "ฝ่ายงานบริหารทั่วไป", title: "แนวทางการเฝ้าระวังความปลอดภัยในสถานศึกษา", source: "ที่ว่าการอำเภอ", status: "รอดำเนินการ", fileUrl: "" }
-        ];
+        // ย้ายข้อมูลไปดึงจาก Sheets แบบ Realtime แทนคอมพิวเตอร์หลัก
+        let inboundDocs = [];
+        let outboundDocs = [];
+        let currentTab = 'inbound';
+        let editTargetIndex = null;
 
-        let outboundDocs = JSON.parse(localStorage.getItem("outboundDocs")) || [
-            { internalId: "ส่ง 001/2569", docId: "บก 001/2569", date: "2026-05-29", department: "ฝ่ายบริหารงบประมาณ", title: "รายงานผลการจัดกิจกรรมงบประมาณประจำปี", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" }
-        ];
-
-        function saveToLocalStorage() {
-            localStorage.setItem("inboundDocs", JSON.stringify(inboundDocs));
-            localStorage.setItem("outboundDocs", JSON.stringify(outboundDocs));
-        }
+        window.onload = function() {
+            checkAuth();
+        };
 
         function startLiveClock() {
             function updateClock() {
                 const userDisplay = document.getElementById("user-display");
                 if (!userDisplay) return;
 
-                const baseName = localStorage.getItem("userDisplayName") || MOCK_USER.displayName;
+                const baseName = MOCK_USER.displayName;
                 const now = new Date();
 
                 const dateString = now.toLocaleDateString('th-TH', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
+                    day: 'numeric', month: 'short', year: 'numeric'
                 });
 
                 const timeString = now.toLocaleTimeString('th-TH', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
                 });
 
                 userDisplay.innerText = `${baseName} | ${dateString} ${timeString} น.`;
             }
-
             updateClock();
             setInterval(updateClock, 1000);
         }
 
         function checkAuth() {
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
+            const isLoggedIn = sessionStorage.getItem("isLoggedIn"); // เปลี่ยนเป็น sessionStorage ปิดแท็บแล้วล็อกเอาท์อัตโนมัติเพื่อความปลอดภัยเมื่อใช้หลายเครื่อง
             const loginScreen = document.getElementById("login-screen");
             const mainApp = document.getElementById("main-app");
 
@@ -258,8 +249,7 @@
                 loginScreen.classList.add("hidden");
                 mainApp.classList.remove("hidden");
                 startLiveClock();
-                renderTable();
-                updateCounters();
+                loadDataFromSheets(); // ดึงข้อมูลจากคลาวด์ทุกครั้งที่เข้าสู่ระบบ
             } else {
                 mainApp.classList.add("hidden");
                 loginScreen.classList.remove("hidden");
@@ -273,8 +263,7 @@
             const errorDiv = document.getElementById("login-error");
 
             if (userInp === MOCK_USER.username && passInp === MOCK_USER.password) {
-                localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("userDisplayName", MOCK_USER.displayName);
+                sessionStorage.setItem("isLoggedIn", "true");
                 errorDiv.classList.add("hidden");
                 document.getElementById("login-form").reset();
                 checkAuth();
@@ -285,18 +274,47 @@
 
         function handleLogout() {
             if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                localStorage.removeItem("isLoggedIn");
-                localStorage.removeItem("userDisplayName");
+                sessionStorage.removeItem("isLoggedIn");
                 checkAuth();
             }
         }
 
-        let currentTab = 'inbound';
-        let editTargetIndex = null;
+        // ฟังก์ชันดึงข้อมูลแบบ Realtime จาก Google Sheets ของทุกเครื่อง
+        async function loadDataFromSheets() {
+            const tbody = document.getElementById('table-body');
+            if(tbody) tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-blue-600">กำลังเชื่อมต่อฐานข้อมูลกลางออนไลน์...</td></tr>`;
+            
+            try {
+                // ส่ง GET request ไปดึงข้อมูลทั้งหมด
+                const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
+                if (!response.ok) throw new Error("HTTP " + response.status);
+                
+                const result = await response.json();
+                if (result && result.status === "success") {
+                    inboundDocs = result.inbound || [];
+                    outboundDocs = result.outbound || [];
+                } else {
+                    // หากหลังบ้านยังไม่รองรับ action=read ให้ใช้ข้อมูลตั้งต้นป้องกันระบบพัง
+                    setDefaultMockData();
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                // ดึงข้อมูลล้มเหลวให้ใช้ค่า Default ชั่วคราว (ไม่บันทึกลงเครื่อง)
+                setDefaultMockData();
+            }
+            renderTable();
+            updateCounters();
+        }
 
-        window.onload = function() {
-            checkAuth();
-        };
+        function setDefaultMockData() {
+            inboundDocs = [
+                { internalId: "รับ 001/2569", docId: "ศธ 0201/124", date: "2026-05-28", department: "ฝ่ายบริหารงานวิชาการ", title: "ขอเชิญเข้าร่วมประชุมการพัฒนาหลักสูตรท้องถิ่น", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" },
+                { internalId: "รับ 002/2569", docId: "มท 0307/582", date: "2026-05-30", department: "ฝ่ายงานบริหารทั่วไป", title: "แนวทางการเฝ้าระวังความปลอดภัยในสถานศึกษา", source: "ที่ว่าการอำเภอ", status: "รอดำเนินการ", fileUrl: "" }
+            ];
+            outboundDocs = [
+                { internalId: "ส่ง 001/2569", docId: "บก 001/2569", date: "2026-05-29", department: "ฝ่ายบริหารงบประมาณ", title: "รายงานผลการจัดกิจกรรมงบประมาณประจำปี", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" }
+            ];
+        }
 
         function switchTab(tab) {
             currentTab = tab;
@@ -409,7 +427,7 @@
 
             const fileStatus = document.getElementById('form-file-status');
             if (data.fileUrl && data.fileUrl !== "" && data.fileUrl !== "#") {
-                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a> (อัพโหลดไฟล์ใหม่เพื่อทดแทนไฟล์เดิมได้)`;
+                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a>`;
                 fileStatus.classList.remove('hidden');
             } else {
                 fileStatus.classList.add('hidden');
@@ -439,7 +457,7 @@
             let uploadedUrl = currentData ? currentData.fileUrl : "";
             let fileDataJson = { fileData: null, fileName: null, mimeType: null };
             
-            submitBtn.innerText = "กำลังประมวลผลและส่งข้อมูล...";
+            submitBtn.innerText = "กำลังอัพเดตฐานข้อมูลกลางกลางออนไลน์...";
             submitBtn.disabled = true;
 
             if (fileInput.files.length > 0) {
@@ -458,6 +476,9 @@
             }
 
             const docObject = {
+                action: editTargetIndex !== null ? "edit" : "create", // เพิ่มสถานะแจ้งเตือน Google Script
+                tabType: currentTab, 
+                index: editTargetIndex,
                 internalId: document.getElementById('form-internal-id').value,
                 docId: document.getElementById('form-doc-id').value,
                 date: document.getElementById('form-date').value,
@@ -475,43 +496,19 @@
                     body: JSON.stringify(docObject)
                 });
                 
-                if (!response.ok) {
-                    throw new Error("HTTP " + response.status);
-                }
+                if (!response.ok) throw new Error("HTTP " + response.status);
 
-                const result = await response.ok ? await response.json() : null;
+                const result = await response.json();
                 if (result && result.status === "success") {
-                    docObject.fileUrl = result.url;
-                } else if (result) {
-                    throw new Error(result.message || "เกิดข้อผิดพลาดที่ระบุไม่ได้จากสคริปต์");
+                    alert("🎉 บันทึกข้อมูลไปยังคลาวด์สำเร็จแล้ว ทุกเครื่องจะเห็นข้อมูลชุดนี้ทันที");
                 }
             } catch (error) {
                 console.error("Google Script Error:", error);
-                alert("⚠️ ไม่สามารถบันทึกออนไลน์ไปยัง Google Sheets ได้ชั่วคราว ข้อมูลจะบันทึกไว้ในเบราว์เซอร์แทน รายละเอียด: " + error.message);
+                alert("⚠️ เกิดข้อผิดพลาดออนไลน์: ข้อมูลไม่สามารถบันทึกข้ามเครื่องได้ในขณะนี้ กรุณาตรวจสอบอินเทอร์เน็ตหรือ App Script");
             }
 
-            delete docObject.fileData;
-            delete docObject.fileName;
-            delete docObject.mimeType;
-
-            if (editTargetIndex !== null) {
-                if (currentTab === 'inbound') {
-                    inboundDocs[editTargetIndex] = docObject;
-                } else {
-                    outboundDocs[editTargetIndex] = docObject;
-                }
-            } else {
-                if (currentTab === 'inbound') {
-                    inboundDocs.unshift(docObject);
-                } else {
-                    outboundDocs.unshift(docObject);
-                }
-            }
-
-            saveToLocalStorage(); 
             closeModal();
-            renderTable();
-            updateCounters();
+            loadDataFromSheets(); // ดึงข้อมูลก้อนใหม่ล่าสุดจาก Google Sheets มาอัปเดตหน้าจอทันทีเพื่อความแม่นยำ
         }
 
         function convertFileToBase64(file) {
@@ -526,16 +523,26 @@
             });
         }
 
-        function deleteDoc(index) {
-            if(confirm('คุณต้องการลบรายการข้อมูลเอกสารนี้ใช่หรือไม่?')) {
-                if (currentTab === 'inbound') {
-                    inboundDocs.splice(index, 1);
-                } else {
-                    outboundDocs.splice(index, 1);
+        async function deleteDoc(index) {
+            if(confirm('คุณต้องการลบรายการเอกสารนี้จากฐานข้อมูลกลางออนไลน์ใช่หรือไม่? (เครื่องอื่นจะถูกลบด้วย)')) {
+                const docObject = {
+                    action: "delete",
+                    tabType: currentTab,
+                    index: index
+                };
+
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify(docObject)
+                    });
+                    if(response.ok) {
+                        alert("ลบข้อมูลสำเร็จ");
+                    }
+                } catch(e) {
+                    alert("ลบข้อมูลออนไลน์ผิดพลาด");
                 }
-                saveToLocalStorage(); 
-                renderTable();
-                updateCounters();
+                loadDataFromSheets(); // โหลดตารางใหม่
             }
         }
 
