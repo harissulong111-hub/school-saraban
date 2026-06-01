@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบงานสารบรรณอิเล็กทรอนิกส์</title>
+    <title>ระบบงานสารบรรณอิเล็กทรอนิกส์ (Online)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +13,11 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
+
+    <div id="loading-spinner" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex flex-col items-center justify-center text-white z-50 hidden">
+        <div class="w-12 h-12 border-4 border-t-blue-500 border-slate-200 rounded-full animate-spin mb-4"></div>
+        <p class="text-sm font-medium" id="loading-text">กำลังประมวลผลข้อมูลออนไลน์...</p>
+    </div>
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-100">
         <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl max-w-md w-full space-y-6">
@@ -56,7 +61,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold text-slate-900 leading-tight">ระบบงานสารบรรณ</h1>
-                        <p class="text-xs text-slate-500">ระบบจัดการเอกสารภายในองค์กร</p>
+                        <p class="text-xs text-slate-500">ระบบจัดการเอกสารออนไลน์ร่วมกับ Google Sheets</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -151,7 +156,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่รับ / เลขที่ส่งภายใน</label>
-                        <input type="text" id="form-internal-id" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
+                        <input type="text" id="form-internal-id" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-100" readonly>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่หนังสือต้นฉบับ</label>
@@ -204,28 +209,54 @@
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRKcSuVw-bQTSWDeF6RCDXLfZEogFmOP8vf3pti4AdDTZLuZ-H1uSB2Nkg9zp6SO098g/exec";
+        // ⚠️ วาง URL สคริปต์ที่ได้จากการ Deploy ใน Google Apps Script ตรงนี้
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxub2AVU9r1Bn4WZ35lB_ZrFVRReBSu-GgSKJCvQegEUZOxBsBSv_R0FLSga6RPB1hVDQ/exec";
         const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
 
-        let inboundDocs = JSON.parse(localStorage.getItem("inboundDocs")) || [
-            { internalId: "รับ 001/2569", docId: "ศธ 0201/124", date: "2026-05-28", department: "ฝ่ายบริหารงานวิชาการ", title: "ขอเชิญเข้าร่วมประชุมการพัฒนาหลักสูตรท้องถิ่น", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "#" },
-            { internalId: "รับ 002/2569", docId: "มท 0307/582", date: "2026-05-30", department: "ฝ่ายงานบริหารทั่วไป", title: "แนวทางการเฝ้าระวังความปลอดภัยในสถานศึกษา", source: "ที่ว่าการอำเภอ", status: "รอดำเนินการ", fileUrl: "" }
-        ];
-
-        let outboundDocs = JSON.parse(localStorage.getItem("outboundDocs")) || [
-            { internalId: "ส่ง 001/2569", docId: "บก 001/2569", date: "2026-05-29", department: "ฝ่ายบริหารงบประมาณ", title: "รายงานผลการจัดกิจกรรมงบประมาณประจำปี", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" }
-        ];
-
+        // ตัวแปรในหน่วยความจำสำหรับการทำงานในหน้าเว็บ (ข้อมูลหลักจะถูกดึงมาจากออนไลน์)
+        let inboundDocs = [];
+        let outboundDocs = [];
         let currentTab = 'inbound';
         let editTargetIndex = null;
+        let sessionUser = null;
 
         window.onload = function() {
             checkAuth();
         };
 
-        function saveToLocalStorage() {
-            localStorage.setItem("inboundDocs", JSON.stringify(inboundDocs));
-            localStorage.setItem("outboundDocs", JSON.stringify(outboundDocs));
+        function showLoading(text) {
+            document.getElementById('loading-text').innerText = text;
+            document.getElementById('loading-spinner').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-spinner').classList.add('hidden');
+        }
+
+        // ระบบดึงข้อมูลสดใหม่ส่งตรงจาก Google Sheets (Real-time Sync)
+        async function fetchOnlineData() {
+            showLoading("กำลังโหลดข้อมูลจาก Google Sheets...");
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                if (!response.ok) throw new Error("การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว");
+                
+                const result = await response.json();
+                if (result.status === "success") {
+                    // แยกหมวดหมู่ข้อมูลตามโครงสร้าง Prefix "รับ" หรือ "ส่ง"
+                    inboundDocs = result.data.filter(doc => doc.internalId.startsWith("รับ"));
+                    outboundDocs = result.data.filter(doc => doc.internalId.startsWith("ส่ง"));
+                    
+                    renderTable();
+                    updateCounters();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error("Fetch Data Error:", error);
+                alert("⚠️ ไม่สามารถดึงข้อมูลจากระบบออนไลน์ได้: " + error.message);
+            } finally {
+                hideLoading();
+            }
         }
 
         function startLiveClock() {
@@ -233,40 +264,27 @@
                 const userDisplay = document.getElementById("user-display");
                 if (!userDisplay) return;
 
-                const baseName = localStorage.getItem("userDisplayName") || MOCK_USER.displayName;
+                const baseName = sessionUser || MOCK_USER.displayName;
                 const now = new Date();
 
-                const dateString = now.toLocaleDateString('th-TH', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-
-                const timeString = now.toLocaleTimeString('th-TH', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                });
+                const dateString = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                const timeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
                 userDisplay.innerText = `${baseName} | ${dateString} ${timeString} น.`;
             }
-
             updateClock();
             setInterval(updateClock, 1000);
         }
 
         function checkAuth() {
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
             const loginScreen = document.getElementById("login-screen");
             const mainApp = document.getElementById("main-app");
 
-            if (isLoggedIn === "true") {
+            if (sessionUser) {
                 loginScreen.classList.add("hidden");
                 mainApp.classList.remove("hidden");
                 startLiveClock();
-                renderTable();
-                updateCounters();
+                fetchOnlineData(); // โหลดข้อมูลออนไลน์ทันทีเมื่อล็อกอินผ่าน
             } else {
                 mainApp.classList.add("hidden");
                 loginScreen.classList.remove("hidden");
@@ -280,8 +298,7 @@
             const errorDiv = document.getElementById("login-error");
 
             if (userInp === MOCK_USER.username && passInp === MOCK_USER.password) {
-                localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("userDisplayName", MOCK_USER.displayName);
+                sessionUser = MOCK_USER.displayName;
                 errorDiv.classList.add("hidden");
                 document.getElementById("login-form").reset();
                 checkAuth();
@@ -292,8 +309,7 @@
 
         function handleLogout() {
             if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                localStorage.removeItem("isLoggedIn");
-                localStorage.removeItem("userDisplayName");
+                sessionUser = null;
                 checkAuth();
             }
         }
@@ -327,7 +343,6 @@
             const rawData = currentTab === 'inbound' ? inboundDocs : outboundDocs;
             const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
 
-            // รองรับการกรองค้นหาจากช่อง Input ในกระบวนการเรนเดอร์ตารางโดยตรง
             const filteredData = rawData.filter(doc => {
                 return doc.internalId.toLowerCase().includes(searchQuery) ||
                        doc.docId.toLowerCase().includes(searchQuery) ||
@@ -342,9 +357,7 @@
             }
 
             filteredData.forEach((doc, index) => {
-                // ค้นหาดัชนีจริงในอาร์เรย์หลัก เผื่อกรณีลบหรือแก้ไขขณะกรองข้อมูลอยู่
                 const realIndex = rawData.findIndex(d => d.internalId === doc.internalId);
-                
                 const statusClass = doc.status === 'สำเร็จแล้ว' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200';
                 
                 let deptColor = "bg-slate-100 text-slate-700";
@@ -379,7 +392,6 @@
                     </tr>
                 `;
             });
-            updateCounters();
         }
 
         function updateCounters() {
@@ -399,10 +411,18 @@
             document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'ลงทะเบียนหนังสือรับ' : 'ลงทะเบียนหนังสือส่ง';
             document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
             
-            const nextId = (currentTab === 'inbound' ? inboundDocs.length : outboundDocs.length) + 1;
-            document.getElementById('form-internal-id').value = currentTab === 'inbound' ? `รับ 00${nextId}/2569` : `ส่ง 00${nextId}/2569`;
+            // สแกนเพื่อตั้งรหัสล่าสุดโดยอ้างอิงจากข้อมูลล่าสุดในตารางจริง
+            const currentDataList = currentTab === 'inbound' ? inboundDocs : outboundDocs;
+            let nextNum = 1;
+            if (currentDataList.length > 0) {
+                const lastId = currentDataList[0].internalId; // รายการบนสุดคือรายการล่าสุด
+                const match = lastId.match(/\d+/);
+                if (match) nextNum = parseInt(match[0]) + 1;
+            }
+            
+            const prefix = currentTab === 'inbound' ? 'รับ' : 'ส่ง';
+            document.getElementById('form-internal-id').value = `${prefix} ${String(nextNum).padStart(3, '0')}/2569`;
             document.getElementById('form-file-status').classList.add('hidden');
-
             modal.classList.remove('hidden');
         }
 
@@ -423,7 +443,8 @@
 
             const fileStatus = document.getElementById('form-file-status');
             if (data.fileUrl && data.fileUrl !== "" && data.fileUrl !== "#") {
-                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a> (อัพโหลดไฟล์ใหม่เพื่อทดแทนไฟล์เดิมได้)`;
+                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a> (อัพโหลดไฟล์ใหม่เพื่อเปลี่ยนได้)`;
+                fileStatus.remove('hidden');
                 fileStatus.classList.remove('hidden');
             } else {
                 fileStatus.classList.add('hidden');
@@ -435,14 +456,12 @@
         function closeModal() {
             document.getElementById('doc-modal').classList.add('hidden');
             document.getElementById('doc-form').reset();
-            document.getElementById('submit-btn').innerText = "บันทึกข้อมูล";
-            document.getElementById('submit-btn').disabled = false;
             editTargetIndex = null;
         }
 
+        // ระบบบันทึก / แก้ไขข้อมูลตรงไปยังเซิร์ฟเวอร์แบบ Real-time
         async function handleSubmit(event) {
             event.preventDefault();
-            const submitBtn = document.getElementById('submit-btn');
             const fileInput = document.getElementById('form-file');
             
             let currentData = null;
@@ -453,8 +472,7 @@
             let uploadedUrl = currentData ? currentData.fileUrl : "";
             let fileDataJson = { fileData: null, fileName: null, mimeType: null };
             
-            submitBtn.innerText = "กำลังประมวลผลและส่งข้อมูล...";
-            submitBtn.disabled = true;
+            showLoading("กำลังส่งข้อมูลและอัปโหลดไฟล์ไปยังเซิร์ฟเวอร์...");
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
@@ -465,13 +483,14 @@
                     fileDataJson.mimeType = file.type;
                 } catch (error) {
                     alert("เกิดข้อผิดพลาดในการอ่านไฟล์: " + error.message);
-                    submitBtn.innerText = "บันทึกข้อมูล";
-                    submitBtn.disabled = false;
+                    hideLoading();
                     return;
                 }
             }
 
+            // แพ็กเกจข้อมูลที่ต้องการส่ง
             const docObject = {
+                action: editTargetIndex !== null ? "update" : "insert",
                 internalId: document.getElementById('form-internal-id').value,
                 docId: document.getElementById('form-doc-id').value,
                 date: document.getElementById('form-date').value,
@@ -489,66 +508,61 @@
                     body: JSON.stringify(docObject)
                 });
                 
-                if (!response.ok) {
-                    throw new Error("HTTP " + response.status);
-                }
+                if (!response.ok) throw new Error("เครือข่ายมีปัญหา HTTP " + response.status);
 
                 const result = await response.json();
                 if (result && result.status === "success") {
-                    docObject.fileUrl = result.url;
-                } else if (result) {
-                    throw new Error(result.message || "เกิดข้อผิดพลาดที่ระบุไม่ได้จากสคริปต์");
+                    closeModal();
+                    // ทำการโหลดข้อมูลใหม่โดยตรงจาก Google Sheets เพื่อความแม่นยำ 100%
+                    await fetchOnlineData();
+                } else {
+                    throw new Error(result.message || "เกิดข้อผิดพลาดในการบันทึก");
                 }
             } catch (error) {
                 console.error("Google Script Error:", error);
-                alert("⚠️ ไม่สามารถบันทึกออนไลน์ไปยัง Google Sheets ได้ชั่วคราว ข้อมูลจะบันทึกไว้ในเบราว์เซอร์แทน รายละเอียด: " + error.message);
+                alert("⚠️ เกิดข้อผิดพลาดในการบันทึกข้อมูลออนไลน์: " + error.message);
+            } finally {
+                hideLoading();
             }
-
-            // เคลียร์ไฟล์ Base64 ออกเพื่อไม่ให้หน่วงหน่วยความจำฝั่ง Client Storage
-            delete docObject.fileData;
-            delete docObject.fileName;
-            delete docObject.mimeType;
-
-            if (editTargetIndex !== null) {
-                if (currentTab === 'inbound') {
-                    inboundDocs[editTargetIndex] = docObject;
-                } else {
-                    outboundDocs[editTargetIndex] = docObject;
-                }
-            } else {
-                if (currentTab === 'inbound') {
-                    inboundDocs.unshift(docObject);
-                } else {
-                    outboundDocs.unshift(docObject);
-                }
-            }
-
-            saveToLocalStorage(); 
-            closeModal();
-            renderTable();
         }
 
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => {
-                    const base64String = reader.result.split(',')[1];
-                    resolve(base64String);
-                };
+                reader.onload = () => resolve(reader.result.split(',')[1]);
                 reader.onerror = error => reject(error);
             });
         }
 
-        function deleteDoc(index) {
-            if(confirm('คุณต้องการลบรายการข้อมูลเอกสารนี้ใช่หรือไม่?')) {
-                if (currentTab === 'inbound') {
-                    inboundDocs.splice(index, 1);
-                } else {
-                    outboundDocs.splice(index, 1);
+        // ระบบลบข้อมูลแบบส่งไปสั่งลบแถวบน Google Sheets
+        async function deleteDoc(index) {
+            const targetData = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
+            if(confirm(`คุณต้องการลบเอกสารเลขที่ ${targetData.internalId} จากระบบฐานข้อมูลออนไลน์ใช่หรือไม่?`)) {
+                showLoading("กำลังดำเนินการลบข้อมูลบนฐานข้อมูลออนไลน์...");
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            action: "delete",
+                            internalId: targetData.internalId
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    
+                    const result = await response.json();
+                    if (result && result.status === "success") {
+                        await fetchOnlineData(); // รีเฟรชตารางใหม่จากตารางออนไลน์
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error("Delete Error:", error);
+                    alert("⚠️ ไม่สามารถลบข้อมูลได้: " + error.message);
+                } finally {
+                    hideLoading();
                 }
-                saveToLocalStorage(); 
-                renderTable();
             }
         }
     </script>
