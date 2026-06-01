@@ -31,16 +31,16 @@
             <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้ใช้งาน (Username)</label>
-                    <input type="text" id="username" required placeholder="admin" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input type="text" id="username" required placeholder="admin" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-500 mb-1">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
                 <div class="text-xs text-slate-400">
                     * บัญชีทดสอบระบบ: ใช้ <span class="font-semibold text-slate-600">admin</span> และรหัสผ่าน <span class="font-semibold text-slate-600">1234</span>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-xs transition-colors cursor-pointer">
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-sm transition-colors cursor-pointer">
                     เข้าสู่ระบบ
                 </button>
             </form>
@@ -74,21 +74,21 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
             <section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-slate-500 mb-1">หนังสือรับทั้งหมด</p>
                         <h3 class="text-3xl font-bold text-slate-900" id="count-in">0</h3>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-semibold">📥</div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-slate-500 mb-1">หนังสือส่งทั้งหมด</p>
                         <h3 class="text-3xl font-bold text-slate-900" id="count-out">0</h3>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-semibold">📤</div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-slate-500 mb-1">รอดำเนินการ/ลงนาม</p>
                         <h3 class="text-3xl font-bold text-amber-600" id="count-pending">0</h3>
@@ -97,9 +97,9 @@
                 </div>
             </section>
 
-            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
-                    <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all">
+                    <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-sm transition-all">
                         📥 หนังสือรับ (Inbound)
                     </button>
                     <button onclick="switchTab('outbound')" id="tab-outbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all">
@@ -109,15 +109,15 @@
                 
                 <div class="flex gap-3 w-full sm:w-auto justify-end">
                     <div class="relative flex-1 sm:flex-none w-full sm:w-64">
-                        <input type="text" id="search-input" onkeyup="searchTable()" placeholder="ค้นหาเลขที่, เรื่อง, หรือฝ่ายงาน..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                        <input type="text" id="search-input" onkeyup="searchTable()" placeholder="ค้นหาเลขที่, เรื่อง, หรือฝ่ายงาน..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                     </div>
-                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl shadow-xs flex items-center gap-2 shrink-0 cursor-pointer transition-colors">
+                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl shadow-sm flex items-center gap-2 shrink-0 cursor-pointer transition-colors">
                         ➕ ลงทะเบียนหนังสือ
                     </button>
                 </div>
             </section>
 
-            <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse" id="doc-table">
                         <thead>
@@ -190,7 +190,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1">防สถานะดำเนินการ</label>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">สถานะดำเนินการ</label>
                     <select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
                         <option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option>
                         <option value="รอดำเนินการ">⏳ รอดำเนินการ</option>
@@ -208,7 +208,6 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRKcSuVw-bQTSWDeF6RCDXLfZEogFmOP8vf3pti4AdDTZLuZ-H1uSB2Nkg9zp6SO098g/exec";
         const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
 
-        // ย้ายข้อมูลไปดึงจาก Sheets แบบ Realtime แทนคอมพิวเตอร์หลัก
         let inboundDocs = [];
         let outboundDocs = [];
         let currentTab = 'inbound';
@@ -241,7 +240,7 @@
         }
 
         function checkAuth() {
-            const isLoggedIn = sessionStorage.getItem("isLoggedIn"); // เปลี่ยนเป็น sessionStorage ปิดแท็บแล้วล็อกเอาท์อัตโนมัติเพื่อความปลอดภัยเมื่อใช้หลายเครื่อง
+            const isLoggedIn = sessionStorage.getItem("isLoggedIn");
             const loginScreen = document.getElementById("login-screen");
             const mainApp = document.getElementById("main-app");
 
@@ -249,7 +248,7 @@
                 loginScreen.classList.add("hidden");
                 mainApp.classList.remove("hidden");
                 startLiveClock();
-                loadDataFromSheets(); // ดึงข้อมูลจากคลาวด์ทุกครั้งที่เข้าสู่ระบบ
+                loadDataFromSheets();
             } else {
                 mainApp.classList.add("hidden");
                 loginScreen.classList.remove("hidden");
@@ -279,13 +278,11 @@
             }
         }
 
-        // ฟังก์ชันดึงข้อมูลแบบ Realtime จาก Google Sheets ของทุกเครื่อง
         async function loadDataFromSheets() {
             const tbody = document.getElementById('table-body');
             if(tbody) tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-blue-600">กำลังเชื่อมต่อฐานข้อมูลกลางออนไลน์...</td></tr>`;
             
             try {
-                // ส่ง GET request ไปดึงข้อมูลทั้งหมด
                 const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
                 if (!response.ok) throw new Error("HTTP " + response.status);
                 
@@ -294,12 +291,10 @@
                     inboundDocs = result.inbound || [];
                     outboundDocs = result.outbound || [];
                 } else {
-                    // หากหลังบ้านยังไม่รองรับ action=read ให้ใช้ข้อมูลตั้งต้นป้องกันระบบพัง
                     setDefaultMockData();
                 }
             } catch (error) {
                 console.error("Fetch error:", error);
-                // ดึงข้อมูลล้มเหลวให้ใช้ค่า Default ชั่วคราว (ไม่บันทึกลงเครื่อง)
                 setDefaultMockData();
             }
             renderTable();
@@ -324,12 +319,12 @@
             const thSource = document.getElementById('th-source');
 
             if (tab === 'inbound') {
-                tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
+                tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-sm transition-all";
                 tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
                 thNumber.innerText = "เลขที่รับ";
                 thSource.innerText = "จากหน่วยงาน";
             } else {
-                tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
+                tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-sm transition-all";
                 tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
                 thNumber.innerText = "เลขที่ส่ง";
                 thSource.innerText = "ส่งถึงหน่วยงาน";
@@ -397,9 +392,11 @@
         }
 
         function openModal() {
-            const modal = document.getElementById('doc-modal');
+            // ล้างฟอร์มเคลียร์ข้อมูลเก่าออกก่อนเป็นอันดับแรก
+            document.getElementById('doc-form').reset();
             editTargetIndex = null; 
             
+            const modal = document.getElementById('doc-modal');
             document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'ลงทะเบียนหนังสือรับ' : 'ลงทะเบียนหนังสือส่ง';
             document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
             
@@ -457,7 +454,7 @@
             let uploadedUrl = currentData ? currentData.fileUrl : "";
             let fileDataJson = { fileData: null, fileName: null, mimeType: null };
             
-            submitBtn.innerText = "กำลังอัพเดตฐานข้อมูลกลางกลางออนไลน์...";
+            submitBtn.innerText = "กำลังอัพเดตฐานข้อมูลกลางออนไลน์...";
             submitBtn.disabled = true;
 
             if (fileInput.files.length > 0) {
@@ -476,7 +473,7 @@
             }
 
             const docObject = {
-                action: editTargetIndex !== null ? "edit" : "create", // เพิ่มสถานะแจ้งเตือน Google Script
+                action: editTargetIndex !== null ? "edit" : "create", 
                 tabType: currentTab, 
                 index: editTargetIndex,
                 internalId: document.getElementById('form-internal-id').value,
@@ -508,7 +505,7 @@
             }
 
             closeModal();
-            loadDataFromSheets(); // ดึงข้อมูลก้อนใหม่ล่าสุดจาก Google Sheets มาอัปเดตหน้าจอทันทีเพื่อความแม่นยำ
+            loadDataFromSheets(); 
         }
 
         function convertFileToBase64(file) {
@@ -542,7 +539,7 @@
                 } catch(e) {
                     alert("ลบข้อมูลออนไลน์ผิดพลาด");
                 }
-                loadDataFromSheets(); // โหลดตารางใหม่
+                loadDataFromSheets(); 
             }
         }
 
