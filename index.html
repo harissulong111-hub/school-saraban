@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบงานสารบรรณอิเล็กทรอนิกส์</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-100">
+        <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl max-w-md w-full space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md mx-auto">
+                    ส
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">เข้าสู่ระบบงานสารบรรณ</h2>
+                <p class="text-sm text-slate-500">กรุณากรอกชื่อผู้ใช้และรหัสผ่านเพื่อใช้งานระบบ</p>
+            </div>
+
+            <div id="login-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-lg text-center">
+                ❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้ใช้งาน (Username)</label>
+                    <input type="text" id="username" required placeholder="admin" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">รหัสผ่าน (Password)</label>
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                </div>
+                <div class="text-xs text-slate-400">
+                    * บัญชีทดสอบระบบ: ใช้ <span class="font-semibold text-slate-600">admin</span> และรหัสผ่าน <span class="font-semibold text-slate-600">1234</span>
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-xs transition-colors cursor-pointer">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                        ส
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900 leading-tight">ระบบงานสารบรรณ</h1>
+                        <p class="text-xs text-slate-500">ระบบจัดการเอกสารภายในองค์กร</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <span class="block text-sm font-medium text-slate-700" id="user-display">แอดมินระบบสารบรรณ</span>
+                        <span class="block text-xs text-slate-400">สิทธิ์การใช้งาน: แอดมิน</span>
+                    </div>
+                    <button onclick="handleLogout()" class="text-xs font-medium text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 bg-white px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                        🚪 ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500 mb-1">หนังสือรับทั้งหมด</p>
+                        <h3 class="text-3xl font-bold text-slate-900" id="count-in">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-semibold">📥</div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500 mb-1">หนังสือส่งทั้งหมด</p>
+                        <h3 class="text-3xl font-bold text-slate-900" id="count-out">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-semibold">📤</div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500 mb-1">รอดำเนินการ/ลงนาม</p>
+                        <h3 class="text-3xl font-bold text-amber-600" id="count-pending">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 font-semibold">⏳</div>
+                </div>
+            </section>
+
+            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+                    <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all">
+                        📥 หนังสือรับ (Inbound)
+                    </button>
+                    <button onclick="switchTab('outbound')" id="tab-outbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all">
+                        📤 หนังสือส่ง (Outbound)
+                    </button>
+                </div>
+                
+                <div class="flex gap-3 w-full sm:w-auto justify-end">
+                    <div class="relative flex-1 sm:flex-none w-full sm:w-64">
+                        <input type="text" id="search-input" onkeyup="searchTable()" placeholder="ค้นหาเลขที่, เรื่อง, หรือฝ่ายงาน..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    </div>
+                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl shadow-xs flex items-center gap-2 shrink-0 cursor-pointer transition-colors">
+                        ➕ ลงทะเบียนหนังสือ
+                    </button>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="doc-table">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                <th class="py-4 px-6" id="th-number">เลขที่รับ</th>
+                                <th class="py-4 px-6">เลขที่หนังสือ</th>
+                                <th class="py-4 px-6">ลงวันที่</th>
+                                <th class="py-4 px-6">หมวดหมู่ฝ่ายงาน</th>
+                                <th class="py-4 px-6 w-1/4">เรื่อง</th>
+                                <th class="py-4 px-6" id="th-source">จากหน่วยงาน</th>
+                                <th class="py-4 px-6 text-center">สถานะ</th>
+                                <th class="py-4 px-6 text-center">ไฟล์แนบ</th>
+                                <th class="py-4 px-6 text-right">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm" id="table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="doc-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden transform scale-95 transition-all duration-200">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-900 text-lg" id="modal-title">ลงทะเบียนหนังสือรับ</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer">&times;</button>
+            </div>
+            <form id="doc-form" onsubmit="handleSubmit(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่รับ / เลขที่ส่งภายใน</label>
+                        <input type="text" id="form-internal-id" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่หนังสือต้นฉบับ</label>
+                        <input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ลงวันที่ในเอกสาร</label>
+                        <input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">หมวดหมู่ฝ่ายงาน</label>
+                        <select id="form-department" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white" required>
+                            <option value="ฝ่ายงานบริหารทั่วไป">📁 ฝ่ายงานบริหารทั่วไป</option>
+                            <option value="ฝ่ายบริหารงบประมาณ">💰 ฝ่ายบริหารงบประมาณ</option>
+                            <option value="ฝ่ายบริหารงานวิชาการ">📖 ฝ่ายบริหารงานวิชาการ</option>
+                            <option value="ฝ่ายบริหารงานบุคคล">👥 ฝ่ายบริหารงานบุคคล</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1" id="label-source">ส่งมาจากหน่วยงาน</label>
+                    <input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">เรื่อง / ชื่อนโยบาย</label>
+                    <input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">อัพโหลดไฟล์แนบ (.pdf, .png, .doc, .docx)</label>
+                    <input type="file" id="form-file" accept=".pdf, .png, .doc, .docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-lg p-1.5 bg-slate-50">
+                    <p id="form-file-status" class="text-xs text-slate-400 mt-1 hidden"></p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">สถานะดำเนินการ</label>
+                    <select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+                        <option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option>
+                        <option value="รอดำเนินการ">⏳ รอดำเนินการ</option>
+                    </select>
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 cursor-pointer">ยกเลิก</button>
+                    <button type="submit" id="submit-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm cursor-pointer flex items-center gap-2">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRKcSuVw-bQTSWDeF6RCDXLfZEogFmOP8vf3pti4AdDTZLuZ-H1uSB2Nkg9zp6SO098g/exec";
+        const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
+
+        let inboundDocs = JSON.parse(localStorage.getItem("inboundDocs")) || [
+            { internalId: "รับ 001/2569", docId: "ศธ 0201/124", date: "2026-05-28", department: "ฝ่ายบริหารงานวิชาการ", title: "ขอเชิญเข้าร่วมประชุมการพัฒนาหลักสูตรท้องถิ่น", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "#" },
+            { internalId: "รับ 002/2569", docId: "มท 0307/582", date: "2026-05-30", department: "ฝ่ายงานบริหารทั่วไป", title: "แนวทางการเฝ้าระวังความปลอดภัยในสถานศึกษา", source: "ที่ว่าการอำเภอ", status: "รอดำเนินการ", fileUrl: "" }
+        ];
+
+        let outboundDocs = JSON.parse(localStorage.getItem("outboundDocs")) || [
+            { internalId: "ส่ง 001/2569", docId: "บก 001/2569", date: "2026-05-29", department: "ฝ่ายบริหารงบประมาณ", title: "รายงานผลการจัดกิจกรรมงบประมาณประจำปี", source: "สำนักงานเขตพื้นที่การศึกษา", status: "สำเร็จแล้ว", fileUrl: "" }
+        ];
+
+        function saveToLocalStorage() {
+            localStorage.setItem("inboundDocs", JSON.stringify(inboundDocs));
+            localStorage.setItem("outboundDocs", JSON.stringify(outboundDocs));
+        }
+
+        function startLiveClock() {
+            function updateClock() {
+                const userDisplay = document.getElementById("user-display");
+                if (!userDisplay) return;
+
+                const baseName = localStorage.getItem("userDisplayName") || MOCK_USER.displayName;
+                const now = new Date();
+
+                const dateString = now.toLocaleDateString('th-TH', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                const timeString = now.toLocaleTimeString('th-TH', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+
+                userDisplay.innerText = `${baseName} | ${dateString} ${timeString} น.`;
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
+            const loginScreen = document.getElementById("login-screen");
+            const mainApp = document.getElementById("main-app");
+
+            if (isLoggedIn === "true") {
+                loginScreen.classList.add("hidden");
+                mainApp.classList.remove("hidden");
+                startLiveClock();
+                renderTable();
+                updateCounters();
+            } else {
+                mainApp.classList.add("hidden");
+                loginScreen.classList.remove("hidden");
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const userInp = document.getElementById("username").value;
+            const passInp = document.getElementById("password").value;
+            const errorDiv = document.getElementById("login-error");
+
+            if (userInp === MOCK_USER.username && passInp === MOCK_USER.password) {
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("userDisplayName", MOCK_USER.displayName);
+                errorDiv.classList.add("hidden");
+                document.getElementById("login-form").reset();
+                checkAuth();
+            } else {
+                errorDiv.classList.remove("hidden");
+            }
+        }
+
+        function handleLogout() {
+            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userDisplayName");
+                checkAuth();
+            }
+        }
+
+        let currentTab = 'inbound';
+        let editTargetIndex = null;
+
+        window.onload = function() {
+            checkAuth();
+        };
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const tabIn = document.getElementById('tab-inbound');
+            const tabOut = document.getElementById('tab-outbound');
+            const thNumber = document.getElementById('th-number');
+            const thSource = document.getElementById('th-source');
+
+            if (tab === 'inbound') {
+                tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
+                tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
+                thNumber.innerText = "เลขที่รับ";
+                thSource.innerText = "จากหน่วยงาน";
+            } else {
+                tabOut.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all";
+                tabIn.className = "flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all";
+                thNumber.innerText = "เลขที่ส่ง";
+                thSource.innerText = "ส่งถึงหน่วยงาน";
+            }
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            if(!tbody) return; 
+            tbody.innerHTML = '';
+            const data = currentTab === 'inbound' ? inboundDocs : outboundDocs;
+
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">ไม่พบข้อมูลเอกสารในระบบ</td></tr>`;
+                return;
+            }
+
+            data.forEach((doc, index) => {
+                const statusClass = doc.status === 'สำเร็จแล้ว' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200';
+                
+                let deptColor = "bg-slate-100 text-slate-700";
+                if(doc.department === "ฝ่ายงานบริหารทั่วไป") deptColor = "bg-sky-50 text-sky-700 border-sky-100";
+                if(doc.department === "ฝ่ายบริหารงบประมาณ") deptColor = "bg-amber-50 text-amber-700 border-amber-100";
+                if(doc.department === "ฝ่ายบริหารงานวิชาการ") deptColor = "bg-indigo-50 text-indigo-700 border-indigo-100";
+                if(doc.department === "ฝ่ายบริหารงานบุคคล") deptColor = "bg-purple-50 text-purple-700 border-purple-100";
+
+                const thaiDate = new Date(doc.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+                const fileIcon = doc.fileUrl && doc.fileUrl !== "#" && doc.fileUrl !== ""
+                    ? `<a href="${doc.fileUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1">📄 เปิดไฟล์</a>` 
+                    : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-4 px-6 font-medium text-slate-900">${doc.internalId}</td>
+                        <td class="py-4 px-6 text-slate-600">${doc.docId}</td>
+                        <td class="py-4 px-6 text-slate-600">${thaiDate}</td>
+                        <td class="py-4 px-6">
+                            <span class="px-2.5 py-1 text-xs border rounded-md font-medium ${deptColor}">${doc.department}</span>
+                        </td>
+                        <td class="py-4 px-6 font-medium text-slate-800">${doc.title}</td>
+                        <td class="py-4 px-6 text-slate-600">${doc.source}</td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="px-2.5 py-1 text-xs border rounded-md font-medium ${statusClass}">${doc.status}</span>
+                        </td>
+                        <td class="py-4 px-6 text-center">${fileIcon}</td>
+                        
+                        <td class="py-4 px-6 text-right space-x-2">
+                            <button onclick="editDoc(${index})" class="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteDoc(${index})" class="text-xs font-medium text-rose-600 hover:text-rose-800 cursor-pointer">ลบ</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateCounters() {
+            if(!document.getElementById('count-in')) return;
+            document.getElementById('count-in').innerText = inboundDocs.length;
+            document.getElementById('count-out').innerText = outboundDocs.length;
+            
+            const pendingIn = inboundDocs.filter(d => d.status === 'รอดำเนินการ').length;
+            const pendingOut = outboundDocs.filter(d => d.status === 'รอดำเนินการ').length;
+            document.getElementById('count-pending').innerText = pendingIn + pendingOut;
+        }
+
+        function openModal() {
+            const modal = document.getElementById('doc-modal');
+            editTargetIndex = null; 
+            
+            document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'ลงทะเบียนหนังสือรับ' : 'ลงทะเบียนหนังสือส่ง';
+            document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
+            
+            const nextId = (currentTab === 'inbound' ? inboundDocs.length : outboundDocs.length) + 1;
+            document.getElementById('form-internal-id').value = currentTab === 'inbound' ? `รับ 00${nextId}/2569` : `ส่ง 00${nextId}/2569`;
+            document.getElementById('form-file-status').classList.add('hidden');
+
+            modal.classList.remove('hidden');
+        }
+
+        function editDoc(index) {
+            editTargetIndex = index;
+            const data = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
+            
+            document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'แก้ไขข้อมูลหนังสือรับ' : 'แก้ไขข้อมูลหนังสือส่ง';
+            document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
+            
+            document.getElementById('form-internal-id').value = data.internalId;
+            document.getElementById('form-doc-id').value = data.docId;
+            document.getElementById('form-date').value = data.date;
+            document.getElementById('form-department').value = data.department;
+            document.getElementById('form-source').value = data.source;
+            document.getElementById('form-title').value = data.title;
+            document.getElementById('form-status').value = data.status;
+
+            const fileStatus = document.getElementById('form-file-status');
+            if (data.fileUrl && data.fileUrl !== "" && data.fileUrl !== "#") {
+                fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a> (อัพโหลดไฟล์ใหม่เพื่อทดแทนไฟล์เดิมได้)`;
+                fileStatus.classList.remove('hidden');
+            } else {
+                fileStatus.classList.add('hidden');
+            }
+
+            document.getElementById('doc-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('doc-modal').classList.add('hidden');
+            document.getElementById('doc-form').reset();
+            document.getElementById('submit-btn').innerText = "บันทึกข้อมูล";
+            document.getElementById('submit-btn').disabled = false;
+            editTargetIndex = null;
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            const fileInput = document.getElementById('form-file');
+            
+            let currentData = null;
+            if (editTargetIndex !== null) {
+                currentData = currentTab === 'inbound' ? inboundDocs[editTargetIndex] : outboundDocs[editTargetIndex];
+            }
+
+            let uploadedUrl = currentData ? currentData.fileUrl : "";
+            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+            
+            submitBtn.innerText = "กำลังประมวลผลและส่งข้อมูล...";
+            submitBtn.disabled = true;
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                try {
+                    const base64Data = await convertFileToBase64(file);
+                    fileDataJson.fileData = base64Data;
+                    fileDataJson.fileName = file.name;
+                    fileDataJson.mimeType = file.type;
+                } catch (error) {
+                    alert("เกิดข้อผิดพลาดในการอ่านไฟล์: " + error.message);
+                    submitBtn.innerText = "บันทึกข้อมูล";
+                    submitBtn.disabled = false;
+                    return;
+                }
+            }
+
+            const docObject = {
+                internalId: document.getElementById('form-internal-id').value,
+                docId: document.getElementById('form-doc-id').value,
+                date: document.getElementById('form-date').value,
+                department: document.getElementById('form-department').value,
+                title: document.getElementById('form-title').value,
+                source: document.getElementById('form-source').value,
+                status: document.getElementById('form-status').value,
+                fileUrl: uploadedUrl,
+                ...fileDataJson
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(docObject)
+                });
+                
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+
+                const result = await response.ok ? await response.json() : null;
+                if (result && result.status === "success") {
+                    docObject.fileUrl = result.url;
+                } else if (result) {
+                    throw new Error(result.message || "เกิดข้อผิดพลาดที่ระบุไม่ได้จากสคริปต์");
+                }
+            } catch (error) {
+                console.error("Google Script Error:", error);
+                alert("⚠️ ไม่สามารถบันทึกออนไลน์ไปยัง Google Sheets ได้ชั่วคราว ข้อมูลจะบันทึกไว้ในเบราว์เซอร์แทน รายละเอียด: " + error.message);
+            }
+
+            delete docObject.fileData;
+            delete docObject.fileName;
+            delete docObject.mimeType;
+
+            if (editTargetIndex !== null) {
+                if (currentTab === 'inbound') {
+                    inboundDocs[editTargetIndex] = docObject;
+                } else {
+                    outboundDocs[editTargetIndex] = docObject;
+                }
+            } else {
+                if (currentTab === 'inbound') {
+                    inboundDocs.unshift(docObject);
+                } else {
+                    outboundDocs.unshift(docObject);
+                }
+            }
+
+            saveToLocalStorage(); 
+            closeModal();
+            renderTable();
+            updateCounters();
+        }
+
+        function convertFileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const base64String = reader.result.split(',')[1];
+                    resolve(base64String);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function deleteDoc(index) {
+            if(confirm('คุณต้องการลบรายการข้อมูลเอกสารนี้ใช่หรือไม่?')) {
+                if (currentTab === 'inbound') {
+                    inboundDocs.splice(index, 1);
+                } else {
+                    outboundDocs.splice(index, 1);
+                }
+                saveToLocalStorage(); 
+                renderTable();
+                updateCounters();
+            }
+        }
+
+        function searchTable() {
+            const input = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#table-body tr');
+            
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if(text.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
