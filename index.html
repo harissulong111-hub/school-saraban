@@ -14,11 +14,13 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
 
+    <!-- LOADING SCREEN -->
     <div id="loading-spinner" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex flex-col items-center justify-center text-white z-50 hidden">
         <div class="w-12 h-12 border-4 border-t-blue-500 border-slate-200 rounded-full animate-spin mb-4"></div>
         <p class="text-sm font-medium" id="loading-text">กำลังประมวลผลข้อมูลออนไลน์...</p>
     </div>
 
+    <!-- LOGIN SCREEN -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-100">
         <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl max-w-md w-full space-y-6">
             <div class="text-center space-y-2">
@@ -52,6 +54,7 @@
         </div>
     </div>
 
+    <!-- MAIN APPLICATION -->
     <div id="main-app" class="hidden">
         <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -78,6 +81,7 @@
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
+            <!-- DASHBOARD COUNTERS -->
             <section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
                     <div>
@@ -102,6 +106,7 @@
                 </div>
             </section>
 
+            <!-- CONTROLS & SEARCH -->
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
                     <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium text-blue-600 bg-white shadow-xs transition-all">
@@ -122,6 +127,7 @@
                 </div>
             </section>
 
+            <!-- DATA TABLE -->
             <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse" id="doc-table">
@@ -146,6 +152,7 @@
         </main>
     </div>
 
+    <!-- REGISTRATION / EDIT MODAL -->
     <div id="doc-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden transform scale-95 transition-all duration-200">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
@@ -208,12 +215,14 @@
         </div>
     </div>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         // ⚠️ วาง URL สคริปต์ที่ได้จากการ Deploy ใน Google Apps Script ตรงนี้
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxub2AVU9r1Bn4WZ35lB_ZrFVRReBSu-GgSKJCvQegEUZOxBsBSv_R0FLSga6RPB1hVDQ/exec";
         const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
+        const SESSION_TIMEOUT_MS = 20 * 60 * 1000; // ตั้งเวลาโครงสร้างหมดอายุ 20 นาที (มิลลิวินาที)
 
-        // ตัวแปรในหน่วยความจำสำหรับการทำงานในหน้าเว็บ (ข้อมูลหลักจะถูกดึงมาจากออนไลน์)
+        // ตัวแปรชั่วคราวบน RAM ของเบราว์เซอร์
         let inboundDocs = [];
         let outboundDocs = [];
         let currentTab = 'inbound';
@@ -222,6 +231,8 @@
 
         window.onload = function() {
             checkAuth();
+            setupActivityListeners(); // เปิดระบบตรวจการขยับเพื่อรีเซ็ตเวลา 20 นาทีใหม่
+            setInterval(checkSessionExpiry, 10000); // วิ่งเช็คตรรกะหมดเวลาหลังบ้านทุก 10 วินาที
         };
 
         function showLoading(text) {
@@ -233,7 +244,7 @@
             document.getElementById('loading-spinner').classList.add('hidden');
         }
 
-        // ระบบดึงข้อมูลสดใหม่ส่งตรงจาก Google Sheets (Real-time Sync)
+        // ดึงข้อมูลสดจากชีตแบบ Real-time
         async function fetchOnlineData() {
             showLoading("กำลังโหลดข้อมูลจาก Google Sheets...");
             try {
@@ -242,7 +253,6 @@
                 
                 const result = await response.json();
                 if (result.status === "success") {
-                    // แยกหมวดหมู่ข้อมูลตามโครงสร้าง Prefix "รับ" หรือ "ส่ง"
                     inboundDocs = result.data.filter(doc => doc.internalId.startsWith("รับ"));
                     outboundDocs = result.data.filter(doc => doc.internalId.startsWith("ส่ง"));
                     
@@ -276,18 +286,54 @@
             setInterval(updateClock, 1000);
         }
 
+        // ฟังก์ชันเช็คสิทธิ์ตัวแปร (รองรับการกด Refresh หน้าเว็บแล้วไม่หลุดออกจากระบบ)
         function checkAuth() {
             const loginScreen = document.getElementById("login-screen");
             const mainApp = document.getElementById("main-app");
 
-            if (sessionUser) {
+            const savedUser = localStorage.getItem("saraban_user");
+            const loginTime = localStorage.getItem("saraban_login_time");
+            const currentTime = new Date().getTime();
+
+            // เช็คว่าเคยล็อกอินไว้ไหม และเวลาหมดอายุเกิน 20 นาทียัง
+            if (savedUser && loginTime && (currentTime - parseInt(loginTime) < SESSION_TIMEOUT_MS)) {
+                sessionUser = savedUser;
+                localStorage.setItem("saraban_login_time", currentTime.toString()); // ต่อเวลาทันทีที่โหลดหน้าจอสำเร็จ
+                
                 loginScreen.classList.add("hidden");
                 mainApp.classList.remove("hidden");
                 startLiveClock();
-                fetchOnlineData(); // โหลดข้อมูลออนไลน์ทันทีเมื่อล็อกอินผ่าน
+                fetchOnlineData(); 
             } else {
-                mainApp.classList.add("hidden");
-                loginScreen.classList.remove("hidden");
+                handleLogoutSilent();
+            }
+        }
+
+        // เติมเวลากิจกรรมเพิ่ม 20 นาทีอัตโนมัติหากผู้ใช้ขยับเมาส์ พิมพ์ หรือคลิกทำงานอยู่
+        function updateSessionTimestamp() {
+            if (sessionUser) {
+                const currentTime = new Date().getTime();
+                localStorage.setItem("saraban_login_time", currentTime.toString());
+            }
+        }
+
+        function setupActivityListeners() {
+            window.addEventListener('mousemove', updateSessionTimestamp);
+            window.addEventListener('keypress', updateSessionTimestamp);
+            window.addEventListener('click', updateSessionTimestamp);
+            window.addEventListener('scroll', updateSessionTimestamp);
+        }
+
+        // ระบบคอยเตะออกอัตโนมัติหากหน้าจอค้างเฉย ๆ เกิน 20 นาที
+        function checkSessionExpiry() {
+            if (sessionUser) {
+                const loginTime = localStorage.getItem("saraban_login_time");
+                const currentTime = new Date().getTime();
+                
+                if (loginTime && (currentTime - parseInt(loginTime) >= SESSION_TIMEOUT_MS)) {
+                    alert("⏰ เซสชันของคุณหมดอายุแล้ว (ไม่มีการเคลื่อนไหวเกิน 20 นาที) กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อความปลอดภัย");
+                    handleLogoutSilent();
+                }
             }
         }
 
@@ -299,6 +345,11 @@
 
             if (userInp === MOCK_USER.username && passInp === MOCK_USER.password) {
                 sessionUser = MOCK_USER.displayName;
+                
+                const currentTime = new Date().getTime();
+                localStorage.setItem("saraban_user", sessionUser);
+                localStorage.setItem("saraban_login_time", currentTime.toString());
+
                 errorDiv.classList.add("hidden");
                 document.getElementById("login-form").reset();
                 checkAuth();
@@ -307,10 +358,22 @@
             }
         }
 
+        function handleLogoutSilent() {
+            sessionUser = null;
+            localStorage.removeItem("saraban_user");
+            localStorage.removeItem("saraban_login_time");
+            
+            const loginScreen = document.getElementById("login-screen");
+            const mainApp = document.getElementById("main-app");
+            if(mainApp && loginScreen) {
+                mainApp.classList.add("hidden");
+                loginScreen.classList.remove("hidden");
+            }
+        }
+
         function handleLogout() {
             if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                sessionUser = null;
-                checkAuth();
+                handleLogoutSilent();
             }
         }
 
@@ -411,11 +474,10 @@
             document.getElementById('modal-title').innerText = currentTab === 'inbound' ? 'ลงทะเบียนหนังสือรับ' : 'ลงทะเบียนหนังสือส่ง';
             document.getElementById('label-source').innerText = currentTab === 'inbound' ? 'ส่งมาจากหน่วยงาน' : 'ส่งถึงหน่วยงาน';
             
-            // สแกนเพื่อตั้งรหัสล่าสุดโดยอ้างอิงจากข้อมูลล่าสุดในตารางจริง
             const currentDataList = currentTab === 'inbound' ? inboundDocs : outboundDocs;
             let nextNum = 1;
             if (currentDataList.length > 0) {
-                const lastId = currentDataList[0].internalId; // รายการบนสุดคือรายการล่าสุด
+                const lastId = currentDataList[0].internalId;
                 const match = lastId.match(/\d+/);
                 if (match) nextNum = parseInt(match[0]) + 1;
             }
@@ -444,7 +506,6 @@
             const fileStatus = document.getElementById('form-file-status');
             if (data.fileUrl && data.fileUrl !== "" && data.fileUrl !== "#") {
                 fileStatus.innerHTML = `📎 <b>ไฟล์เดิม:</b> <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">คลิกดูไฟล์</a> (อัพโหลดไฟล์ใหม่เพื่อเปลี่ยนได้)`;
-                fileStatus.remove('hidden');
                 fileStatus.classList.remove('hidden');
             } else {
                 fileStatus.classList.add('hidden');
@@ -459,7 +520,6 @@
             editTargetIndex = null;
         }
 
-        // ระบบบันทึก / แก้ไขข้อมูลตรงไปยังเซิร์ฟเวอร์แบบ Real-time
         async function handleSubmit(event) {
             event.preventDefault();
             const fileInput = document.getElementById('form-file');
@@ -488,7 +548,6 @@
                 }
             }
 
-            // แพ็กเกจข้อมูลที่ต้องการส่ง
             const docObject = {
                 action: editTargetIndex !== null ? "update" : "insert",
                 internalId: document.getElementById('form-internal-id').value,
@@ -513,7 +572,6 @@
                 const result = await response.json();
                 if (result && result.status === "success") {
                     closeModal();
-                    // ทำการโหลดข้อมูลใหม่โดยตรงจาก Google Sheets เพื่อความแม่นยำ 100%
                     await fetchOnlineData();
                 } else {
                     throw new Error(result.message || "เกิดข้อผิดพลาดในการบันทึก");
@@ -535,7 +593,6 @@
             });
         }
 
-        // ระบบลบข้อมูลแบบส่งไปสั่งลบแถวบน Google Sheets
         async function deleteDoc(index) {
             const targetData = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
             if(confirm(`คุณต้องการลบเอกสารเลขที่ ${targetData.internalId} จากระบบฐานข้อมูลออนไลน์ใช่หรือไม่?`)) {
@@ -553,7 +610,7 @@
                     
                     const result = await response.json();
                     if (result && result.status === "success") {
-                        await fetchOnlineData(); // รีเฟรชตารางใหม่จากตารางออนไลน์
+                        await fetchOnlineData();
                     } else {
                         throw new Error(result.message);
                     }
