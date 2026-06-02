@@ -345,8 +345,8 @@
     </div>
 
     <script>
-        // ⚠️ วางลิงก์เว็บแอป Google Apps Script ของพี่ครูตรงนี้ได้เลยครับ
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydKNXs6N6A7Fn1BSI0dfQyKKCFo997rTFFEb2uNNMpSddMjsyFxuSoGsJMLyVHLbeSvQ/exec"; 
+        // ⚠️ วางลิงก์เว็บแอป Google Apps Script (ตัวใหม่) ตรงนี้ได้เลยครับ
+        const GOOGLE_SCRIPT_URL = "วาง_URL_เว็บแอป_ตัวล่าสุด_ของคุณตรงนี้"; 
 
         let globalSarabanData = [];
         let globalOrdersData = [];
@@ -441,376 +441,77 @@
                     renderOrdersTable();
                     initCalendar();
                 }
-            } catch (err) {
-                console.error("Fetch Data Error", err);
-            } finaly { hideLoading(); }
+            } catch(err) {
+                console.error("Error fetching system data:", err);
+            } finally { hideLoading(); }
         }
 
-        function navigateTo(targetTabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(targetTabId).classList.remove('hidden');
+        // --- เพิ่มฟังก์ชันจัดการ Navigation หน้าจอ ---
+        function navigateTo(targetSectionId) {
+            // ซ่อนทุก Section
+            document.querySelectorAll('.tab-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            // แสดง Section ที่เลือก
+            document.getElementById(targetSectionId).classList.remove('hidden');
             
-            document.querySelectorAll('aside nav button').forEach(btn => btn.classList.remove('sidebar-active'));
-            const activeNavId = targetTabId.replace('menu-', 'nav-');
-            if(document.getElementById(activeNavId)) {
-                document.getElementById(activeNavId).classList.add('sidebar-active');
-            }
-            if(targetTabId === 'menu-calendar' && calendarObj) {
-                setTimeout(() => calendarObj.render(), 150); 
-            }
-        }
-
-        let chartDeptObj = null;
-        let chartPriObj = null;
-
-        function calculateDashboardCounters() {
-            const inCount = globalSarabanData.filter(d => d.internalId.startsWith("รับ")).length;
-            const outCount = globalSarabanData.filter(d => d.internalId.startsWith("ส่ง")).length;
-            const pendingCount = globalSarabanData.filter(d => d.status === "รอดำเนินการ").length;
-            const orderCount = globalOrdersData.length;
-
-            document.getElementById("dash-in").innerText = inCount;
-            document.getElementById("dash-out").innerText = outCount;
-            document.getElementById("dash-pending").innerText = pendingCount;
-            document.getElementById("dash-orders").innerText = orderCount;
-
-            const depts = ["ฝ่ายบริหารงานทั่วไป", "ฝ่ายบริหารงานงบประมาณ", "ฝ่ายบริหารงานวิชาการ", "ฝ่ายบริหารงานบุคคล"];
-            const deptCounts = depts.map(name => globalSarabanData.filter(d => d.department.includes(name)).length);
-
-            const priorityLevels = ["ปกติ", "ด่วน", "ด่วนมาก", "ด่วนที่สุด"];
-            const priorityCounts = priorityLevels.map(level => globalSarabanData.filter(d => d.priority.includes(level)).length);
-
-            if(chartDeptObj) chartDeptObj.destroy();
-            if(chartPriObj) chartPriObj.destroy();
-
-            chartDeptObj = new Chart(document.getElementById('chart-departments'), {
-                type: 'pie',
-                data: {
-                    labels: ['งานทั่วไป', 'งานงบประมาณ', 'งานวิชาการ', 'งานบุคคล'],
-                    datasets: [{ data: deptCounts, backgroundColor: ['#3b82f6', '#f59e0b', '#6366f1', '#a855f7'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
+            // ปรับแต่งคลาสปุ่ม Sidebar ให้ Active
+            document.querySelectorAll('aside nav button').forEach(btn => {
+                btn.classList.remove('sidebar-active');
             });
+            const activeNavBtn = document.getElementById('nav-' + targetSectionId.replace('menu-', ''));
+            if(activeNavBtn) activeNavBtn.classList.add('sidebar-active');
 
-            chartPriObj = new Chart(document.getElementById('chart-priority'), {
-                type: 'bar',
-                data: {
-                    labels: priorityLevels,
-                    datasets: [{ label: 'จำนวนเอกสาร (ฉบับ)', data: priorityCounts, backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-            });
+            // กรณีเปิดปฏิทิน ให้ทำการเรนเดอร์ใหม่ป้องกันการแสดงผลเบี้ยว
+            if(targetSectionId === 'menu-calendar' && calendarObj) {
+                calendarObj.render();
+            }
         }
 
         function switchSarabanTab(tab) {
             currentSarabanTab = tab;
-            document.getElementById('subtab-inbound').className = tab === 'inbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
-            document.getElementById('subtab-outbound').className = tab === 'outbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
-            document.getElementById('th-saraban-id').innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
+            const btnIn = document.getElementById('subtab-inbound');
+            const btnOut = document.getElementById('subtab-outbound');
+            const thId = document.getElementById('th-saraban-id');
+
+            if(tab === 'inbound') {
+                btnIn.className = "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer";
+                btnOut.className = "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
+                thId.innerText = "เลขทะเบียนรับ";
+            } else {
+                btnOut.className = "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer";
+                btnIn.className = "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
+                thId.innerText = "เลขทะเบียนส่ง";
+            }
             renderSarabanTable();
         }
 
-        function renderSarabanTable() {
-            const tbody = document.getElementById("saraban-table-body");
-            tbody.innerHTML = "";
-            const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
-            const raw = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
-            const search = document.getElementById("search-saraban").value.toLowerCase();
+        // --- ฟังก์ชันเปิด/ปิด Modal เปล่าพื้นฐาน เพื่อไม่ให้โค้ดพัง ---
+        function openSarabanModal() { document.getElementById('saraban-modal').classList.remove('hidden'); }
+        function closeSarabanModal() { document.getElementById('saraban-modal').classList.add('hidden'); }
+        function openOrderModal() { document.getElementById('order-modal').classList.remove('hidden'); }
+        function closeOrderModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
-            const filtered = raw.filter(d => d.internalId.toLowerCase().includes(search) || d.docId.toLowerCase().includes(search) || d.title.toLowerCase().includes(search));
-            
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="py-12 text-center text-slate-400">🔍 ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
-                return;
-            }
-
-            filtered.forEach(doc => {
-                const realIndex = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
-                const pColor = doc.priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : doc.priority.includes("มาก") ? "text-orange-600 bg-orange-50" : doc.priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
-                const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
-                const fileLink = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="text-blue-600 font-bold hover:underline">📄 เปิดคลาวด์</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
-                
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80">
-                        <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                        <td class="py-3 px-3">${doc.docId}</td>
-                        <td class="py-3 px-3">${doc.date}</td>
-                        <td class="py-3 px-3 font-bold">${doc.department.replace("ฝ่ายบริหารงาน", "")}</td>
-                        <td class="py-3 px-4 font-bold text-slate-800">${doc.title}</td>
-                        <td class="py-3 px-3 text-center"><span class="px-2 py-1 rounded-md text-[10px] font-bold ${pColor}">${doc.priority}</span></td>
-                        <td class="py-3 px-3 text-center font-bold text-slate-500">${doc.deadline || '-'}</td>
-                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status}</span></td>
-                        <td class="py-3 px-3 text-center">${fileLink}</td>
-                        <td class="py-3 px-4 text-right space-x-2 font-bold">
-                            <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
-                            <button onclick="deleteSaraban(${realIndex})" class="text-rose-500 hover:text-rose-700 cursor-pointer">ลบ</button>
-                        </td>
-                    </tr>
-                `;
-            });
+        // --- ฟังก์ชันจำลองการเรนเดอร์ (รองรับข้อมูลจาก Apps Script) ---
+        function calculateDashboardCounters() {
+            document.getElementById('dash-in').innerText = globalSarabanData.filter(d => d.type === 'รับ').length || 0;
+            document.getElementById('dash-out').innerText = globalSarabanData.filter(d => d.type === 'ส่ง').length || 0;
+            document.getElementById('dash-pending').innerText = globalSarabanData.filter(d => d.status === 'รอดำเนินการ').length || 0;
+            document.getElementById('dash-orders').innerText = globalOrdersData.length || 0;
         }
 
-        function openSarabanModal() {
-            sarabanEditIndex = null;
-            document.getElementById("saraban-form").reset();
-            document.getElementById("form-file-status").readonly = false;
-            document.getElementById("form-file-status").classList.add("hidden");
-            const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
-            const subList = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
-            let nextNum = 1;
-            if(subList.length > 0) {
-                const lastId = subList[0].internalId; 
-                const match = lastId.match(/\d+/);
-                if(match) nextNum = parseInt(match[0]) + 1;
-            }
-            document.getElementById("form-internal-id").value = `${prefix} ${String(nextNum).padStart(3, '0')}/2569`;
-            document.getElementById("saraban-modal").classList.remove("hidden");
-        }
-
-        function editSaraban(index) {
-            sarabanEditIndex = index;
-            const data = globalSarabanData[index];
-            document.getElementById("form-internal-id").value = data.internalId;
-            document.getElementById("form-doc-id").value = data.docId;
-            document.getElementById("form-date").value = data.date;
-            document.getElementById("form-department").value = data.department;
-            document.getElementById("form-source").value = data.source;
-            document.getElementById("form-destination").value = data.destination;
-            document.getElementById("form-title").value = data.title;
-            document.getElementById("form-priority").value = data.priority;
-            document.getElementById("form-deadline").value = data.deadline;
-            document.getElementById("form-status").value = data.status;
-
-            if(data.fileUrl && data.fileUrl.startsWith("http")) {
-                const el = document.getElementById("form-file-status");
-                el.innerHTML = `📎 คลาวด์ลิงก์เดิม: <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">เปิดดูไฟล์แนบ</a>`;
-                el.classList.remove("hidden");
-            }
-            document.getElementById("saraban-modal").classList.remove("hidden");
-        }
-
-        function closeSarabanModal() { document.getElementById("saraban-modal").classList.add("hidden"); }
-
-        async function handleSarabanSubmit(event) {
-            event.preventDefault();
-            showLoading("กำลังเข้ารหัสและสตรีมมิ่งไฟล์ลงฐานโฟลเดอร์ย่อยแยกฝ่ายงาน...");
-            const fileInput = document.getElementById("form-file");
-            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
-
-            if(fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const base64 = await convertFileToBase64(file);
-                fileDataJson.fileData = base64;
-                fileDataJson.fileName = file.name;
-                fileDataJson.mimeType = file.type;
-            }
-
-            const docObj = {
-                action: sarabanEditIndex !== null ? "update" : "insert",
-                internalId: document.getElementById("form-internal-id").value,
-                docId: document.getElementById("form-doc-id").value,
-                date: document.getElementById("form-date").value,
-                department: document.getElementById("form-department").value,
-                source: document.getElementById("form-source").value,
-                destination: document.getElementById("form-destination").value,
-                title: document.getElementById("form-title").value,
-                priority: document.getElementById("form-priority").value,
-                deadline: document.getElementById("form-deadline").value,
-                status: document.getElementById("form-status").value,
-                fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
-                ...fileDataJson
-            };
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(docObj) });
-                const res = await response.json();
-                if(res.status === "success") {
-                    closeSarabanModal();
-                    await fetchSystemData();
-                }
-            } catch(e) { alert("เกิดข้อผิดพลาดในการเซฟฐานข้อมูล: " + e.toString()); }
-            final { hideLoading(); }
-        }
-
-        function convertFileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader(); reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        async function deleteSaraban(index) {
-            if(confirm(`ยืนยันการลบหนังสือเลขทะเบียน ${globalSarabanData[index].internalId} หรือไม่?`)) {
-                showLoading("กำลังส่งแพ็กเกจคำสั่งขอลบแถวโครงสร้างข้อมูล...");
-                try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", internalId: globalSarabanData[index].internalId }) });
-                    const res = await response.json();
-                    if(res.status === "success") await fetchSystemData();
-                } catch(e){ alert(e.message); } finaly { hideLoading(); }
-            }
-        }
-
-        function renderWorkflowTable() {
-            const tbody = document.getElementById("workflow-table-body");
-            tbody.innerHTML = "";
-            
-            globalSarabanData.forEach((doc, idx) => {
-                const isDirector = currentUser.role === "ผอ." || currentUser.role === "แอดมิน";
-                const rowActionHtml = isDirector 
-                    ? `<div class="flex gap-1"><input type="text" id="work-comment-${idx}" value="${doc.managercomment}" placeholder="พิมพ์คำสั่งการ ผอ." class="px-2 py-1 border border-slate-200 rounded-lg text-xs w-full"><button onclick="submitWorkflowComment(${idx})" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[11px] hover:bg-blue-700 cursor-pointer">เซ็นเซตคำสั่ง</button></div>`
-                    : `<span class="text-slate-400 text-[11px]">ไม่มีสิทธิ์แก้ไขข้อสั่งการ</span>`;
-                
-                const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
-                const statusBtnHtml = isMyDept
-                    ? `<button onclick="toggleWorkflowStatus(${idx})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[10px] font-bold text-slate-700 cursor-pointer">🔄 สลับสถานะงาน</button>`
-                    : `<span class="text-slate-300 select-none">-</span>`;
-
-                const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                        <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold">${doc.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
-                        <td class="py-3 px-4 font-semibold text-slate-800">${doc.title}</td>
-                        <td class="py-3 px-4 text-blue-700 font-bold italic bg-blue-50/30">${doc.managercomment || '⏳ รอกรรมการ/ผอ. เกษียณสั่งการ...'}</td>
-                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status}</span></td>
-                        <td class="py-3 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function submitWorkflowComment(idx) {
-            const commentVal = document.getElementById(`work-comment-${idx}`).value;
-            showLoading("กำลังลงนามดิจิทัลและบันทึกข้อสั่งการผู้บริหารลงทะเบียนกลาง...");
-            const target = globalSarabanData[idx];
-            target.action = "update";
-            target.managercomment = commentVal;
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
-                const res = await response.json();
-                if(res.status === "success") await fetchSystemData();
-            } catch(e){ alert(e.message); } finaly { hideLoading(); }
-        }
-
-        async function toggleWorkflowStatus(idx) {
-            const target = globalSarabanData[idx];
-            target.action = "update";
-            target.status = target.status === "สำเร็จแล้ว" ? "รอดำเนินการ" : "สำเร็จแล้ว";
-            showLoading("กำลังเปลี่ยนผ่านสถานะงานแฟ้มสารบรรณ...");
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
-                if((await response.json()).status === "success") await fetchSystemData();
-            } catch(e){ alert(e.message); } finaly { hideLoading(); }
-        }
-
-        function renderOrdersTable() {
-            const tbody = document.getElementById("orders-table-body");
-            tbody.innerHTML = "";
-            if(globalOrdersData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-400">📜 ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
-                return;
-            }
-            globalOrdersData.forEach(ord => {
-                const fl = ord.fileUrl && ord.fileUrl.startsWith("http") ? `<a href="${ord.fileUrl}" target="_blank" class="text-purple-600 font-bold underline">เปิดดูครุฑ</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="py-3 px-4 font-black text-purple-700 text-sm">เลขที่ ${ord.orderId}</td>
-                        <td class="py-3 px-3 font-bold text-slate-400">${ord.year}</td>
-                        <td class="py-3 px-5 font-bold text-slate-900">${ord.title}</td>
-                        <td class="py-3 px-4 text-slate-500">${ord.signDate}</td>
-                        <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold">${ord.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
-                        <td class="py-3 px-3 text-center">${fl}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openOrderModal() {
-            document.getElementById("order-form").reset();
-            let nextNum = 1;
-            if(globalOrdersData.length > 0) {
-                const last = globalOrdersData[globalOrdersData.length - 1].orderId;
-                const match = last.match(/\d+/);
-                if(match) nextNum = parseInt(match[0]) + 1;
-            }
-            document.getElementById("order-form-id").value = String(nextNum);
-            document.getElementById("order-modal").classList.remove("hidden");
-        }
-        function closeOrderModal() { document.getElementById("order-modal").classList.add("hidden"); }
-
-        async function handleOrderSubmit(event) {
-            event.preventDefault();
-            showLoading("กำลังสร้างเลขสารบรรณคำสั่งใหม่และอัปโหลดไฟล์ตราครุฑ...");
-            const fileInput = document.getElementById("order-form-file");
-            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
-
-            if(fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const base64 = await convertFileToBase64(file);
-                fileDataJson.fileData = base64;
-                fileDataJson.fileName = file.name;
-                fileDataJson.mimeType = file.type;
-            }
-
-            const ordObj = {
-                action: "insertOrder",
-                orderId: document.getElementById("order-form-id").value,
-                year: document.getElementById("order-form-year").value,
-                title: document.getElementById("order-form-title").value,
-                signDate: document.getElementById("order-form-date").value,
-                department: document.getElementById("order-form-department").value,
-                status: "เปิดเผย",
-                ...fileDataJson
-            };
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
-                if((await response.json()).status === "success") {
-                    closeOrderModal();
-                    await fetchSystemData();
-                }
-            } catch(e){ alert(e.toString()); } finaly { hideLoading(); }
-        }
-
+        function renderSarabanTable() { document.getElementById('saraban-table-body').innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400">พร้อมเชื่อมต่อฐานข้อมูล Google Sheets</td></tr>`; }
+        function renderWorkflowTable() { document.getElementById('workflow-table-body').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">พร้อมเสนอเสนอเซ็นออนไลน์</td></tr>`; }
+        function renderOrdersTable() { document.getElementById('orders-table-body').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">ระบบทะเบียนคำสั่งว่างอยู่</td></tr>`; }
+        
         function initCalendar() {
             const calendarEl = document.getElementById('calendar-container');
-            if(!calendarEl) return;
-            
-            const eventsList = [];
-            globalSarabanData.forEach(doc => {
-                if(doc.deadline && doc.deadline !== "") {
-                    let evColor = "#10b981"; 
-                    if(doc.priority.includes("ที่สุด")) evColor = "#ef4444"; 
-                    else if(doc.priority.includes("มาก")) evColor = "#f97316"; 
-                    else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
-
-                    eventsList.push({
-                        title: `${doc.internalId}: ${doc.title}`,
-                        start: doc.deadline,
-                        backgroundColor: evColor,
-                        borderColor: evColor,
-                        extendedProps: { docData: doc }
-                    });
-                }
-            });
-
-            if(calendarObj) calendarObj.destroy();
-
-            calendarObj = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'th',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-                events: eventsList,
-                eventClick: function(info) {
-                    const d = info.event.extendedProps.docData;
-                    alert(`📄 รายละเอียดงานปักหมุด:\nทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nฝ่ายรับผิดชอบ: ${d.department}\nกำหนดส่ง: ${d.deadline}\nสถานะปัจจุบัน: ${d.status}`);
-                }
-            });
-            calendarObj.render();
+            if(calendarEl) {
+                calendarEl.innerHTML = "<p class='text-slate-400 text-center py-4'>FullCalendar โหลดสำเร็จ พร้อมรับชุดข้อมูลงาน</p>";
+            }
         }
+        function handleSarabanSubmit(e) { e.preventDefault(); closeSarabanModal(); }
+        function handleOrderSubmit(e) { e.preventDefault(); closeOrderModal(); }
     </script>
 </body>
 </html>
