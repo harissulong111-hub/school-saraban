@@ -3,188 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบงานสารบรรณอิเล็กทรอนิกส์ (Premium AI Version)</title>
+    <title>ระบบสารบรรณและบริหารสถานศึกษาอัจฉริยะ | Premium Smart e-Saraban</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <style>
-        body { font-family: 'Sarabun', sans-serif; background: radial-gradient(at top right, #f8fafc 60%, #e0e7ff 100%); }
-        /* Minimal Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; border: 2px solid #f1f5f9; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .ai-glow { box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.15); }
-        .premium-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
+        .sidebar-active { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border-left: 4px solid #2563eb; }
+        .fc-event { cursor: pointer; padding: 2px 5px; font-weight: bold; }
+        /* สไตล์พรีเมียมการ์ด */
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(226, 232, 240, 0.8); }
     </style>
 </head>
-<body class="text-slate-800 antialiased selection:bg-indigo-500 selection:text-white min-h-screen">
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <div id="loading-spinner" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xl flex flex-col items-center justify-center text-white z-50 hidden transition-all">
-        <div class="relative flex items-center justify-center mb-6">
-            <div class="w-20 h-20 border-4 border-indigo-500/10 rounded-full"></div>
-            <div class="w-20 h-20 border-4 border-t-indigo-500 border-r-purple-500 rounded-full animate-spin absolute top-0 left-0"></div>
-            <div class="w-10 h-10 bg-indigo-500/20 rounded-full animate-pulse absolute"></div>
-        </div>
-        <p class="text-base font-semibold tracking-wider text-indigo-200 animate-pulse" id="loading-text">กำลังประมวลผลผ่านระบบคลาวด์อัจฉริยะ...</p>
+    <div id="loading-spinner" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center text-white z-50 hidden">
+        <div class="w-16 h-16 border-4 border-t-blue-500 border-r-indigo-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-sm font-semibold tracking-wider text-blue-200" id="loading-text">กำลังประมวลผลเครือข่ายอัจฉริยะ...</p>
     </div>
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
-        <div class="bg-white/70 backdrop-blur-2xl p-10 rounded-3xl border border-white/60 shadow-2xl max-w-md w-full space-y-8 ring-1 ring-black/[0.02] ai-glow">
-            <div class="text-center space-y-3">
-                <div class="w-16 h-16 bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-xl shadow-indigo-500/20 mx-auto transform hover:scale-105 transition-all">
-                    ส
-                </div>
-                <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">ระบบสารบรรณ AI</h2>
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">Ban Kayi School Private Platform</p>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6 bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl mx-auto shadow-lg shadow-blue-500/30">ส</div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">ระบบบริหารงานสารบรรณ AI</h2>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Ban Kayi School Smart Platform</p>
             </div>
-
-            <div id="login-error" class="hidden p-3.5 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl text-center font-semibold">
-                🔒 รหัสผ่านหรือชื่อผู้ใช้งานไม่ถูกต้อง!
-            </div>
-
-            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+            <div id="login-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl text-center">🔒 บัญชีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!</div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">บัญชีผู้ใช้ (Username)</label>
-                    <input type="text" id="username" required placeholder="admin" class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all shadow-inner">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">บัญชีผู้ใช้ (Username)</label>
+                    <input type="text" id="username" required placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all shadow-inner">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">รหัสผ่าน (Password)</label>
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
-                <div class="p-3 bg-slate-900/5 rounded-xl text-xs text-slate-500 border border-black/[0.03] leading-relaxed">
-                    ⚙ shrink-0 <span class="font-bold text-slate-700">Account Test:</span> admin / 1234
-                </div>
-                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-950/20 active:scale-[0.99] transition-all cursor-pointer">
-                    ยืนยันเข้าสู่ระบบ
-                </button>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">ยืนยันเข้าสู่ระบบ</button>
             </form>
         </div>
     </div>
 
-    <div id="main-app" class="hidden">
-        <header class="bg-white/60 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-11 h-11 bg-gradient-to-tr from-slate-950 to-indigo-900 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-950/10">
-                        ส
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight leading-tight">ระบบสารบรรณอิเล็กทรอนิกส์</h1>
-                        <p class="text-xs font-bold text-indigo-600 tracking-widest uppercase mt-0.5 opacity-80">Smart Data Management System</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-5">
-                    <div class="text-right hidden sm:block border-r border-slate-200 pr-5">
-                        <span class="block text-sm font-bold text-slate-800" id="user-display">กำลังประมวลผลเวลา...</span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 mt-1 rounded-full text-[10px] font-bold bg-slate-900 text-white tracking-wider uppercase">แอดมินระบบ</span>
-                    </div>
-                    <button onclick="handleLogout()" class="text-xs font-bold text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 bg-white/80 px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer active:scale-[0.97]">
-                        🚪 ออกจากระบบ
-                    </button>
+    <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row w-full">
+        
+        <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">ส</div>
+                <div>
+                    <h1 class="text-sm font-black text-white leading-none">สารบรรณอัจฉริยะ</h1>
+                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">e-Saraban v2026</span>
                 </div>
             </div>
-        </header>
+            <nav class="flex-1 p-4 space-y-1">
+                <button onclick="navigateTo('menu-dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📊 หน้าแรก / แดชบอร์ดสรุปผล</button>
+                <button onclick="navigateTo('menu-saraban')" id="nav-saraban" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📥 ทะเบียนหนังสือรับ-ส่ง</button>
+                <button onclick="navigateTo('menu-workflow')" id="nav-workflow" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">🔄 ระบบเสนอเกษียณ & ส่งต่อฝ่าย</button>
+                <button onclick="navigateTo('menu-orders')" id="nav-orders" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📜 ออกเลขคำสั่ง/ประกาศโรงเรียน</button>
+                <button onclick="navigateTo('menu-calendar')" id="nav-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📅 ปฏิทินกำหนดส่งงานสารบรรณ</button>
+            </nav>
+            <div class="p-4 border-t border-slate-800 bg-slate-950/40 text-center">
+                <button onclick="handleLogout()" class="text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer">🚪 ออกจากระบบปลอดภัย</button>
+            </div>
+        </aside>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-            
-            <section class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="premium-card p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-between group ai-glow">
-                    <div class="space-y-2">
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">📥 หนังสือรับทั้งหมด</p>
-                        <h3 class="text-4xl font-black tracking-tight text-slate-900" id="count-in">0</h3>
-                    </div>
-                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">📥</div>
+        <div class="flex-1 flex flex-col min-w-0">
+            <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 shadow-xs">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">สังกัดสถานศึกษา:</span>
+                    <span class="text-xs font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">โรงเรียนบ้านกาหยี</span>
                 </div>
-                <div class="premium-card p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-between group ai-glow">
-                    <div class="space-y-2">
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">📤 หนังสือส่งทั้งหมด</p>
-                        <h3 class="text-4xl font-black tracking-tight text-slate-900" id="count-out">0</h3>
-                    </div>
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">📤</div>
+                <div class="text-right">
+                    <span class="block text-xs font-bold text-slate-700" id="clock-display">กำลังโหลดสิทธิ์และเวลา...</span>
+                    <span class="text-[10px] font-bold text-slate-400" id="user-role-badge">สิทธิ์: -</span>
                 </div>
-                <div class="premium-card p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-between group ai-glow">
-                    <div class="space-y-2">
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">⏳ รอดำเนินการ</p>
-                        <h3 class="text-4xl font-black tracking-tight text-amber-600" id="count-pending">0</h3>
-                    </div>
-                    <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">⏳</div>
-                </div>
-            </section>
+            </header>
 
-            <section class="premium-card p-5 rounded-3xl shadow-sm flex flex-col md:flex-row gap-5 items-center justify-between ai-glow">
-                <div class="flex bg-slate-100 p-1.5 rounded-xl w-full md:w-auto">
-                    <button onclick="switchTab('inbound')" id="tab-inbound" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold text-indigo-600 bg-white shadow-sm transition-all cursor-pointer">
-                        📥 ทะเบียนหนังสือรับ
-                    </button>
-                    <button onclick="switchTab('outbound')" id="tab-outbound" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-all cursor-pointer">
-                        📤 ทะเบียนหนังสือส่ง
-                    </button>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto justify-end">
-                    <div class="relative flex-1 sm:flex-none w-full sm:w-80">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 text-sm">🔍</span>
-                        <input type="text" id="search-input" onkeyup="renderTable()" placeholder="ค้นหาด้วยระบบ AI อัจฉริยะ..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs">
-                    </div>
-                    <button onclick="openModal()" class="bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 text-white text-sm font-bold px-5 py-3 rounded-xl shadow-md shadow-indigo-950/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer transition-all active:scale-[0.98]">
-                        ➕ ลงทะเบียนเอกสารใหม่
-                    </button>
-                </div>
-            </section>
+            <main class="flex-1 p-6 md:p-8 overflow-y-auto">
 
-            <section class="bg-white rounded-3xl border border-slate-200/70 shadow-sm overflow-hidden ai-glow">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse" id="doc-table">
-                        <thead>
-                            <tr class="bg-slate-900 border-b border-slate-800 text-xs font-bold text-slate-300 uppercase tracking-widest">
-                                <th class="py-5 px-6" id="th-number">เลขทะเบียนรับ</th>
-                                <th class="py-5 px-4">ที่</th>
-                                <th class="py-5 px-4">ลงวันที่</th>
-                                <th class="py-5 px-4">จาก</th>
-                                <th class="py-5 px-4">ถึง</th>
-                                <th class="py-5 px-6 w-1/4 text-sm">เรื่อง</th>
-                                <th class="py-5 px-4">การปฏิบัติ (ฝ่ายงาน)</th>
-                                <th class="py-5 px-4 text-center">Visual Status</th>
-                                <th class="py-5 px-4 text-center">ไฟล์แนบ</th>
-                                <th class="py-5 px-6 text-right">การจัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm font-medium text-slate-600" id="table-body">
-                            </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+                <section id="menu-dashboard" class="tab-content space-y-6 hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">📥 หนังสือรับทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">📥</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">📤 หนังสือส่งทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">📤</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">⏳ เรื่องค้างดำเนินการ</p><h3 class="text-3xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
+                            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">⏳</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">📜 คำสั่งโรงเรียนปีนี้</p><h3 class="text-3xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">📜</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                            <h4 class="text-xs font-bold text-slate-700 mb-4 uppercase tracking-wider">📊 สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
+                            <div class="h-64 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                            <h4 class="text-xs font-bold text-slate-700 mb-4 uppercase tracking-wider">📈 ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
+                            <div class="h-64 flex items-center justify-center"><canvas id="chart-priority"></canvas></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="menu-saraban" class="tab-content space-y-4 hidden">
+                    <div class="glass-card p-4 rounded-2xl flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+                            <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer">📥 ทะเบียนหนังสือรับ</button>
+                            <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer">📤 ทะเบียนหนังสือส่ง</button>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
+                            <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง/เลขที่..." class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs w-full sm:w-64 focus:outline-none focus:border-blue-500">
+                            <button onclick="openSarabanModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer whitespace-nowrap">➕ ลงทะเบียนเอกสารใหม่</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-300 font-bold">
+                                        <th class="py-4 px-4" id="th-saraban-id">เลขทะเบียนรับ</th>
+                                        <th class="py-4 px-3">ที่เอกสาร</th>
+                                        <th class="py-4 px-3">ลงวันที่</th>
+                                        <th class="py-4 px-3">ฝ่ายงาน</th>
+                                        <th class="py-4 px-4 w-1/4">เรื่อง / หัวข้อราชการ</th>
+                                        <th class="py-4 px-3 text-center">ความเร่งด่วน</th>
+                                        <th class="py-4 px-3 text-center">กำหนดส่ง</th>
+                                        <th class="py-4 px-3 text-center">สถานะ</th>
+                                        <th class="py-4 px-3 text-center">ไฟล์แนบ</th>
+                                        <th class="py-4 px-4 text-right">การจัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="saraban-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="menu-workflow" class="tab-content space-y-4 hidden">
+                    <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3">
+                        <span class="text-xl">💼</span>
+                        <div>
+                            <h4 class="text-xs font-bold text-blue-900">ระบบกล่องเกษียณหนังสือออนไลน์สำหรับผู้บริหารและหัวหน้างาน</h4>
+                            <p class="text-[11px] text-blue-700 mt-0.5">เฉพาะสิทธิ์ ผอ. จึงจะมีปุ่มกดบันทึกข้อสั่งการ และส่งต่อลงไปให้คุณครูแต่ละฝ่ายปฏิบัติงานจริงได้</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-300 font-bold">
+                                        <th class="py-4 px-4">เลขประจำทะเบียน</th>
+                                        <th class="py-4 px-3">ฝ่ายปฏิบัติการ</th>
+                                        <th class="py-4 px-4 w-1/3">เรื่อง / หัวข้อราชการ</th>
+                                        <th class="py-4 px-4">✍️ บันทึกข้อสั่งการของ ผอ. โรงเรียน</th>
+                                        <th class="py-4 px-3 text-center">สถานะงาน</th>
+                                        <th class="py-4 px-4 text-center">การดำเนินการตามสิทธิ์</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workflow-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="menu-orders" class="tab-content space-y-4 hidden">
+                    <div class="glass-card p-4 rounded-2xl flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">📜 ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">ระบบออกเลขที่คำสั่งต่อจากเลขล่าสุดให้โดยอัตโนมัติ ป้องกันปัญหาเลขซ้ำ</p>
+                        </div>
+                        <button onclick="openOrderModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer">➕ ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-300 font-bold">
+                                        <th class="py-4 px-4">เลขที่คำสั่ง</th>
+                                        <th class="py-4 px-3">ปี พ.ศ.</th>
+                                        <th class="py-4 px-5 w-1/2">เรื่องคำสั่งโรงเรียน</th>
+                                        <th class="py-4 px-4">วันที่ลงนามประกาศ</th>
+                                        <th class="py-4 px-4">ฝ่ายผู้รับผิดชอบ</th>
+                                        <th class="py-4 px-3 text-center">ไฟล์คำสั่ง</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="menu-calendar" class="tab-content hidden">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญ</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">ดึงข้อมูลมาจากระบบโดยอัตโนมัติ แยกสีตามระดับความด่วน (ด่วนที่สุด = แดง / ด่วนมาก = ส้ม / ปกติ = เขียว)</p>
+                        </div>
+                        <div id="calendar-container" class="text-xs font-semibold"></div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
     </div>
 
-    <div id="doc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-md flex items-center justify-center hidden z-50 p-4 transition-all">
-        <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden transform transition-all duration-300">
-            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2" id="modal-title">📄 ลงทะเบียนเอกสาร</h3>
-                <button type="button" onclick="closeModal()" class="w-8 h-8 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-base transition-all cursor-pointer shadow-xs">&times;</button>
+    <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
+                <button type="button" onclick="closeSarabanModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
-            <form id="doc-form" onsubmit="handleSubmit(event)" class="p-6 space-y-4">
+            <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="p-6 space-y-4 text-xs">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">เลขประจำทะเบียน</label>
-                        <input type="text" id="form-internal-id" required class="w-full px-3 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-indigo-600 focus:outline-none" readonly>
+                        <label class="block font-bold text-slate-500 mb-1">เลขทะเบียนระบบ</label>
+                        <input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-blue-600" readonly>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">ที่ (เลขที่ต้นฉบับ)</label>
-                        <input type="text" id="form-doc-id" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs">
+                        <label class="block font-bold text-slate-500 mb-1">ที่ (เลขที่เอกสารต้นฉบับ)</label>
+                        <input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">ลงวันที่</label>
-                        <input type="date" id="form-date" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs">
+                        <label class="block font-bold text-slate-500 mb-1">ลงวันที่</label>
+                        <input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">การปฏิบัติ (ฝ่ายงาน)</label>
-                        <select id="form-department" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs" required>
+                        <label class="block font-bold text-slate-500 mb-1">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label>
+                        <select id="form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none" required>
                             <option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option>
                             <option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option>
                             <option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option>
@@ -194,411 +250,588 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">จาก</label>
-                        <input type="text" id="form-source" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs">
+                        <label class="block font-bold text-slate-500 mb-1">จาก (หน่วยงานต้นทาง)</label>
+                        <input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">ถึง</label>
-                        <input type="text" id="form-destination" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs">
+                        <label class="block font-bold text-slate-500 mb-1">ถึง (หน่วยงานปลายทาง)</label>
+                        <input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">เรื่อง / หัวข้อเอกสาร</label>
-                    <input type="text" id="form-title" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs">
+                    <label class="block font-bold text-slate-500 mb-1">เรื่อง / หัวข้อเอกสารราชการ</label>
+                    <input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
                 </div>
-                
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">อัพโหลดเอกสารแนบ</label>
-                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg, .doc, .docx" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-xl p-1 bg-slate-50">
-                    <p id="form-file-status" class="text-xs text-slate-500 mt-2 p-2 bg-slate-50 rounded-xl border border-slate-100 hidden"></p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">ระดับความเร่งด่วน</label>
+                        <select id="form-priority" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none">
+                            <option value="ปกติ">🟢 ปกติ</option>
+                            <option value="ด่วน">🟡 ด่วน</option>
+                            <option value="ด่วนมาก">🟠 ด่วนมาก</option>
+                            <option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">กำหนดส่งงาน (ถ้ามี)</label>
+                        <input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
+                    </div>
                 </div>
-
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">สถานะการดำเนินการ</label>
-                    <select id="form-status" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-xs">
+                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์แนบเข้าคลาวด์</label>
+                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg, .doc, .docx" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-bold">
+                    <p id="form-file-status" class="mt-1 text-[11px] text-slate-500 hidden p-2 bg-slate-50 rounded-xl border border-slate-150"></p>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">สถานะ</label>
+                    <select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none">
                         <option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option>
                         <option value="รอดำเนินการ">⏳ รอดำเนินการ</option>
                     </select>
                 </div>
-                <div class="pt-5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 -mx-6 -mb-6 p-6">
-                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer transition-colors">ยกเลิก</button>
-                    <button type="submit" id="submit-btn" class="px-6 py-2.5 bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer transition-all active:scale-[0.97]">บันทึกข้อมูล</button>
+                <div class="pt-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-4">
+                    <button type="button" onclick="closeSarabanModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="order-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-sm">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
+                <button type="button" onclick="closeOrderModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+            </div>
+            <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-6 space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">เลขที่คำสั่งโรงเรียน</label>
+                        <input type="text" id="order-form-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-purple-600" readonly>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">ปี พ.ศ.</label>
+                        <input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">เรื่องคำสั่ง / ประกาศ</label>
+                    <input type="text" id="order-form-title" required placeholder="เช่น แต่งตั้งคณะกรรมการดำเนินงานกิจกรรม..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">วันที่ลงนามประกาศ</label>
+                        <input type="date" id="order-form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">ฝ่ายเจ้าของเรื่อง</label>
+                        <select id="order-form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none">
+                            <option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option>
+                            <option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option>
+                            <option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option>
+                            <option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์สแกนคำสั่ง (มีตราครุฑ)</label>
+                    <input type="file" id="order-form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-purple-50 file:text-purple-700 file:font-bold">
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-4">
+                    <button type="button" onclick="closeOrderModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold cursor-pointer">ยื่นออกเลขและบันทึก</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8ZJ6yKP_Mp3DBUHAdzDqHKcp5zpiExpVEt6pyCeORFAPUESYlHIEtdzU0XVK6iy4qRw/exec";
-        const MOCK_USER = { username: "admin", password: "1234", displayName: "แอดมินระบบสารบรรณ" };
-        const SESSION_TIMEOUT_MS = 20 * 60 * 1000; 
+        // ⚠️ บรรทัดที่ 42: วางลิงก์เว็บแอป Google Apps Script (ตัวใหม่) ของพี่ครูตรงนี้ได้เลยครับ
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydKNXs6N6A7Fn1BSI0dfQyKKCFo997rTFFEb2uNNMpSddMjsyFxuSoGsJMLyVHLbeSvQ/exec"; 
 
-        let inboundDocs = [];
-        let outboundDocs = [];
-        let currentTab = 'inbound';
-        let editTargetIndex = null;
-        let sessionUser = null;
+        let globalSarabanData = [];
+        let globalOrdersData = [];
+        let currentSarabanTab = 'inbound';
+        let sarabanEditIndex = null;
+        let currentUser = null; // เก็บข้อมูลผู้ใช้ล็อกอินสด {displayName, role, department}
+        let calendarObj = null;
 
         window.onload = function() {
             checkAuth();
-            setupActivityListeners(); 
-            setInterval(checkSessionExpiry, 10000); 
         };
 
         function showLoading(text) {
             document.getElementById('loading-text').innerText = text;
             document.getElementById('loading-spinner').classList.remove('hidden');
         }
-
-        function hideLoading() {
-            document.getElementById('loading-spinner').classList.add('hidden');
-        }
-
-        async function fetchOnlineData() {
-            showLoading("กำลังเชื่อมต่อระบบฐานข้อมูลคลาวด์อัจฉริยะ...");
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
-                if (!response.ok) throw new Error("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
-                const result = await response.json();
-                if (result.status === "success") {
-                    inboundDocs = result.data.filter(doc => doc.internalId && doc.internalId.startsWith("รับ"));
-                    outboundDocs = result.data.filter(doc => doc.internalId && doc.internalId.startsWith("ส่ง"));
-                    renderTable();
-                    updateCounters();
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error(error);
-                alert("⚠️ เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function startLiveClock() {
-            function updateClock() {
-                const userDisplay = document.getElementById("user-display");
-                if (!userDisplay) return;
-                const baseName = sessionUser || MOCK_USER.displayName;
-                const now = new Date();
-                const dateString = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-                const timeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-                userDisplay.innerText = `${baseName} | ${dateString} ${timeString} น.`;
-            }
-            updateClock();
-            setInterval(updateClock, 1000);
-        }
+        function hideLoading() { document.getElementById('loading-spinner').classList.add('hidden'); }
 
         function checkAuth() {
-            const loginScreen = document.getElementById("login-screen");
-            const mainApp = document.getElementById("main-app");
-            const savedUser = localStorage.getItem("saraban_user");
-            const loginTime = localStorage.getItem("saraban_login_time");
-            const currentTime = new Date().getTime();
-
-            if (savedUser && loginTime && (currentTime - parseInt(loginTime) < SESSION_TIMEOUT_MS)) {
-                sessionUser = savedUser;
-                localStorage.setItem("saraban_login_time", currentTime.toString());
-                loginScreen.classList.add("hidden");
-                mainApp.classList.remove("hidden");
-                startLiveClock();
-                fetchOnlineData(); 
+            const saved = localStorage.getItem("smart_user_session");
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("main-app").classList.remove("hidden");
+                initLiveHeader();
+                fetchSystemData();
+                navigateTo('menu-dashboard');
             } else {
-                handleLogoutSilent();
+                document.getElementById("main-app").classList.add("hidden");
+                document.getElementById("login-screen").classList.remove("hidden");
             }
         }
 
-        function updateSessionTimestamp() {
-            if (sessionUser) {
-                localStorage.setItem("saraban_login_time", new Date().getTime().toString());
-            }
-        }
-
-        function setupActivityListeners() {
-            window.addEventListener('mousemove', updateSessionTimestamp);
-            window.addEventListener('keypress', updateSessionTimestamp);
-            window.addEventListener('click', updateSessionTimestamp);
-            window.addEventListener('scroll', updateSessionTimestamp);
-        }
-
-        function checkSessionExpiry() {
-            if (sessionUser) {
-                const loginTime = localStorage.getItem("saraban_login_time");
-                const currentTime = new Date().getTime();
-                if (loginTime && (currentTime - parseInt(loginTime) >= SESSION_TIMEOUT_MS)) {
-                    alert("⏰ คุณไม่ได้ใช้งานเกิน 20 นาที ระบบได้ทำการล็อกเอาท์โดยอัตโนมัติเพื่อความปลอดภัย");
-                    handleLogoutSilent();
-                }
-            }
-        }
-
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
+            showLoading("กำลังยืนยันฐานสิทธิ์ผู้ใช้งานผ่านโปรโตคอลความปลอดภัย...");
             const userInp = document.getElementById("username").value;
             const passInp = document.getElementById("password").value;
             const errorDiv = document.getElementById("login-error");
 
-            if (userInp === MOCK_USER.username && passInp === MOCK_USER.password) {
-                sessionUser = MOCK_USER.displayName;
-                localStorage.setItem("saraban_user", sessionUser);
-                localStorage.setItem("saraban_login_time", new Date().getTime().toString());
-                errorDiv.classList.add("hidden");
-                document.getElementById("login-form").reset();
-                checkAuth();
-            } else {
-                errorDiv.classList.remove("hidden");
-            }
-        }
-
-        function handleLogoutSilent() {
-            sessionUser = null;
-            localStorage.removeItem("saraban_user");
-            localStorage.removeItem("saraban_login_time");
-            if(document.getElementById("main-app")) document.getElementById("main-app").classList.add("hidden");
-            if(document.getElementById("login-screen")) document.getElementById("login-screen").classList.remove("hidden");
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "login", username: userInp, password: passInp })
+                });
+                const res = await response.json();
+                if (res.status === "success") {
+                    currentUser = res.user;
+                    localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
+                    errorDiv.classList.add("hidden");
+                    document.getElementById("username").value = "";
+                    document.getElementById("password").value = "";
+                    checkAuth();
+                } else {
+                    errorDiv.classList.remove("hidden");
+                }
+            } catch (err) {
+                alert("ระบบเชื่อมต่อสิทธิ์ล้มเหลว: " + err.message);
+            } finally { hideLoading(); }
         }
 
         function handleLogout() {
-            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) handleLogoutSilent();
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            const tabIn = document.getElementById('tab-inbound');
-            const tabOut = document.getElementById('tab-outbound');
-            const thNumber = document.getElementById('th-number');
-
-            if (tab === 'inbound') {
-                tabIn.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold text-indigo-600 bg-white shadow-sm transition-all cursor-pointer";
-                tabOut.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-all cursor-pointer";
-                thNumber.innerText = "เลขทะเบียนรับ";
-            } else {
-                tabOut.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold text-indigo-600 bg-white shadow-sm transition-all cursor-pointer";
-                tabIn.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-all cursor-pointer";
-                thNumber.innerText = "เลขทะเบียนส่ง";
+            if(confirm("คุณต้องการล็อกเอาท์ออกจากระบบใช่หรือไม่?")) {
+                localStorage.removeItem("smart_user_session");
+                currentUser = null;
+                checkAuth();
             }
-            renderTable();
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('table-body');
-            if(!tbody) return; 
-            tbody.innerHTML = '';
+        function initLiveHeader() {
+            const clockEl = document.getElementById("clock-display");
+            const badgeEl = document.getElementById("user-role-badge");
+            badgeEl.innerText = `สิทธิ์เข้าถึง: [${currentUser.role}] - ฝ่าย: ${currentUser.department}`;
             
-            const rawData = currentTab === 'inbound' ? inboundDocs : outboundDocs;
-            const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
+            setInterval(() => {
+                const now = new Date();
+                clockEl.innerText = `${currentUser.displayName} | ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')} น.`;
+            }, 1000);
+        }
 
-            const filteredData = rawData.filter(doc => {
-                return (doc.internalId && doc.internalId.toLowerCase().includes(searchQuery)) ||
-                       (doc.docId && doc.docId.toLowerCase().includes(searchQuery)) ||
-                       (doc.title && doc.title.toLowerCase().includes(searchQuery)) ||
-                       (doc.department && doc.department.toLowerCase().includes(searchQuery)) ||
-                       (doc.source && doc.source.toLowerCase().includes(searchQuery)) ||
-                       (doc.destination && doc.destination.toLowerCase().includes(searchQuery));
+        async function fetchSystemData() {
+            showLoading("กำลังประมวลผลโมดูลแดชบอร์ดและข้อมูลสถิติ...");
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const res = await response.json();
+                if (res.status === "success") {
+                    globalSarabanData = res.sarabanData || [];
+                    globalOrdersData = res.ordersData || [];
+                    calculateDashboardCounters();
+                    renderSarabanTable();
+                    renderWorkflowTable();
+                    renderOrdersTable();
+                    initCalendar();
+                }
+            } catch (err) {
+                console.error("Fetch Data Error", err);
+            } finally { hideLoading(); }
+        }
+
+        function navigateTo(targetTabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(targetTabId).classList.remove('hidden');
+            
+            document.querySelectorAll('aside nav button').forEach(btn => btn.classList.remove('sidebar-active'));
+            const activeNavId = targetTabId.replace('menu-', 'nav-');
+            if(document.getElementById(activeNavId)) {
+                document.getElementById(activeNavId).classList.add('sidebar-active');
+            }
+            if(targetTabId === 'menu-calendar' && calendarObj) {
+                setTimeout(() => calendarObj.render(), 150); // ป้องกันบั๊กปฏิทินเรนเดอร์ไม่เต็มพื้นที่ตารางตู้คอนเทนเนอร์
+            }
+        }
+
+        // ----------------------------------------
+        // ENGINE: MENU 1 - EXECUTIVE DASHBOARD
+        // ----------------------------------------
+        let chartDeptObj = null;
+        let chartPriObj = null;
+
+        function calculateDashboardCounters() {
+            const inCount = globalSarabanData.filter(d => d.internalId.startsWith("รับ")).length;
+            const outCount = globalSarabanData.filter(d => d.internalId.startsWith("ส่ง")).length;
+            const pendingCount = globalSarabanData.filter(d => d.status === "รอดำเนินการ").length;
+            const orderCount = globalOrdersData.length;
+
+            document.getElementById("dash-in").innerText = inCount;
+            document.getElementById("dash-out").innerText = outCount;
+            document.getElementById("dash-pending").innerText = pendingCount;
+            document.getElementById("dash-orders").innerText = orderCount;
+
+            // คัดแยกเพื่อนับภาระงานแยกฝ่ายงาน 4 ฝ่าย
+            const depts = ["ฝ่ายบริหารงานทั่วไป", "ฝ่ายบริหารงานงบประมาณ", "ฝ่ายบริหารงานวิชาการ", "ฝ่ายบริหารงานบุคคล"];
+            const deptCounts = depts.map(name => globalSarabanData.filter(d => d.department.includes(name)).length);
+
+            // คัดแยกประเภทตามความเร่งด่วน
+            const priorityLevels = ["ปกติ", "ด่วน", "ด่วนมาก", "ด่วนที่สุด"];
+            const priorityCounts = priorityLevels.map(level => globalSarabanData.filter(d => d.priority.includes(level)).length);
+
+            // วาดกราฟ Chart.js
+            if(chartDeptObj) chartDeptObj.destroy();
+            if(chartPriObj) chartPriObj.destroy();
+
+            chartDeptObj = new Chart(document.getElementById('chart-departments'), {
+                type: 'pie',
+                data: {
+                    labels: ['งานทั่วไป', 'งานงบประมาณ', 'งานวิชาการ', 'งานบุคคล'],
+                    datasets: [{ data: deptCounts, backgroundColor: ['#3b82f6', '#f59e0b', '#6366f1', '#a855f7'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
 
-            if(filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="py-16 text-center text-slate-400 font-medium bg-slate-50/50 text-base">🔍 ไม่พบข้อมูลเอกสารในชั้นฐานข้อมูล</td></tr>`;
+            chartPriObj = new Chart(document.getElementById('chart-priority'), {
+                type: 'bar',
+                data: {
+                    labels: priorityLevels,
+                    datasets: [{ label: 'จำนวนเอกสาร (ฉบับ)', data: priorityCounts, backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        // ----------------------------------------
+        // ENGINE: MENU 2 - CORE SARABAN MANAGEMENT
+        // ----------------------------------------
+        function switchSarabanTab(tab) {
+            currentSarabanTab = tab;
+            document.getElementById('subtab-inbound').className = tab === 'inbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
+            document.getElementById('subtab-outbound').className = tab === 'outbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
+            document.getElementById('th-saraban-id').innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
+            renderSarabanTable();
+        }
+
+        function renderSarabanTable() {
+            const tbody = document.getElementById("saraban-table-body");
+            tbody.innerHTML = "";
+            const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
+            const raw = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
+            const search = document.getElementById("search-saraban").value.toLowerCase();
+
+            const filtered = raw.filter(d => d.internalId.toLowerCase().includes(search) || d.docId.toLowerCase().includes(search) || d.title.toLowerCase().includes(search));
+            
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="py-12 text-center text-slate-400">🔍 ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
                 return;
             }
 
-            filteredData.forEach((doc) => {
-                const realIndex = rawData.findIndex(d => d.internalId === doc.internalId);
-                const statusClass = doc.status === 'สำเร็จแล้ว' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60' : 'bg-amber-50 text-amber-700 border-amber-200/60';
+            filtered.forEach(doc => {
+                const realIndex = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
+                const pColor = doc.priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : doc.priority.includes("มาก") ? "text-orange-600 bg-orange-50" : doc.priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
+                const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
+                const fileLink = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="text-blue-600 font-bold hover:underline">📄 เปิดคลาวด์</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
                 
-                let deptColor = "bg-slate-50 text-slate-600 border-slate-200";
-                if(doc.department && doc.department.includes("ทั่วไป")) deptColor = "bg-sky-50 text-sky-700 border-sky-200/70";
-                if(doc.department && doc.department.includes("งบประมาณ")) deptColor = "bg-amber-50 text-amber-700 border-amber-200/70";
-                if(doc.department && doc.department.includes("วิชาการ")) deptColor = "bg-indigo-50 text-indigo-700 border-indigo-200/70";
-                if(doc.department && doc.department.includes("บุคคล")) deptColor = "bg-purple-50 text-purple-700 border-purple-200/70";
-
-                const thaiDate = doc.date ? new Date(doc.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : "-";
-                const fileIcon = doc.fileUrl && doc.fileUrl !== "#" && doc.fileUrl !== ""
-                    ? `<a href="${doc.fileUrl}" target="_blank" class="text-indigo-600 hover:text-indigo-900 font-bold inline-flex items-center gap-1 hover:underline transition-all bg-indigo-50/50 px-3 py-1.5 rounded-lg border border-indigo-100">📄 เปิดดูไฟล์</a>` 
-                    : `<span class="text-slate-300 font-semibold select-none">ไม่มีไฟล์</span>`;
-
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80 transition-colors odd:bg-white even:bg-slate-50/30 text-[13px]">
-                        <td class="py-4 px-6 font-bold text-slate-900 text-sm tracking-tight">${doc.internalId}</td>
-                        <td class="py-4 px-4 font-semibold text-slate-600">${doc.docId || ''}</td>
-                        <td class="py-4 px-4 text-slate-500 font-medium">${thaiDate}</td>
-                        <td class="py-4 px-4 text-slate-800 font-semibold">${doc.source || ''}</td>
-                        <td class="py-4 px-4 text-slate-800 font-semibold">${doc.destination || ''}</td>
-                        <td class="py-4 px-6 font-bold text-slate-900 text-sm leading-snug tracking-tight">${doc.title || ''}</td>
-                        <td class="py-4 px-4">
-                            <span class="px-3 py-1.5 border rounded-xl font-bold inline-block ${deptColor}">${doc.department || 'ไม่ระบุ'}</span>
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            <span class="px-3 py-1.5 border rounded-xl font-extrabold inline-block text-xs ${statusClass}">${doc.status || 'รอดำเนินการ'}</span>
-                        </td>
-                        <td class="py-4 px-4 text-center">${fileIcon}</td>
-                        <td class="py-4 px-6 text-right space-x-3 whitespace-nowrap font-bold">
-                            <button onclick="editDoc(${realIndex})" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all hover:scale-105">✏️ แก้ไข</button>
-                            <button onclick="deleteDoc(${realIndex})" class="text-xs font-bold text-rose-500 hover:text-rose-700 cursor-pointer transition-all hover:scale-105">ลบออก</button>
+                    <tr class="hover:bg-slate-50/80">
+                        <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
+                        <td class="py-3 px-3">${doc.docId}</td>
+                        <td class="py-3 px-3">${doc.date}</td>
+                        <td class="py-3 px-3 font-bold">${doc.department.replace("ฝ่ายบริหารงาน", "")}</td>
+                        <td class="py-3 px-4 font-bold text-slate-800">${doc.title}</td>
+                        <td class="py-3 px-3 text-center"><span class="px-2 py-1 rounded-md text-[10px] font-bold ${pColor}">${doc.priority}</span></td>
+                        <td class="py-3 px-3 text-center font-bold text-slate-500">${doc.deadline || '-'}</td>
+                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status}</span></td>
+                        <td class="py-3 px-3 text-center">${fileLink}</td>
+                        <td class="py-3 px-4 text-right space-x-2 font-bold">
+                            <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteSaraban(${realIndex})" class="text-rose-500 hover:text-rose-700 cursor-pointer">ลบ</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function updateCounters() {
-            if(!document.getElementById('count-in')) return;
-            document.getElementById('count-in').innerText = inboundDocs.length;
-            document.getElementById('count-out').innerText = outboundDocs.length;
-            
-            const pendingIn = inboundDocs.filter(d => d.status === 'รอดำเนินการ').length;
-            const pendingOut = outboundDocs.filter(d => d.status === 'รอดำเนินการ').length;
-            document.getElementById('count-pending').innerText = pendingIn + pendingOut;
-        }
-
-        function openModal() {
-            const modal = document.getElementById('doc-modal');
-            editTargetIndex = null; 
-            
-            const isInc = currentTab === 'inbound';
-            document.getElementById('modal-title').innerText = isInc ? '📥 ลงทะเบียนหนังสือรับระบบ AI' : '📤 ลงทะเบียนหนังสือส่งระบบ AI';
-            
-            const currentDataList = isInc ? inboundDocs : outboundDocs;
+        function openSarabanModal() {
+            sarabanEditIndex = null;
+            document.getElementById("saraban-form").reset();
+            document.getElementById("form-file-status").classList.add("hidden");
+            const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
+            const subList = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
             let nextNum = 1;
-            if (currentDataList.length > 0) {
-                const lastId = currentDataList[currentDataList.length - 1].internalId;
-                if(lastId) {
-                    const match = lastId.match(/\d+/);
-                    if (match) nextNum = parseInt(match[0]) + 1;
-                }
+            if(subList.length > 0) {
+                const lastId = subList[0].internalId; // เนื่องจากเรากรองเอาอันล่าสุดเรียงในชีตขึ้นก่อน
+                const match = lastId.match(/\d+/);
+                if(match) nextNum = parseInt(match[0]) + 1;
             }
-            
-            const prefix = isInc ? 'รับ' : 'ส่ง';
-            document.getElementById('form-internal-id').value = `${prefix} ${String(nextNum).padStart(3, '0')}/2569`;
-            document.getElementById('form-file-status').classList.add('hidden');
-            modal.classList.remove('hidden');
+            document.getElementById("form-internal-id").value = `${prefix} ${String(nextNum).padStart(3, '0')}/2569`;
+            document.getElementById("saraban-modal").classList.remove("hidden");
         }
 
-        function editDoc(index) {
-            editTargetIndex = index;
-            const data = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
-            
-            document.getElementById('modal-title').innerText = currentTab === 'inbound' ? '✏️ แก้ไขข้อมูลทะเบียนรับ' : '✏️ แก้ไขข้อมูลทะเบียนส่ง';
-            
-            document.getElementById('form-internal-id').value = data.internalId;
-            document.getElementById('form-doc-id').value = data.docId || '';
-            document.getElementById('form-date').value = data.date || '';
-            document.getElementById('form-department').value = data.department || 'ฝ่ายบริหารงานทั่วไป';
-            document.getElementById('form-source').value = data.source || '';
-            document.getElementById('form-destination').value = data.destination || '';
-            document.getElementById('form-title').value = data.title || '';
-            document.getElementById('form-status').value = data.status || 'รอดำเนินการ';
+        function editSaraban(index) {
+            sarabanEditIndex = index;
+            const data = globalSarabanData[index];
+            document.getElementById("form-internal-id").value = data.internalId;
+            document.getElementById("form-doc-id").value = data.docId;
+            document.getElementById("form-date").value = data.date;
+            document.getElementById("form-department").value = data.department;
+            document.getElementById("form-source").value = data.source;
+            document.getElementById("form-destination").value = data.destination;
+            document.getElementById("form-title").value = data.title;
+            document.getElementById("form-priority").value = data.priority;
+            document.getElementById("form-deadline").value = data.deadline;
+            document.getElementById("form-status").value = data.status;
 
-            const fileStatus = document.getElementById('form-file-status');
-            if (data.fileUrl && data.fileUrl !== "" && data.fileUrl !== "#") {
-                fileStatus.innerHTML = `📎 <b>Cloud File Link:</b> <a href="${data.fileUrl}" target="_blank" class="text-indigo-600 font-bold underline">คลิกเปิดเอกสารแนบ</a>`;
-                fileStatus.classList.remove('hidden');
-            } else {
-                fileStatus.classList.add('hidden');
+            if(data.fileUrl && data.fileUrl.startsWith("http")) {
+                const el = document.getElementById("form-file-status");
+                el.innerHTML = `📎 คลาวด์ลิงก์เดิม: <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">เปิดดูไฟล์แนบ</a>`;
+                el.classList.remove("hidden");
             }
-
-            document.getElementById('doc-modal').classList.remove('hidden');
+            document.getElementById("saraban-modal").classList.remove("hidden");
         }
 
-        function closeModal() {
-            document.getElementById('doc-modal').classList.add('hidden');
-            document.getElementById('doc-form').reset();
-            editTargetIndex = null;
-        }
+        function closeModalSub('saraban-modal')} // เพื่อความกระชับขอยุบฟังก์ชันเปิดปิดโมดอล
+        function closeSarabanModal() { document.getElementById("saraban-modal").classList.add("hidden"); }
 
-        async function handleSubmit(event) {
+        async function handleSarabanSubmit(event) {
             event.preventDefault();
-            const fileInput = document.getElementById('form-file');
-            
-            let currentData = null;
-            if (editTargetIndex !== null) {
-                currentData = currentTab === 'inbound' ? inboundDocs[editTargetIndex] : outboundDocs[editTargetIndex];
-            }
-
-            let uploadedUrl = currentData ? currentData.fileUrl : "";
+            showLoading("กำลังเข้ารหัสและสตรีมมิ่งไฟล์ลงฐานโฟลเดอร์ย่อยแยกฝ่ายงาน...");
+            const fileInput = document.getElementById("form-file");
             let fileDataJson = { fileData: null, fileName: null, mimeType: null };
-            
-            showLoading("กำลังส่งผ่านโครงข่ายและเข้ารหัสข้อมูลความปลอดภัย...");
 
-            if (fileInput.files.length > 0) {
+            if(fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                try {
-                    const base64Data = await convertFileToBase64(file);
-                    fileDataJson.fileData = base64Data;
-                    fileDataJson.fileName = file.name;
-                    fileDataJson.mimeType = file.type;
-                } catch (error) {
-                    alert("เกิดข้อผิดพลาดในการอ่านไฟล์: " + error.message);
-                    hideLoading();
-                    return;
-                }
+                const base64 = await convertFileToBase64(file);
+                fileDataJson.fileData = base64;
+                fileDataJson.fileName = file.name;
+                fileDataJson.mimeType = file.type;
             }
 
-            const docObject = {
-                action: editTargetIndex !== null ? "update" : "insert",
-                internalId: document.getElementById('form-internal-id').value,
-                docId: document.getElementById('form-doc-id').value,
-                date: document.getElementById('form-date').value,
-                department: document.getElementById('form-department').value,
-                source: document.getElementById('form-source').value,
-                destination: document.getElementById('form-destination').value, 
-                title: document.getElementById('form-title').value,
-                status: document.getElementById('form-status').value,
-                fileUrl: uploadedUrl,
+            const docObj = {
+                action: sarabanEditIndex !== null ? "update" : "insert",
+                internalId: document.getElementById("form-internal-id").value,
+                docId: document.getElementById("form-doc-id").value,
+                date: document.getElementById("form-date").value,
+                department: document.getElementById("form-department").value,
+                source: document.getElementById("form-source").value,
+                destination: document.getElementById("form-destination").value,
+                title: document.getElementById("form-title").value,
+                priority: document.getElementById("form-priority").value,
+                deadline: document.getElementById("form-deadline").value,
+                status: document.getElementById("form-status").value,
+                fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
                 ...fileDataJson
             };
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(docObject)
-                });
-                if (!response.ok) throw new Error("Network Error");
-                const result = await response.json();
-                if (result && result.status === "success") {
-                    closeModal();
-                    await fetchOnlineData();
-                } else {
-                    throw new Error(result.message);
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(docObj) });
+                const res = await response.json();
+                if(res.status === "success") {
+                    closeSarabanModal();
+                    await fetchSystemData();
                 }
-            } catch (error) {
-                alert("⚠️ บันทึกข้อมูลไม่สำเร็จ: " + error.message);
-            } finally {
-                hideLoading();
-            }
+            } catch(e) { alert("เกิดข้อผิดพลาดในการเซฟฐานข้อมูล: " + e.toString()); }
+            finally { hideLoading(); }
         }
 
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
+                const reader = new FileReader(); reader.readAsDataURL(file);
                 reader.onload = () => resolve(reader.result.split(',')[1]);
                 reader.onerror = error => reject(error);
             });
         }
 
-        async function deleteDoc(index) {
-            const targetData = currentTab === 'inbound' ? inboundDocs[index] : outboundDocs[index];
-            if(confirm(`คุณต้องการลบเอกสารเลขทะเบียน ${targetData.internalId} ใช่หรือไม่?`)) {
-                showLoading("กำลังดำเนินการลบโครงสร้างข้อมูล...");
+        async function deleteSaraban(index) {
+            if(confirm(`ยืนยันการลบหนังสือเลขทะเบียน ${globalSarabanData[index].internalId} หรือไม่?`)) {
+                showLoading("กำลังส่งแพ็กเกจคำสั่งขอลบแถวโครงสร้างข้อมูล...");
                 try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: "POST",
-                        body: JSON.stringify({ action: "delete", internalId: targetData.internalId })
-                    });
-                    const result = await response.json();
-                    if (result && result.status === "success") {
-                        await fetchOnlineData();
-                    } else {
-                        throw new Error(result.message);
-                    }
-                } catch (error) {
-                    alert("⚠️ ลบข้อมูลล้มเหลว: " + error.message);
-                } finally {
-                    hideLoading();
-                }
+                    const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", internalId: globalSarabanData[index].internalId }) });
+                    const res = await response.json();
+                    if(res.status === "success") await fetchSystemData();
+                } catch(e){ alert(e.message); } finally { hideLoading(); }
             }
+        }
+
+        // ----------------------------------------
+        // ENGINE: MENU 3 - WORKFLOW & ROUTING SYSTEM
+        // ----------------------------------------
+        function renderWorkflowTable() {
+            const tbody = document.getElementById("workflow-table-body");
+            tbody.innerHTML = "";
+            
+            globalSarabanData.forEach((doc, idx) => {
+                const isDirector = currentUser.role === "ผอ." || currentUser.role === "แอดมิน";
+                const rowActionHtml = isDirector 
+                    ? `<div class="flex gap-1"><input type="text" id="work-comment-${idx}" value="${doc.managercomment}" placeholder="พิมพ์คำสั่งการ ผอ." class="px-2 py-1 border border-slate-200 rounded-lg text-xs w-full"><button onclick="submitWorkflowComment(${idx})" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[11px] hover:bg-blue-700 cursor-pointer">เซ็นเซตคำสั่ง</button></div>`
+                    : `<span class="text-slate-400 text-[11px]">ไม่มีสิทธิ์แก้ไขข้อสั่งการ</span>`;
+                
+                // ปุ่มสลับสถานะงานเฉพาะหัวหน้างานหรือครูประจำฝ่ายนั้นๆ
+                const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
+                const statusBtnHtml = isMyDept
+                    ? `<button onclick="toggleWorkflowStatus(${idx})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[10px] font-bold text-slate-700 cursor-pointer">🔄 สลับสถานะงาน</button>`
+                    : `<span class="text-slate-300 select-none">-</span>`;
+
+                const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
+                        <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold">${doc.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">${doc.title}</td>
+                        <td class="py-3 px-4 text-blue-700 font-bold italic bg-blue-50/30">${doc.managercomment || '⏳ รอกรรมการ/ผอ. เกษียณสั่งการ...'}</td>
+                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status}</span></td>
+                        <td class="py-3 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function submitWorkflowComment(idx) {
+            const commentVal = document.getElementById(`work-comment-${idx}`).value;
+            showLoading("กำลังลงนามดิจิทัลและบันทึกข้อสั่งการผู้บริหารลงทะเบียนกลาง...");
+            const target = globalSarabanData[idx];
+            target.action = "update";
+            target.managercomment = commentVal;
+            
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
+                const res = await response.json();
+                if(res.status === "success") await fetchSystemData();
+            } catch(e){ alert(e.message); } finally { hideLoading(); }
+        }
+
+        async function toggleWorkflowStatus(idx) {
+            const target = globalSarabanData[idx];
+            target.action = "update";
+            target.status = target.status === "สำเร็จแล้ว" ? "รอดำเนินการ" : "สำเร็จแล้ว";
+            showLoading("กำลังเปลี่ยนผ่านสถานะงานแฟ้มสารบรรณ...");
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
+                if((await response.json()).status === "success") await fetchSystemData();
+            } catch(e){ alert(e.message); } finally { hideLoading(); }
+        }
+
+        // ----------------------------------------
+        // ENGINE: MENU 4 - SCHOOL ORDER GENERATOR
+        // ----------------------------------------
+        function renderOrdersTable() {
+            const tbody = document.getElementById("orders-table-body");
+            tbody.innerHTML = "";
+            if(globalOrdersData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-400">📜 ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
+                return;
+            }
+            globalOrdersData.forEach(ord => {
+                const fl = ord.fileUrl && ord.fileUrl.startsWith("http") ? `<a href="${ord.fileUrl}" target="_blank" class="text-purple-600 font-bold underline">เปิดดูครุฑ</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-3 px-4 font-black text-purple-700 text-sm">เลขที่ ${ord.orderId}</td>
+                        <td class="py-3 px-3 font-bold text-slate-400">${ord.year}</td>
+                        <td class="py-3 px-5 font-bold text-slate-900">${ord.title}</td>
+                        <td class="py-3 px-4 text-slate-500">${ord.signDate}</td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold">${ord.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
+                        <td class="py-3 px-3 text-center">${fl}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openOrderModal() {
+            document.getElementById("order-form").reset();
+            let nextNum = 1;
+            if(globalOrdersData.length > 0) {
+                // สมมติในชีตเก็บเรียงลำดับลงมาเรื่อยๆ ให้เอาตัวท้ายสุดมาบวกหนึ่ง
+                const last = globalOrdersData[globalOrdersData.length - 1].orderId;
+                const match = last.match(/\d+/);
+                if(match) nextNum = parseInt(match[0]) + 1;
+            }
+            document.getElementById("order-form-id").value = String(nextNum);
+            document.getElementById("order-modal").classList.remove("hidden");
+        }
+        function closeOrderModal() { document.getElementById("order-modal").classList.add("hidden"); }
+
+        async function handleOrderSubmit(event) {
+            event.preventDefault();
+            showLoading("กำลังสร้างเลขสารบรรณคำสั่งใหม่และอัปโหลดไฟล์ตราครุฑ...");
+            const fileInput = document.getElementById("order-form-file");
+            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+
+            if(fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const base64 = await convertFileToBase64(file);
+                fileDataJson.fileData = base64;
+                fileDataJson.fileName = file.name;
+                fileDataJson.mimeType = file.type;
+            }
+
+            const ordObj = {
+                action: "insertOrder",
+                orderId: document.getElementById("order-form-id").value,
+                year: document.getElementById("order-form-year").value,
+                title: document.getElementById("order-form-title").value,
+                signDate: document.getElementById("order-form-date").value,
+                department: document.getElementById("order-form-department").value,
+                status: "เปิดเผย",
+                ...fileDataJson
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
+                if((await response.json()).status === "success") {
+                    closeOrderModal();
+                    await fetchSystemData();
+                }
+            } catch(e){ alert(e.toString()); } finally { hideLoading(); }
+        }
+
+        // ----------------------------------------
+        // ENGINE: MENU 5 - INTERACTIVE ACTION CALENDAR
+        // ----------------------------------------
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar-container');
+            if(!calendarEl) return;
+            
+            // แปลงข้อมูลกำหนดส่งจากทะเบียนสารบรรณมาเป็นหมุดงานบนปฏิทิน (Events)
+            const eventsList = [];
+            globalSarabanData.forEach(doc => {
+                if(doc.deadline && doc.deadline !== "") {
+                    let evColor = "#10b981"; // สีเขียวปกติ
+                    if(doc.priority.includes("ที่สุด")) evColor = "#ef4444"; // แดง
+                    else if(doc.priority.includes("มาก")) evColor = "#f97316"; // ส้ม
+                    else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; // เหลืองทอง
+
+                    eventsList.push({
+                        title: `${doc.internalId}: ${doc.title}`,
+                        start: doc.deadline,
+                        backgroundColor: evColor,
+                        borderColor: evColor,
+                        extendedProps: { docData: doc }
+                    });
+                }
+            });
+
+            if(calendarObj) calendarObj.destroy();
+
+            calendarObj = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'th',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+                events: eventsList,
+                eventClick: function(info) {
+                    const d = info.event.extendedProps.docData;
+                    alert(`📄 รายละเอียดงานปักหมุด:\nทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nฝ่ายรับผิดชอบ: ${d.department}\nกำหนดส่ง: ${d.deadline}\nสถานะปัจจุบัน: ${d.status}`);
+                }
+            });
+            calendarObj.render();
         }
     </script>
 </body>
