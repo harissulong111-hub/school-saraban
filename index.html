@@ -14,7 +14,6 @@
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
         .sidebar-active { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border-left: 4px solid #2563eb; }
         .fc-event { cursor: pointer; padding: 2px 5px; font-weight: bold; }
-        /* สไตล์พรีเมียมการ์ด */
         .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(226, 232, 240, 0.8); }
     </style>
 </head>
@@ -346,14 +345,14 @@
     </div>
 
     <script>
-        // ⚠️ บรรทัดที่ 42: วางลิงก์เว็บแอป Google Apps Script (ตัวใหม่) ของพี่ครูตรงนี้ได้เลยครับ
+        // ⚠️ วางลิงก์เว็บแอป Google Apps Script ของพี่ครูตรงนี้ได้เลยครับ
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydKNXs6N6A7Fn1BSI0dfQyKKCFo997rTFFEb2uNNMpSddMjsyFxuSoGsJMLyVHLbeSvQ/exec"; 
 
         let globalSarabanData = [];
         let globalOrdersData = [];
         let currentSarabanTab = 'inbound';
         let sarabanEditIndex = null;
-        let currentUser = null; // เก็บข้อมูลผู้ใช้ล็อกอินสด {displayName, role, department}
+        let currentUser = null; 
         let calendarObj = null;
 
         window.onload = function() {
@@ -406,7 +405,7 @@
                 }
             } catch (err) {
                 alert("ระบบเชื่อมต่อสิทธิ์ล้มเหลว: " + err.message);
-            } finally { hideLoading(); }
+            } finaly { hideLoading(); }
         }
 
         function handleLogout() {
@@ -444,7 +443,7 @@
                 }
             } catch (err) {
                 console.error("Fetch Data Error", err);
-            } finally { hideLoading(); }
+            } finaly { hideLoading(); }
         }
 
         function navigateTo(targetTabId) {
@@ -457,13 +456,10 @@
                 document.getElementById(activeNavId).classList.add('sidebar-active');
             }
             if(targetTabId === 'menu-calendar' && calendarObj) {
-                setTimeout(() => calendarObj.render(), 150); // ป้องกันบั๊กปฏิทินเรนเดอร์ไม่เต็มพื้นที่ตารางตู้คอนเทนเนอร์
+                setTimeout(() => calendarObj.render(), 150); 
             }
         }
 
-        // ----------------------------------------
-        // ENGINE: MENU 1 - EXECUTIVE DASHBOARD
-        // ----------------------------------------
         let chartDeptObj = null;
         let chartPriObj = null;
 
@@ -478,15 +474,12 @@
             document.getElementById("dash-pending").innerText = pendingCount;
             document.getElementById("dash-orders").innerText = orderCount;
 
-            // คัดแยกเพื่อนับภาระงานแยกฝ่ายงาน 4 ฝ่าย
             const depts = ["ฝ่ายบริหารงานทั่วไป", "ฝ่ายบริหารงานงบประมาณ", "ฝ่ายบริหารงานวิชาการ", "ฝ่ายบริหารงานบุคคล"];
             const deptCounts = depts.map(name => globalSarabanData.filter(d => d.department.includes(name)).length);
 
-            // คัดแยกประเภทตามความเร่งด่วน
             const priorityLevels = ["ปกติ", "ด่วน", "ด่วนมาก", "ด่วนที่สุด"];
             const priorityCounts = priorityLevels.map(level => globalSarabanData.filter(d => d.priority.includes(level)).length);
 
-            // วาดกราฟ Chart.js
             if(chartDeptObj) chartDeptObj.destroy();
             if(chartPriObj) chartPriObj.destroy();
 
@@ -509,9 +502,6 @@
             });
         }
 
-        // ----------------------------------------
-        // ENGINE: MENU 2 - CORE SARABAN MANAGEMENT
-        // ----------------------------------------
         function switchSarabanTab(tab) {
             currentSarabanTab = tab;
             document.getElementById('subtab-inbound').className = tab === 'inbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
@@ -563,12 +553,13 @@
         function openSarabanModal() {
             sarabanEditIndex = null;
             document.getElementById("saraban-form").reset();
+            document.getElementById("form-file-status").readonly = false;
             document.getElementById("form-file-status").classList.add("hidden");
             const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
             const subList = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
             let nextNum = 1;
             if(subList.length > 0) {
-                const lastId = subList[0].internalId; // เนื่องจากเรากรองเอาอันล่าสุดเรียงในชีตขึ้นก่อน
+                const lastId = subList[0].internalId; 
                 const match = lastId.match(/\d+/);
                 if(match) nextNum = parseInt(match[0]) + 1;
             }
@@ -598,7 +589,6 @@
             document.getElementById("saraban-modal").classList.remove("hidden");
         }
 
-        function closeModalSub('saraban-modal')} // เพื่อความกระชับขอยุบฟังก์ชันเปิดปิดโมดอล
         function closeSarabanModal() { document.getElementById("saraban-modal").classList.add("hidden"); }
 
         async function handleSarabanSubmit(event) {
@@ -639,7 +629,7 @@
                     await fetchSystemData();
                 }
             } catch(e) { alert("เกิดข้อผิดพลาดในการเซฟฐานข้อมูล: " + e.toString()); }
-            finally { hideLoading(); }
+            final { hideLoading(); }
         }
 
         function convertFileToBase64(file) {
@@ -657,13 +647,10 @@
                     const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", internalId: globalSarabanData[index].internalId }) });
                     const res = await response.json();
                     if(res.status === "success") await fetchSystemData();
-                } catch(e){ alert(e.message); } finally { hideLoading(); }
+                } catch(e){ alert(e.message); } finaly { hideLoading(); }
             }
         }
 
-        // ----------------------------------------
-        // ENGINE: MENU 3 - WORKFLOW & ROUTING SYSTEM
-        // ----------------------------------------
         function renderWorkflowTable() {
             const tbody = document.getElementById("workflow-table-body");
             tbody.innerHTML = "";
@@ -674,7 +661,6 @@
                     ? `<div class="flex gap-1"><input type="text" id="work-comment-${idx}" value="${doc.managercomment}" placeholder="พิมพ์คำสั่งการ ผอ." class="px-2 py-1 border border-slate-200 rounded-lg text-xs w-full"><button onclick="submitWorkflowComment(${idx})" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[11px] hover:bg-blue-700 cursor-pointer">เซ็นเซตคำสั่ง</button></div>`
                     : `<span class="text-slate-400 text-[11px]">ไม่มีสิทธิ์แก้ไขข้อสั่งการ</span>`;
                 
-                // ปุ่มสลับสถานะงานเฉพาะหัวหน้างานหรือครูประจำฝ่ายนั้นๆ
                 const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
                 const statusBtnHtml = isMyDept
                     ? `<button onclick="toggleWorkflowStatus(${idx})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[10px] font-bold text-slate-700 cursor-pointer">🔄 สลับสถานะงาน</button>`
@@ -706,7 +692,7 @@
                 const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
                 const res = await response.json();
                 if(res.status === "success") await fetchSystemData();
-            } catch(e){ alert(e.message); } finally { hideLoading(); }
+            } catch(e){ alert(e.message); } finaly { hideLoading(); }
         }
 
         async function toggleWorkflowStatus(idx) {
@@ -717,12 +703,9 @@
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
                 if((await response.json()).status === "success") await fetchSystemData();
-            } catch(e){ alert(e.message); } finally { hideLoading(); }
+            } catch(e){ alert(e.message); } finaly { hideLoading(); }
         }
 
-        // ----------------------------------------
-        // ENGINE: MENU 4 - SCHOOL ORDER GENERATOR
-        // ----------------------------------------
         function renderOrdersTable() {
             const tbody = document.getElementById("orders-table-body");
             tbody.innerHTML = "";
@@ -749,7 +732,6 @@
             document.getElementById("order-form").reset();
             let nextNum = 1;
             if(globalOrdersData.length > 0) {
-                // สมมติในชีตเก็บเรียงลำดับลงมาเรื่อยๆ ให้เอาตัวท้ายสุดมาบวกหนึ่ง
                 const last = globalOrdersData[globalOrdersData.length - 1].orderId;
                 const match = last.match(/\d+/);
                 if(match) nextNum = parseInt(match[0]) + 1;
@@ -790,24 +772,20 @@
                     closeOrderModal();
                     await fetchSystemData();
                 }
-            } catch(e){ alert(e.toString()); } finally { hideLoading(); }
+            } catch(e){ alert(e.toString()); } finaly { hideLoading(); }
         }
 
-        // ----------------------------------------
-        // ENGINE: MENU 5 - INTERACTIVE ACTION CALENDAR
-        // ----------------------------------------
         function initCalendar() {
             const calendarEl = document.getElementById('calendar-container');
             if(!calendarEl) return;
             
-            // แปลงข้อมูลกำหนดส่งจากทะเบียนสารบรรณมาเป็นหมุดงานบนปฏิทิน (Events)
             const eventsList = [];
             globalSarabanData.forEach(doc => {
                 if(doc.deadline && doc.deadline !== "") {
-                    let evColor = "#10b981"; // สีเขียวปกติ
-                    if(doc.priority.includes("ที่สุด")) evColor = "#ef4444"; // แดง
-                    else if(doc.priority.includes("มาก")) evColor = "#f97316"; // ส้ม
-                    else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; // เหลืองทอง
+                    let evColor = "#10b981"; 
+                    if(doc.priority.includes("ที่สุด")) evColor = "#ef4444"; 
+                    else if(doc.priority.includes("มาก")) evColor = "#f97316"; 
+                    else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
 
                     eventsList.push({
                         title: `${doc.internalId}: ${doc.title}`,
