@@ -3,48 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสารบรรณและบริหารสถานศึกษาอัจฉริยะ | Premium Smart e-Saraban</title>
+    <title>ระบบสารบรรณและบริหารสถานศึกษาอัจฉริยะ | โรงเรียนบ้านกาหยี</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
-        .sidebar-active { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border-left: 4px solid #2563eb; }
-        .fc-event { cursor: pointer; padding: 2px 5px; font-weight: bold; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; font-size: 16px; }
+        .sidebar-active { background-color: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-left: 5px solid #2563eb; }
+        .fc-event { cursor: pointer; padding: 4px 6px; font-weight: bold; font-size: 14px; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(203, 213, 225, 0.8); }
+        /* สไตล์ขยายขนาดอักษรในตารางและหัวข้อ */
+        th { font-size: 15px !important; letter-spacing: 0.05em; }
+        td { font-size: 15px !important; }
+        input, select, textarea { font-size: 15px !important; }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <div id="loading-spinner" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center text-white z-50 hidden">
-        <div class="w-16 h-16 border-4 border-t-blue-500 border-r-indigo-500 rounded-full animate-spin mb-4"></div>
-        <p class="text-sm font-semibold tracking-wider text-blue-200" id="loading-text">กำลังประมวลผลเครือข่ายอัจฉริยะ...</p>
+    <div id="loading-spinner" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white z-50 hidden">
+        <div class="w-20 h-20 border-4 border-t-blue-500 border-r-indigo-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-lg font-bold text-blue-200" id="loading-text">กำลังประมวลผลระบบฐานข้อมูลโรงเรียน...</p>
     </div>
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-6 bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900">
-        <div class="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full space-y-6">
-            <div class="text-center space-y-2">
-                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl mx-auto shadow-lg shadow-blue-500/30">ส</div>
-                <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">ระบบบริหารงานสารบรรณ AI</h2>
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Ban Kayi School Smart Platform</p>
+        <div class="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full space-y-6 text-center">
+            <div class="space-y-3">
+                <img src="https://i.ibb.co/LkhbK2v7/logo-School.jpg" alt="โลโก้โรงเรียนบ้านกาหยี" class="w-32 h-32 mx-auto object-contain drop-shadow-xl rounded-full">
+                <h2 class="text-2xl font-black tracking-tight text-slate-900 mt-2">ระบบบริหารงานสารบรรณ AI</h2>
+                <p class="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 py-1 rounded-full w-4/5 mx-auto">โรงเรียนบ้านกาหยี</p>
             </div>
-            <div id="login-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl text-center">🔒 บัญชีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!</div>
-            <form onsubmit="handleLogin(event)" class="space-y-4">
+            <div id="login-error" class="hidden p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-sm font-bold rounded-xl">🔒 บัญชีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!</div>
+            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">บัญชีผู้ใช้ (Username)</label>
-                    <input type="text" id="username" placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">บัญชีผู้ใช้ (Username)</label>
+                    <input type="text" id="username" placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-xs">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">รหัสผ่าน (Password)</label>
+                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-xs">
                 </div>
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">ยืนยันเข้าสู่ระบบ</button>
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-base font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">ยืนยันเข้าสู่ระบบ</button>
                 
                 <div class="pt-2 text-center border-t border-slate-100">
-                    <button type="button" onclick="bypassLoginSystem()" class="text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline cursor-pointer bg-amber-50 px-4 py-2 rounded-xl w-full border border-amber-200 mt-2">
+                    <button type="button" onclick="bypassLoginSystem()" class="text-sm font-bold text-amber-700 hover:text-amber-800 hover:underline cursor-pointer bg-amber-50 px-4 py-2.5 rounded-xl w-full border border-amber-200 mt-1 shadow-xs">
                         ⚠️ เข้าระบบด่วนกรณีฉุกเฉิน (ไม่ใช้รหัสผ่าน)
                     </button>
                 </div>
@@ -54,35 +58,38 @@
 
     <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row w-full">
         
-        <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl">
+        <aside class="w-full md:w-68 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl">
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">ส</div>
+                <img src="https://i.ibb.co/LkhbK2v7/logo-School.jpg" class="w-10 h-10 object-contain rounded-full bg-white p-0.5">
                 <div>
-                    <h1 class="text-sm font-black text-white leading-none">สารบรรณอัจฉริยะ</h1>
-                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">e-Saraban v2026</span>
+                    <h1 class="text-base font-black text-white leading-none">สารบรรณอัจฉริยะ</h1>
+                    <span class="text-[11px] text-blue-400 font-bold uppercase tracking-widest mt-1 block">e-Saraban v2026</span>
                 </div>
             </div>
-            <nav class="flex-1 p-4 space-y-1">
-                <button onclick="navigateTo('menu-dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📊 หน้าแรก / แดชบอร์ดสรุปผล</button>
-                <button onclick="navigateTo('menu-saraban')" id="nav-saraban" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📥 ทะเบียนหนังสือรับ-ส่ง</button>
-                <button onclick="navigateTo('menu-workflow')" id="nav-workflow" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">🔄 ระบบเสนอเกษียณ & ส่งต่อฝ่าย</button>
-                <button onclick="navigateTo('menu-orders')" id="nav-orders" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📜 ออกเลขคำสั่ง/ประกาศโรงเรียน</button>
-                <button onclick="navigateTo('menu-calendar')" id="nav-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-300">📅 ปฏิทินกำหนดส่งงานสารบรรณ</button>
+            <nav class="flex-1 p-4 space-y-1.5">
+                <button onclick="navigateTo('menu-dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📊 หน้าแรก / แดชบอร์ดสรุปผล</button>
+                <button onclick="navigateTo('menu-saraban')" id="nav-saraban" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📥 ทะเบียนหนังสือรับ-ส่ง</button>
+                <button onclick="navigateTo('menu-workflow')" id="nav-workflow" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">🔄 ระบบเสนอเกษียณ & ส่งต่อฝ่าย</button>
+                <button onclick="navigateTo('menu-orders')" id="nav-orders" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📜 ออกเลขคำสั่ง/ประกาศโรงเรียน</button>
+                <button onclick="navigateTo('menu-calendar')" id="nav-calendar" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📅 ปฏิทินกำหนดส่งงานสารบรรณ</button>
             </nav>
             <div class="p-4 border-t border-slate-800 bg-slate-950/40 text-center">
-                <button onclick="handleLogout()" class="text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer">🚪 ออกจากระบบปลอดภัย</button>
+                <button onclick="handleLogout()" class="text-sm font-bold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer">🚪 ออกจากระบบปลอดภัย</button>
             </div>
         </aside>
 
         <div class="flex-1 flex flex-col min-w-0">
-            <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 shadow-xs">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">สังกัดสถานศึกษา:</span>
-                    <span class="text-xs font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">โรงเรียนบ้านกาหยี</span>
+            <header class="bg-white border-b border-slate-200 h-20 flex items-center justify-between px-6 shrink-0 shadow-xs">
+                <div class="flex items-center gap-3">
+                    <img src="https://i.ibb.co/LkhbK2v7/logo-School.jpg" class="w-11 h-11 object-contain rounded-full shadow-xs">
+                    <div>
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">โรงเรียนรัฐบาลคลาวด์อัจฉริยะ</span>
+                        <span class="text-base font-black text-blue-700">โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1</span>
+                    </div>
                 </div>
                 <div class="text-right">
-                    <span class="block text-xs font-bold text-slate-700" id="clock-display">กำลังโหลดสิทธิ์และเวลา...</span>
-                    <span class="text-[10px] font-bold text-slate-400" id="user-role-badge">สิทธิ์: -</span>
+                    <span class="block text-sm font-extrabold text-slate-800" id="clock-display">กำลังโหลดระบบ...</span>
+                    <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md mt-0.5 inline-block" id="user-role-badge">สิทธิ์: -</span>
                 </div>
             </header>
 
@@ -90,51 +97,51 @@
 
                 <section id="menu-dashboard" class="tab-content space-y-6 hidden">
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
-                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">📥 หนังสือรับทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
-                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">📥</div>
+                        <div class="glass-card p-6 rounded-2xl flex items-center justify-between shadow-xs">
+                            <div><p class="text-xs font-bold text-slate-400 uppercase">📥 หนังสือรับทั้งหมด</p><h3 class="text-4xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
+                            <div class="w-14 h-14 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-xs">📥</div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
-                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">📤 หนังสือส่งทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
-                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">📤</div>
+                        <div class="glass-card p-6 rounded-2xl flex items-center justify-between shadow-xs">
+                            <div><p class="text-xs font-bold text-slate-400 uppercase">📤 หนังสือส่งทั้งหมด</p><h3 class="text-4xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
+                            <div class="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-xs">📤</div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
-                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">⏳ เรื่องค้างดำเนินการ</p><h3 class="text-3xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
-                            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">⏳</div>
+                        <div class="glass-card p-6 rounded-2xl flex items-center justify-between shadow-xs">
+                            <div><p class="text-xs font-bold text-slate-400 uppercase">⏳ เรื่องค้างดำเนินการ</p><h3 class="text-4xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
+                            <div class="w-14 h-14 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl shadow-xs">⏳</div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
-                            <div><p class="text-[11px] font-bold text-slate-400 uppercase">📜 คำสั่งโรงเรียนปีนี้</p><h3 class="text-3xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
-                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">📜</div>
+                        <div class="glass-card p-6 rounded-2xl flex items-center justify-between shadow-xs">
+                            <div><p class="text-xs font-bold text-slate-400 uppercase">📜 คำสั่งโรงเรียนปีนี้</p><h3 class="text-4xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
+                            <div class="w-14 h-14 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl shadow-xs">📜</div>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                            <h4 class="text-xs font-bold text-slate-700 mb-4 uppercase tracking-wider">📊 สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
-                            <div class="h-64 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wider">📊 สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
+                            <div class="h-72 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                            <h4 class="text-xs font-bold text-slate-700 mb-4 uppercase tracking-wider">📈 ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
-                            <div class="h-64 flex items-center justify-center"><canvas id="chart-priority"></canvas></div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wider">📈 ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
+                            <div class="h-72 flex items-center justify-center"><canvas id="chart-priority"></canvas></div>
                         </div>
                     </div>
                 </section>
 
                 <section id="menu-saraban" class="tab-content space-y-4 hidden">
-                    <div class="glass-card p-4 rounded-2xl flex flex-col sm:flex-row gap-4 items-center justify-between">
-                        <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
-                            <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer">📥 ทะเบียนหนังสือรับ</button>
-                            <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer">📤 ทะเบียนหนังสือส่ง</button>
+                    <div class="glass-card p-5 rounded-2xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
+                        <div class="flex bg-slate-200 p-1 rounded-xl w-full sm:w-auto">
+                            <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-6 py-2.5 rounded-lg text-sm font-bold bg-white text-blue-600 shadow-xs cursor-pointer">📥 ทะเบียนหนังสือรับ</button>
+                            <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 cursor-pointer">📤 ทะเบียนหนังสือส่ง</button>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
-                            <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง/เลขที่..." class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs w-full sm:w-64 focus:outline-none focus:border-blue-500">
-                            <button onclick="openSarabanModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer whitespace-nowrap">➕ ลงทะเบียนเอกสารใหม่</button>
+                            <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง/เลขที่..." class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm w-full sm:w-72 focus:outline-none focus:border-blue-500 shadow-xs">
+                            <button onclick="openSarabanModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl cursor-pointer whitespace-nowrap shadow-md">➕ ลงทะเบียนเอกสารใหม่</button>
                         </div>
                     </div>
                     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
+                            <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-300 font-bold">
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
                                         <th class="py-4 px-4" id="th-saraban-id">เลขทะเบียนรับ</th>
                                         <th class="py-4 px-3">ที่เอกสาร</th>
                                         <th class="py-4 px-3">ลงวันที่</th>
@@ -154,23 +161,24 @@
                 </section>
 
                 <section id="menu-workflow" class="tab-content space-y-4 hidden">
-                    <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3">
-                        <span class="text-xl">💼</span>
+                    <div class="p-5 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3 shadow-xs">
+                        <span class="text-2xl">💼</span>
                         <div>
-                            <h4 class="text-xs font-bold text-blue-900">ระบบกล่องเกษียณหนังสือออนไลน์สำหรับผู้บริหารและหัวหน้างาน</h4>
-                            <p class="text-[11px] text-blue-700 mt-0.5">เฉพาะสิทธิ์ ผอ. หรือแอดมิน จึงจะมีปุ่มกดบันทึกข้อสั่งการ และส่งต่อฝ่ายงานได้</p>
+                            <h4 class="text-sm font-bold text-blue-900">ระบบกล่องเกษียณหนังสือออนไลน์สำหรับผู้บริหารและหัวหน้างาน (ฟอนต์ใหญ่-เพิ่มลิงก์ไฟล์แนบ)</h4>
+                            <p class="text-xs text-blue-700 mt-0.5">เฉพาะสิทธิ์ ผอ. หรือแอดมิน จึงจะมีสิทธิ์เซ็นข้อสั่งการ และเปลี่ยนสถานะความคืบหน้าได้</p>
                         </div>
                     </div>
                     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
+                            <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-300 font-bold">
-                                        <th class="py-4 px-4">เลขประจำทะเบียน</th>
-                                        <th class="py-4 px-3">ฝ่ายปฏิบัติการ</th>
-                                        <th class="py-4 px-4 w-1/3">เรื่อง / หัวข้อราชการ</th>
-                                        <th class="py-4 px-4">✍️ บันทึกข้อสั่งการของ ผอ. โรงเรียน</th>
-                                        <th class="py-4 px-3 text-center">สถานะงาน</th>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                                        <th class="py-4 px-4">เลขทะเบียน</th>
+                                        <th class="py-4 px-3">ฝ่ายรับผิดชอบ</th>
+                                        <th class="py-4 px-4 w-1/4">เรื่อง / หัวข้อราชการ</th>
+                                        <th class="py-4 px-3 text-center">ไฟล์เอกสาร</th>
+                                        <th class="py-4 px-4 w-1/4">✍️ บันทึกข้อสั่งการของ ผอ. โรงเรียน</th>
+                                        <th class="py-4 px-3 text-center">สถานะ</th>
                                         <th class="py-4 px-4 text-center">การดำเนินการตามสิทธิ์</th>
                                     </tr>
                                 </thead>
@@ -181,18 +189,18 @@
                 </section>
 
                 <section id="menu-orders" class="tab-content space-y-4 hidden">
-                    <div class="glass-card p-4 rounded-2xl flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <div class="glass-card p-5 rounded-2xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800">📜 ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
-                            <p class="text-[11px] text-slate-400 mt-0.5">ระบบออกเลขที่คำสั่งต่อจากเลขล่าสุดให้โดยอัตโนมัติ ป้องกันปัญหาเลขซ้ำ</p>
+                            <h4 class="text-sm font-bold text-slate-800">📜 ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">ระบบจะคำนวณและรันเลขที่คำสั่งต่อจากแถวล่าสุดให้คุณครูโดยอัตโนมัติ</p>
                         </div>
-                        <button onclick="openOrderModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer">➕ ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
+                        <button onclick="openOrderModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow-md">➕ ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
                     </div>
                     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
+                            <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-300 font-bold">
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
                                         <th class="py-4 px-4">เลขที่คำสั่ง</th>
                                         <th class="py-4 px-3">ปี พ.ศ.</th>
                                         <th class="py-4 px-5 w-1/2">เรื่องคำสั่งโรงเรียน</th>
@@ -210,9 +218,9 @@
                 <section id="menu-calendar" class="tab-content hidden">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
                         <div class="mb-4">
-                            <h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญ</h4>
+                            <h4 class="text-sm font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4>
                         </div>
-                        <div id="calendar-container" class="text-xs font-semibold"></div>
+                        <div id="calendar-container" class="font-semibold"></div>
                     </div>
                 </section>
 
@@ -222,37 +230,37 @@
 
     <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
-                <button type="button" onclick="closeSarabanModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-base" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
+                <button type="button" onclick="closeSarabanModal()" class="w-8 h-8 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-lg cursor-pointer">&times;</button>
             </div>
-            <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="p-6 space-y-4 text-xs">
+            <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="p-6 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-500 mb-1">เลขทะเบียนระบบ</label><input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-blue-600" readonly></div>
-                    <div><label class="block font-bold text-slate-500 mb-1">ที่ (เลขที่เอกสารต้นฉบับ)</label><input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">เลขทะเบียนระบบ</label><input type="text" id="form-internal-id" required class="w-full px-3 py-2.5 bg-slate-100 border border-slate-300 rounded-xl font-bold text-blue-600" readonly></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">ที่ (เลขที่เอกสารต้นฉบับ)</label><input type="text" id="form-doc-id" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-500 mb-1">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
-                    <div><label class="block font-bold text-slate-500 mb-1">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-500 mb-1">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
-                    <div><label class="block font-bold text-slate-500 mb-1">ถึง</label><input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">ถึง</label><input type="text" id="form-destination" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
                 </div>
-                <div><label class="block font-bold text-slate-500 mb-1">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                <div><label class="block font-bold text-slate-600 mb-1">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-500 mb-1">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
-                    <div><label class="block font-bold text-slate-500 mb-1">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์แนบ</label>
-                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700">
-                    <p id="form-file-status" class="mt-1 text-[11px] text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
+                    <label class="block font-bold text-slate-600 mb-1">อัพโหลดไฟล์แนบ</label>
+                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1.5 bg-slate-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 font-bold">
+                    <p id="form-file-status" class="mt-1 text-xs text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
                 </div>
-                <div><label class="block font-bold text-slate-500 mb-1">สถานะ</label><select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none"><option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
+                <div><label class="block font-bold text-slate-600 mb-1">สถานะ</label><select id="form-status" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
                 <div class="pt-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-4">
-                    <button type="button" onclick="closeSarabanModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer">บันทึกข้อมูล</button>
+                    <button type="button" onclick="closeSarabanModal()" class="px-5 py-2.5 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer">บันทึกข้อมูล</button>
                 </div>
             </form>
         </div>
@@ -260,27 +268,27 @@
 
     <div id="order-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
-                <button type="button" onclick="closeOrderModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-base">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
+                <button type="button" onclick="closeOrderModal()" class="w-8 h-8 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-lg cursor-pointer">&times;</button>
             </div>
-            <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-6 space-y-4 text-xs">
+            <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-6 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-500 mb-1">เลขที่คำสั่งโรงเรียน</label><input type="text" id="order-form-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-purple-600" readonly></div>
-                    <div><label class="block font-bold text-slate-500 mb-1">ปี พ.ศ.</label><input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">เลขที่คำสั่งโรงเรียน</label><input type="text" id="order-form-id" required class="w-full px-3 py-2.5 bg-slate-100 border border-slate-300 rounded-xl font-bold text-purple-600" readonly></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">ปี พ.ศ.</label><input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
                 </div>
-                <div><label class="block font-bold text-slate-500 mb-1">เรื่องคำสั่ง / ประกาศ</label><input type="text" id="order-form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                <div><label class="block font-bold text-slate-600 mb-1">เรื่องคำสั่ง / ประกาศ</label><input type="text" id="order-form-title" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-500 mb-1">วันที่ลงนามประกาศ</label><input type="date" id="order-form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
-                    <div><label class="block font-bold text-slate-500 mb-1">ฝ่ายเจ้าของเรื่อง</label><select id="order-form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none"><option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option></select></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">วันที่ลงนามประกาศ</label><input type="date" id="order-form-date" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1">ฝ่ายเจ้าของเรื่อง</label><select id="order-form-department" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-purple-500"><option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option></select></div>
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์สแกนคำสั่ง</label>
-                    <input type="file" id="order-form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:bg-purple-50 file:text-purple-700">
+                    <label class="block font-bold text-slate-600 mb-1">อัพโหลดไฟล์สแกนคำสั่ง</label>
+                    <input type="file" id="order-form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1.5 bg-slate-50 file:bg-purple-50 file:text-purple-700 font-bold">
                 </div>
                 <div class="pt-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-4">
-                    <button type="button" onclick="closeOrderModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold cursor-pointer">ยื่นออกเลขและบันทึก</button>
+                    <button type="button" onclick="closeOrderModal()" class="px-5 py-2.5 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+                    <button type="submit" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold cursor-pointer">ยื่นออกเลขและบันทึก</button>
                 </div>
             </form>
         </div>
@@ -354,9 +362,8 @@
                 console.log("Cloud server auth bypass triggered.", err);
             }
 
-            // ระบบสำรองกรณีล็อกอินธรรมดาไม่ผ่าน
             if(userInp === "admin" && passInp === "1234") {
-                currentUser = { displayName: "คุณครูผู้ดูแลระบบ", role: "แอนมิน", department: "ฝ่ายบริหารงานทั่วไป" };
+                currentUser = { displayName: "คุณครูผู้ดูแลระบบ", role: "แอดมิน", department: "ฝ่ายบริหารงานทั่วไป" };
                 localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
                 errorDiv.classList.add("hidden");
                 checkAuth();
@@ -366,7 +373,6 @@
             hideLoading();
         }
 
-        // 🚨 ฟังก์ชันฉุกเฉิน: ทะลุกำแพงระบบล็อกอินกรณีเร่งด่วน
         function bypassLoginSystem() {
             currentUser = { displayName: "คุณครูผู้ใช้งานฉุกเฉิน", role: "แอดมิน", department: "ฝ่ายบริหารงานทั่วไป" };
             localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
@@ -471,8 +477,8 @@
 
         function switchSarabanTab(tab) {
             currentSarabanTab = tab;
-            document.getElementById('subtab-inbound').className = tab === 'inbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
-            document.getElementById('subtab-outbound').className = tab === 'outbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 cursor-pointer";
+            document.getElementById('subtab-inbound').className = tab === 'inbound' ? "px-6 py-2.5 rounded-lg text-sm font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 cursor-pointer";
+            document.getElementById('subtab-outbound').className = tab === 'outbound' ? "px-6 py-2.5 rounded-lg text-sm font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 cursor-pointer";
             document.getElementById('th-saraban-id').innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
             renderSarabanTable();
         }
@@ -486,7 +492,7 @@
             const filtered = raw.filter(d => d.internalId.toLowerCase().includes(search) || d.docId.toLowerCase().includes(search) || d.title.toLowerCase().includes(search));
             
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="py-12 text-center text-slate-400">🔍 ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="py-12 text-center text-slate-400 text-sm">🔍 ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
                 return;
             }
 
@@ -494,20 +500,20 @@
                 const realIndex = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
                 const pColor = doc.priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : doc.priority.includes("มาก") ? "text-orange-600 bg-orange-50" : doc.priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
                 const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
-                const fileLink = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="text-blue-600 font-bold hover:underline">📄 เปิดคลาวด์</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
+                const fileLink = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-1 rounded-md">📄 เปิดคลาวด์</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
                 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80">
-                        <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                        <td class="py-3 px-3">${doc.docId}</td>
-                        <td class="py-3 px-3">${doc.date}</td>
-                        <td class="py-3 px-3 font-bold">${doc.department.replace("ฝ่ายบริหารงาน", "")}</td>
-                        <td class="py-3 px-4 font-bold text-slate-800">${doc.title}</td>
-                        <td class="py-3 px-3 text-center"><span class="px-2 py-1 rounded-md text-[10px] font-bold ${pColor}">${doc.priority}</span></td>
-                        <td class="py-3 px-3 text-center font-bold text-slate-500">${doc.deadline || '-'}</td>
-                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status}</span></td>
-                        <td class="py-3 px-3 text-center">${fileLink}</td>
-                        <td class="py-3 px-4 text-right space-x-2 font-bold">
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3.5 px-4 font-bold text-slate-900">${doc.internalId}</td>
+                        <td class="py-3.5 px-3 font-semibold">${doc.docId}</td>
+                        <td class="py-3.5 px-3">${doc.date}</td>
+                        <td class="py-3.5 px-3 font-bold text-blue-800">${doc.department.replace("ฝ่ายบริหารงาน", "")}</td>
+                        <td class="py-3.5 px-4 font-bold text-slate-800">${doc.title}</td>
+                        <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${pColor}">${doc.priority}</span></td>
+                        <td class="py-3.5 px-3 text-center font-bold text-rose-500">${doc.deadline || '-'}</td>
+                        <td class="py-3.5 px-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${sColor}">${doc.status}</span></td>
+                        <td class="py-3.5 px-3 text-center">${fileLink}</td>
+                        <td class="py-3.5 px-4 text-right space-x-2 font-bold">
                             <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
                             <button onclick="deleteSaraban(${realIndex})" class="text-rose-500 hover:text-rose-700 cursor-pointer">ลบ</button>
                         </td>
@@ -548,7 +554,7 @@
 
             if(data.fileUrl && data.fileUrl.startsWith("http")) {
                 const el = document.getElementById("form-file-status");
-                el.innerHTML = `📎 คลาวด์ลิงก์เดิม: <a href="${data.fileUrl}" target="_blank" class="text-blue-600 underline">เปิดดูไฟล์แนบ</a>`;
+                el.innerHTML = `📎 คลาวด์ลิงก์เดิม: <a href="${data.fileUrl}" target="_blank" class="text-blue-600 font-bold underline">เปิดดูไฟล์แนบ</a>`;
                 el.classList.remove("hidden");
             }
             document.getElementById("saraban-modal").classList.remove("hidden");
@@ -623,24 +629,30 @@
             globalSarabanData.forEach((doc, idx) => {
                 const isDirector = currentUser.role === "ผอ." || currentUser.role === "แอดมิน";
                 const rowActionHtml = isDirector 
-                    ? `<div class="flex gap-1"><input type="text" id="work-comment-${idx}" value="${doc.managercomment || ''}" placeholder="พิมพ์คำสั่งการ ผอ." class="px-2 py-1 border border-slate-200 rounded-lg text-xs w-full"><button onclick="submitWorkflowComment(${idx})" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[11px] hover:bg-blue-700 cursor-pointer">เซ็นเซตคำสั่ง</button></div>`
-                    : `<span class="text-slate-400 text-[11px]">ไม่มีสิทธิ์แก้ไขข้อสั่งการ</span>`;
+                    ? `<div class="flex gap-2"><input type="text" id="work-comment-${idx}" value="${doc.managercomment || ''}" placeholder="พิมพ์คำสั่งการ ผอ." class="px-3 py-2 border border-slate-300 rounded-xl text-sm w-full focus:border-blue-500 bg-white"><button onclick="submitWorkflowComment(${idx})" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs hover:bg-blue-700 cursor-pointer whitespace-nowrap shadow-xs">เซ็นเซตคำสั่ง</button></div>`
+                    : `<span class="text-slate-400 font-bold text-xs">ไม่มีสิทธิ์บันทึกข้อสั่งการ</span>`;
                 
                 const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
                 const statusBtnHtml = isMyDept
-                    ? `<button onclick="toggleWorkflowStatus(${idx})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[10px] font-bold text-slate-700 cursor-pointer">🔄 สลับสถานะงาน</button>`
-                    : `<span class="text-slate-300 select-none">-</span>`;
+                    ? `<button onclick="toggleWorkflowStatus(${idx})" class="mt-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 cursor-pointer block w-full shadow-2xs">🔄 สลับสถานะงาน</button>`
+                    : ``;
 
                 const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
+                
+                // ✨ ฟังก์ชันเพิ่มปุ่มตรวจไฟล์แนบในระบบเสนอเกษียณ
+                const fileLinkHtml = doc.fileUrl && doc.fileUrl.startsWith("http") 
+                    ? `<a href="${doc.fileUrl}" target="_blank" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs inline-flex items-center gap-1 border border-indigo-200 transition-colors shadow-2xs">📄 เปิดดูไฟล์</a>` 
+                    : `<span class="text-slate-300 italic">ไม่มีไฟล์แนบ</span>`;
 
                 tbody.innerHTML += `
-                    <tr>
-                        <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                        <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold">${doc.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
-                        <td class="py-3 px-4 font-semibold text-slate-800">${doc.title}</td>
-                        <td class="py-3 px-4 text-blue-700 font-bold italic bg-blue-50/30">${doc.managercomment || '⏳ รอกรรมการ/ผอ. เกษียณสั่งการ...'}</td>
-                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status}</span></td>
-                        <td class="py-3 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-4 font-bold text-slate-900">${doc.internalId}</td>
+                        <td class="py-4 px-3"><span class="px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-md font-bold text-slate-700">${doc.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
+                        <td class="py-4 px-4 font-bold text-slate-800">${doc.title}</td>
+                        <td class="py-4 px-3 text-center">${fileLinkHtml}</td>
+                        <td class="py-4 px-4 text-blue-800 font-bold italic bg-blue-50/20">${doc.managercomment || '⏳ รอกรรมการ/ผอ. ลงนามสั่งการ...'}</td>
+                        <td class="py-4 px-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${sColor}">${doc.status}</span></td>
+                        <td class="py-4 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
                     </tr>
                 `;
             });
@@ -673,19 +685,19 @@
             const tbody = document.getElementById("orders-table-body");
             tbody.innerHTML = "";
             if(globalOrdersData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-400">📜 ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-400 text-sm">📜 ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
                 return;
             }
             globalOrdersData.forEach(ord => {
-                const fl = ord.fileUrl && ord.fileUrl.startsWith("http") ? `<a href="${ord.fileUrl}" target="_blank" class="text-purple-600 font-bold underline">เปิดดูครุฑ</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
+                const fl = ord.fileUrl && ord.fileUrl.startsWith("http") ? `<a href="${ord.fileUrl}" target="_blank" class="text-purple-700 font-bold underline bg-purple-50 px-2.5 py-1 rounded-md">เปิดดูครุฑ</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="py-3 px-4 font-black text-purple-700 text-sm">เลขที่ ${ord.orderId}</td>
-                        <td class="py-3 px-3 font-bold text-slate-400">${ord.year}</td>
-                        <td class="py-3 px-5 font-bold text-slate-900">${ord.title}</td>
-                        <td class="py-3 px-4 text-slate-500">${ord.signDate}</td>
-                        <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold">${ord.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
-                        <td class="py-3 px-3 text-center">${fl}</td>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3.5 px-4 font-black text-purple-700">เลขที่ ${ord.orderId}</td>
+                        <td class="py-3.5 px-3 font-bold text-slate-400">${ord.year}</td>
+                        <td class="py-3.5 px-5 font-bold text-slate-900">${ord.title}</td>
+                        <td class="py-3.5 px-4 text-slate-600">${ord.signDate}</td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md font-bold">${ord.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
+                        <td class="py-3.5 px-3 text-center">${fl}</td>
                     </tr>
                 `;
             });
