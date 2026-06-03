@@ -772,6 +772,33 @@
             });
             calendarObj.render();
         }
+    // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout) ---
+        let idleTimer;
+        const TIMEOUT_IN_MINUTES = 1; // คุณครูสามารถเปลี่ยนตัวเลขนาทีตรงนี้ได้ครับ (เช่น 15 คือ 15 นาที)
+        const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            // ถ้าระบบเข้าสู่หน้าหลักแล้ว (มีการล็อกอินอยู่) ถึงจะรันตัวนับเวลาถอยหลัง
+            if (currentUser) {
+                idleTimer = setTimeout(autoLogout, TIMEOUT_DURATION);
+            }
+        }
+
+        function autoLogout() {
+            alert(`🔒 ระบบได้ล็อกเอาท์อัตโนมัติเนื่องจากไม่มีการใช้งานเกิน ${TIMEOUT_IN_MINUTES} นาที เพื่อความปลอดภัยของข้อมูลโรงเรียน`);
+            handleLogout(); // เรียกใช้ฟังก์ชันล็อกเอาท์เดิมที่มีอยู่แล้ว
+        }
+
+        // ดักจับเหตุการณ์การใช้งานของผู้ใช้: ขยับเมาส์, คลิก, หรือกดคีย์บอร์ด
+        window.onmousemove = resetIdleTimer;
+        window.onmousedown = resetIdleTimer; 
+        window.onclick = resetIdleTimer;     
+        window.onscroll = resetIdleTimer;    
+        window.onkeypress = resetIdleTimer;
+
+        // เริ่มต้นนับเวลาตั้งแต่เปิดหน้าเว็บ
+        resetIdleTimer();
     </script>
 </body>
 </html>
