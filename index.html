@@ -1,805 +1,380 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสารบรรณและบริหารสถานศึกษาอัจฉริยะ | โรงเรียนบ้านกาหยี</title>
-    <!-- Tailwind CSS v4 & Google Fonts -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js & FullCalendar CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-    <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; font-size: 15px; }
-        .sidebar-active { background-color: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-left: 5px solid #2563eb; }
-        .fc-event { cursor: pointer; padding: 4px 6px; font-weight: bold; font-size: 13px; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(203, 213, 225, 0.8); }
-        th { font-size: 14px !important; letter-spacing: 0.03em; }
-        td { font-size: 14px !important; }
-        input, select, textarea { font-size: 14px !important; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบสารบรรณและบริหารสถานศึกษาอัจฉริยะ | โรงเรียนบ้านกาหยี</title>
+    <!-- Tailwind CSS v4 & Google Fonts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js & FullCalendar CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; font-size: 15px; }
+        .sidebar-active { background-color: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-left: 5px solid #2563eb; }
+        .fc-event { cursor: pointer; padding: 4px 6px; font-weight: bold; font-size: 13px; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(203, 213, 225, 0.8); }
+        /* สดสัดส่วนขนาดฟอนต์ลงมาให้พอดีตามบรีฟ */
+        th { font-size: 14px !important; letter-spacing: 0.03em; }
+        td { font-size: 14px !important; }
+        input, select, textarea { font-size: 14px !important; }
+    </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- บล็อกหน้าต่างโหลดข้อมูลคลาวด์ -->
-    <div id="loading-spinner" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white z-50 hidden">
-        <div class="w-16 h-16 border-4 border-t-blue-500 border-r-indigo-500 rounded-full animate-spin mb-4"></div>
-        <p class="text-base font-bold text-blue-200" id="loading-text">กำลังประมวลผลระบบฐานข้อมูลโรงเรียน...</p>
-    </div>
+    <!-- บล็อกหน้าต่างโหลดข้อมูลคลาวด์ -->
+    <div id="loading-spinner" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white z-50 hidden">
+        <div class="w-16 h-16 border-4 border-t-blue-500 border-r-indigo-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-base font-bold text-blue-200" id="loading-text">กำลังประมวลผลระบบฐานข้อมูลโรงเรียน...</p>
+    </div>
 
-    <!-- 1. หน้าจอการเข้าสู่ระบบ (LOGIN SCREEN) -->
-    <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-5 text-center">
-            <div class="space-y-3 pt-4">
-                <h2 class="text-2xl font-black tracking-tight text-slate-900">ระบบบริหารงานสารบรรณ AI</h2>
-                <p class="text-[11px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 py-1 rounded-full w-4/5 mx-auto">โรงเรียนบ้านกาหยี</p>
-            </div>
-            <div id="login-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-sm font-bold rounded-xl">🔒 บัญชีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!</div>
-            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">บัญชีผู้ใช้ (Username)</label>
-                    <input type="text" id="username" placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-sm">
-                </div>
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">ยืนยันเข้าสู่ระบบ</button>
-                
-                <div class="pt-2 text-center border-t border-slate-100">
-                    <button type="button" onclick="bypassLoginSystem()" class="text-xs font-bold text-amber-700 hover:text-amber-800 hover:underline cursor-pointer bg-amber-50 px-4 py-2 rounded-xl w-full border border-amber-200 mt-1 shadow-sm">
-                        ⚠️ เข้าระบบด่วนกรณีฉุกเฉิน (ไม่ใช้รหัสผ่าน)
-                    </button>
-                </div>
-            </form>
-        </div>
-        <p class="text-xs text-slate-400 mt-6 font-medium">@ Copyright haris-sulong</p>
-    </div>
+    <!-- 1. หน้าจอการเข้าสู่ระบบ (LOGIN SCREEN) -->
+    <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-5 text-center">
+            <!-- ดึงโลโก้โรงเรียนจากระบบ Base64 / Raw URL มั่นใจได้ว่ารูปขึ้นแน่นอน -->
+            <div class="space-y-3">
+                <img src="https://images2.imgbox.com/3f/ec/VfU0WJ5E_o.jpg" alt="logo School.jpg" class="w-28 h-28 mx-auto object-contain drop-shadow-xl rounded-full bg-white p-1">
+                <h2 class="text-xl font-black tracking-tight text-slate-900 mt-2">ระบบบริหารงานสารบรรณ AI</h2>
+                <p class="text-[11px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 py-1 rounded-full w-4/5 mx-auto">โรงเรียนบ้านกาหยี</p>
+            </div>
+            <div id="login-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-sm font-bold rounded-xl">🔒 บัญชีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!</div>
+            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">บัญชีผู้ใช้ (Username)</label>
+                    <input type="text" id="username" placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่าน (Password)</label>
+                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-xs">
+                </div>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">ยืนยันเข้าสู่ระบบ</button>
+                
+                <div class="pt-2 text-center border-t border-slate-100">
+                    <button type="button" onclick="bypassLoginSystem()" class="text-xs font-bold text-amber-700 hover:text-amber-800 hover:underline cursor-pointer bg-amber-50 px-4 py-2 rounded-xl w-full border border-amber-200 mt-1 shadow-xs">
+                        ⚠️ เข้าระบบด่วนกรณีฉุกเฉิน (ไม่ใช้รหัสผ่าน)
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- ส่วนแสดง Copyright หน้าแรก -->
+        <p class="text-xs text-slate-400 mt-6 font-medium">@ Copyright haris-sulong</p>
+    </div>
 
-    <!-- 2. หน้าแอปพลิเคชันหลัก (MAIN APPLICATION) -->
-    <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row w-full">
-        
-        <!-- SIDEBAR NAVIGATION PANEL -->
-        <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl">
-            <div class="p-5 border-b border-slate-800">
-                <h1 class="text-sm font-black text-white leading-none">สารบรรณอัจฉริยะ</h1>
-                <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest mt-1 block">e-Saraban v2026</span>
-            </div>
-            <nav class="flex-1 p-3 space-y-1">
-                <button onclick="navigateTo('menu-dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📊 หน้าแรก / แดชบอร์ดสรุปผล</button>
-                <button onclick="navigateTo('menu-saraban')" id="nav-saraban" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📥 ทะเบียนหนังสือรับ-ส่ง</button>
-                <button onclick="navigateTo('menu-workflow')" id="nav-workflow" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">🔄 ระบบเสนอเกษียณ & ส่งต่อฝ่าย</button>
-                <button onclick="navigateTo('menu-orders')" id="nav-orders" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📜 ออกเลขคำสั่ง/ประกาศโรงเรียน</button>
-                <button onclick="navigateTo('menu-calendar')" id="nav-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📅 ปฏิทินกำหนดส่งงานสารบรรณ</button>
-            </nav>
-            <div class="p-3 border-t border-slate-800 bg-slate-950/40 text-center">
-                <button onclick="handleLogout()" class="text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer">🚪 ออกจากระบบปลอดภัย</button>
-            </div>
-        </aside>
+    <!-- 2. หน้าแอปพลิเคชันหลัก (MAIN APPLICATION) -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row w-full">
+        
+        <!-- SIDEBAR NAVIGATION PANEL -->
+        <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl">
+            <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+                <img src="https://images2.imgbox.com/3f/ec/VfU0WJ5E_o.jpg" alt="logo School.jpg" class="w-9 h-9 object-contain rounded-full bg-white p-0.5">
+                <div>
+                    <h1 class="text-sm font-black text-white leading-none">สารบรรณอัจฉริยะ</h1>
+                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest mt-1 block">e-Saraban v2026</span>
+                </div>
+            </div>
+            <nav class="flex-1 p-3 space-y-1">
+                <button onclick="navigateTo('menu-dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📊 หน้าแรก / แดชบอร์ดสรุปผล</button>
+                <button onclick="navigateTo('menu-saraban')" id="nav-saraban" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📥 ทะเบียนหนังสือรับ-ส่ง</button>
+                <button onclick="navigateTo('menu-workflow')" id="nav-workflow" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">🔄 ระบบเสนอเกษียณ & ส่งต่อฝ่าย</button>
+                <button onclick="navigateTo('menu-orders')" id="nav-orders" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📜 ออกเลขคำสั่ง/ประกาศโรงเรียน</button>
+                <button onclick="navigateTo('menu-calendar')" id="nav-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📅 ปฏิทินกำหนดส่งงานสารบรรณ</button>
+            </nav>
+            <div class="p-3 border-t border-slate-800 bg-slate-950/40 text-center">
+                <button onclick="handleLogout()" class="text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer">🚪 ออกจากระบบปลอดภัย</button>
+            </div>
+        </aside>
 
-        <!-- MAIN CONTENT AREA -->
-        <div class="flex-1 flex flex-col min-w-0">
-            <!-- TOP BAR HEADER -->
-            <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 shadow-sm">
-                <div>
-                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">ระบบงานโรงเรียนคลาวด์อัจฉริยะ</span>
-                    <span class="text-sm font-black text-blue-700">โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1</span>
-                </div>
-                <div class="text-right">
-                    <span class="block text-xs font-extrabold text-slate-800" id="clock-display">กำลังโหลดระบบ...</span>
-                    <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md mt-0.5 inline-block" id="user-role-badge">สิทธิ์: -</span>
-                </div>
-            </header>
+        <!-- MAIN CONTENT AREA -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <!-- TOP BAR HEADER -->
+            <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 shadow-xs">
+                <div class="flex items-center gap-3">
+                    <img src="https://images2.imgbox.com/3f/ec/VfU0WJ5E_o.jpg" alt="logo School.jpg" class="w-9 h-9 object-contain rounded-full shadow-xs bg-white">
+                    <div>
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">ระบบงานโรงเรียนคลาวด์อัจฉริยะ</span>
+                        <span class="text-sm font-black text-blue-700">โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="block text-xs font-extrabold text-slate-800" id="clock-display">กำลังโหลดระบบ...</span>
+                    <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md mt-0.5 inline-block" id="user-role-badge">สิทธิ์: -</span>
+                </div>
+            </header>
 
-            <!-- MAIN WORKSPACE -->
-            <main class="flex-1 p-5 md:p-6 overflow-y-auto flex flex-col justify-between">
-                
-                <div class="w-full">
-                    <!-- MENU 1: DASHBOARD -->
-                    <section id="menu-dashboard" class="tab-content space-y-5 hidden">
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-sm">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📥 หนังสือรับทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
-                                <div class="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm">📥</div>
-                            </div>
-                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-sm">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📤 หนังสือส่งทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
-                                <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm">📤</div>
-                            </div>
-                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-sm">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">⏳ เรื่องค้างดำเนินการ</p><h3 class="text-3xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
-                                <div class="w-12 h-12 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xl shadow-sm">⏳</div>
-                            </div>
-                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-sm">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📜 คำสั่งโรงเรียนปีนี้</p><h3 class="text-3xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
-                                <div class="w-12 h-12 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm">📜</div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">📊 สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
-                                <div class="h-64 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
-                            </div>
-                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">📈 ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
-                                <div class="h-64 flex items-center justify-center"><canvas id="chart-priority"></canvas></div>
-                            </div>
-                        </div>
-                    </section>
+            <!-- MAIN WORKSPACE -->
+            <main class="flex-1 p-5 md:p-6 overflow-y-auto flex flex-col justify-between">
+                
+                <div class="w-full">
+                    <!-- MENU 1: DASHBOARD -->
+                    <section id="menu-dashboard" class="tab-content space-y-5 hidden">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs">
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📥 หนังสือรับทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
+                                <div class="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-xs">📥</div>
+                            </div>
+                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs">
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📤 หนังสือส่งทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
+                                <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-xs">📤</div>
+                            </div>
+                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs">
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">⏳ เรื่องค้างดำเนินการ</p><h3 class="text-3xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
+                                <div class="w-12 h-12 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xl shadow-xs">⏳</div>
+                            </div>
+                            <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs">
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📜 คำสั่งโรงเรียนปีนี้</p><h3 class="text-3xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
+                                <div class="w-12 h-12 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-xs">📜</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">📊 สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
+                                <div class="h-64 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
+                            </div>
+                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">📈 ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
+                                <div class="h-64 flex items-center justify-center"><canvas id="chart-priority"></canvas></div>
+                            </div>
+                        </div>
+                    </section>
 
-                    <!-- MENU 2: CORE SARABAN -->
-                    <section id="menu-saraban" class="tab-content space-y-4 hidden">
-                        <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm">
-                            <div class="flex bg-slate-200 p-1 rounded-xl w-full sm:w-auto">
-                                <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-sm cursor-pointer">📥 ทะเบียนหนังสือรับ</button>
-                                <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">📤 ทะเบียนหนังสือส่ง</button>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
-                                <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง..." class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs w-full sm:w-64 focus:outline-none focus:border-blue-500 shadow-sm">
-                                <button onclick="openSarabanModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer whitespace-nowrap shadow-sm">➕ ลงทะเบียนเอกสารใหม่</button>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
-                                            <th class="py-3.5 px-4" id="th-saraban-id">เลขทะเบียนรับ</th>
-                                            <th class="py-3.5 px-3">ที่เอกสาร</th>
-                                            <th class="py-3.5 px-3">ลงวันที่</th>
-                                            <th class="py-3.5 px-3">ฝ่ายงาน</th>
-                                            <th class="py-3.5 px-4 w-1/4">เรื่อง / หัวข้อราชการ</th>
-                                            <th class="py-3.5 px-3 text-center">ความเร่งด่วน</th>
-                                            <th class="py-3.5 px-3 text-center">กำหนดส่ง</th>
-                                            <th class="py-3.5 px-3 text-center">สถานะ</th>
-                                            <th class="py-3.5 px-3 text-center">ไฟล์แนบ</th>
-                                            <th class="py-3.5 px-4 text-right">การจัดการ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="saraban-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
+                    <!-- MENU 2: CORE SARABAN -->
+                    <section id="menu-saraban" class="tab-content space-y-4 hidden">
+                        <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
+                            <div class="flex bg-slate-200 p-1 rounded-xl w-full sm:w-auto">
+                                <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer">📥 ทะเบียนหนังสือรับ</button>
+                                <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">📤 ทะเบียนหนังสือส่ง</button>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
+                                <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง..." class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs w-full sm:w-64 focus:outline-none focus:border-blue-500 shadow-xs">
+                                <button onclick="openSarabanModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer whitespace-nowrap shadow-xs">➕ ลงทะเบียนเอกสารใหม่</button>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                                            <th class="py-3.5 px-4" id="th-saraban-id">เลขทะเบียนรับ</th>
+                                            <th class="py-3.5 px-3">ที่เอกสาร</th>
+                                            <th class="py-3.5 px-3">ลงวันที่</th>
+                                            <th class="py-3.5 px-3">ฝ่ายงาน</th>
+                                            <th class="py-3.5 px-4 w-1/4">เรื่อง / หัวข้อราชการ</th>
+                                            <th class="py-3.5 px-3 text-center">ความเร่งด่วน</th>
+                                            <th class="py-3.5 px-3 text-center">กำหนดส่ง</th>
+                                            <th class="py-3.5 px-3 text-center">สถานะ</th>
+                                            <th class="py-3.5 px-3 text-center">ไฟล์แนบ</th>
+                                            <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="saraban-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
 
-                    <!-- MENU 3: WORKFLOW -->
-                    <section id="menu-workflow" class="tab-content space-y-4 hidden">
-                        <div class="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 shadow-sm">
-                            <span class="text-xl">💼</span>
-                            <div>
-                                <h4 class="text-xs font-bold text-blue-900">ระบบกล่องเสนอเกษียณและสั่งการออนไลน์ (พร้อมปุ่มกดเปิดดูไฟล์แนบ)</h4>
-                                <p class="text-[11px] text-blue-700 mt-0.5">สิทธิ์ผู้บริหารหรือแอดมินสามารถลงนามเกษียณข้อสั่งการดิจิทัลเพื่อแชร์ลงทะเบียนกลางได้ทันที</p>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
-                                            <th class="py-3.5 px-4">เลขทะเบียน</th>
-                                            <th class="py-3.5 px-3">ฝ่ายรับผิดชอบ</th>
-                                            <th class="py-3.5 px-4 w-1/4">เรื่อง / หัวข้อราชการ</th>
-                                            <th class="py-3.5 px-3 text-center">ไฟล์เอกสาร</th>
-                                            <th class="py-3.5 px-4 w-1/4">✍️ บันทึกข้อสั่งการของ ผอ. โรงเรียน</th>
-                                            <th class="py-3.5 px-3 text-center">สถานะ</th>
-                                            <th class="py-3.5 px-4 text-center">การดำเนินการตามสิทธิ์</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="workflow-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
+                    <!-- MENU 3: WORKFLOW -->
+                    <section id="menu-workflow" class="tab-content space-y-4 hidden">
+                        <div class="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 shadow-xs">
+                            <span class="text-xl">💼</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-blue-900">ระบบกล่องเสนอเกษียณและสั่งการออนไลน์ (พร้อมปุ่มกดเปิดดูไฟล์แนบ)</h4>
+                                <p class="text-[11px] text-blue-700 mt-0.5">สิทธิ์ผู้บริหารหรือแอดมินสามารถลงนามเกษียณข้อสั่งการดิจิทัลเพื่อแชร์ลงทะเบียนกลางได้ทันที</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                                            <th class="py-3.5 px-4">เลขทะเบียน</th>
+                                            <th class="py-3.5 px-3">ฝ่ายรับผิดชอบ</th>
+                                            <th class="py-3.5 px-4 w-1/4">เรื่อง / หัวข้อราชการ</th>
+                                            <th class="py-3.5 px-3 text-center">ไฟล์เอกสาร</th>
+                                            <th class="py-3.5 px-4 w-1/4">✍️ บันทึกข้อสั่งการของ ผอ. โรงเรียน</th>
+                                            <th class="py-3.5 px-3 text-center">สถานะ</th>
+                                            <th class="py-3.5 px-4 text-center">การดำเนินการตามสิทธิ์</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="workflow-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
 
-                    <!-- MENU 4: SCHOOL ORDERS -->
-                    <section id="menu-orders" class="tab-content space-y-4 hidden">
-                        <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800">📜 ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
-                                <p class="text-[11px] text-slate-400 mt-0.5">ระบบรันเวย์ออกเลขที่คำสั่งต่อยอดแถวล่าสุดอัจฉริยะอัตโนมัติ</p>
-                            </div>
-                            <button onclick="openOrderModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-sm">➕ ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
-                        </div>
-                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
-                                            <th class="py-3.5 px-4">เลขที่คำสั่ง</th>
-                                            <th class="py-3.5 px-3">ปี พ.ศ.</th>
-                                            <th class="py-3.5 px-5 w-1/2">เรื่องคำสั่งโรงเรียน</th>
-                                            <th class="py-3.5 px-4">วันที่ลงนามประกาศ</th>
-                                            <th class="py-3.5 px-4">ฝ่ายผู้รับผิดชอบ</th>
-                                            <th class="py-3.5 px-3 text-center">ไฟล์คำสั่ง</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="orders-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
+                    <!-- MENU 4: SCHOOL ORDERS -->
+                    <section id="menu-orders" class="tab-content space-y-4 hidden">
+                        <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">📜 ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
+                                <p class="text-[11px] text-slate-400 mt-0.5">ระบบรันเวย์ออกเลขที่คำสั่งต่อยอดแถวล่าสุดอัจฉริยะอัตโนมัติ</p>
+                            </div>
+                            <button onclick="openOrderModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs">➕ ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                                            <th class="py-3.5 px-4">เลขที่คำสั่ง</th>
+                                            <th class="py-3.5 px-3">ปี พ.ศ.</th>
+                                            <th class="py-3.5 px-5 w-1/2">เรื่องคำสั่งโรงเรียน</th>
+                                            <th class="py-3.5 px-4">วันที่ลงนามประกาศ</th>
+                                            <th class="py-3.5 px-4">ฝ่ายผู้รับผิดชอบ</th>
+                                            <th class="py-3.5 px-3 text-center">ไฟล์คำสั่ง</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orders-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
 
-                    <!-- MENU 5: CALENDAR -->
-                    <section id="menu-calendar" class="tab-content hidden">
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <div class="mb-3">
-                                <h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4>
-                            </div>
-                            <div id="calendar-container" class="font-semibold text-sm"></div>
-                        </div>
-                    </section>
-                </div>
+                    <!-- MENU 5: CALENDAR -->
+                    <section id="menu-calendar" class="tab-content hidden">
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                            <div class="mb-3">
+                                <h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4>
+                            </div>
+                            <div id="calendar-container" class="font-semibold text-sm"></div>
+                        </div>
+                    </section>
+                </div>
 
-                <!-- ระบบเครดิตท้ายเว็บห้องปฏิบัติการงานสารบรรณหลัก -->
-                <footer class="mt-8 text-center text-xs font-medium text-slate-400 pt-4 border-t border-slate-200/60">
-                    @ Copyright haris-sulong
-                </footer>
+                <!-- ระบบเครดิตท้ายเว็บห้องปฏิบัติการงานสารบรรณหลัก -->
+                <footer class="mt-8 text-center text-xs font-medium text-slate-400 pt-4 border-t border-slate-200/60">
+                    @ Copyright haris-sulong
+                </footer>
 
-            </main>
-        </div>
-    </div>
+            </main>
+        </div>
+    </div>
 
-    <!-- MODAL WINDOWS (SARABAN) -->
-    <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
-                <button type="button" onclick="closeSarabanModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
-            </div>
-            <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="p-5 space-y-3.5">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขทะเบียนระบบ</label><input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-bold text-blue-600" readonly></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ที่ (เลขที่เอกสารต้นฉบับ)</label><input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ถึง</label><input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                </div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-600 mb-1 text-xs">อัพโหลดไฟล์แนบ</label>
-                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 font-bold text-xs">
-                    <p id="form-file-status" class="mt-1 text-xs text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
-                </div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">สถานะ</label><select id="form-status" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="สำเร็จแล้ว">✔️ AM-สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
-                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-5 -mb-5 p-3.5">
-                    <button type="button" onclick="closeSarabanModal()" class="px-4 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer text-xs">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer text-xs">บันทึกข้อมูล</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- MODAL WINDOWS (SARABAN) -->
+    <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
+                <button type="button" onclick="closeSarabanModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+            </div>
+            <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="p-5 space-y-3.5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขทะเบียนระบบ</label><input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-bold text-blue-600" readonly></div>
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ที่ (เลขที่เอกสารต้นฉบับ)</label><input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ถึง</label><input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                </div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-600 mb-1 text-xs">อัพโหลดไฟล์แนบ</label>
+                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 font-bold text-xs">
+                    <p id="form-file-status" class="mt-1 text-xs text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
+                </div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">สถานะ</label><select id="form-status" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="สำเร็จแล้ว">✔️ AM-สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-5 -mb-5 p-3.5">
+                    <button type="button" onclick="closeSarabanModal()" class="px-4 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer text-xs">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer text-xs">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <!-- MODAL WINDOWS (ORDERS) -->
-    <div id="order-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
-                <button type="button" onclick="closeOrderModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
-            </div>
-            <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-5 space-y-3.5">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขที่คำสั่งโรงเรียน</label><input type="text" id="order-form-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-bold text-purple-600" readonly></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ปี พ.ศ.</label><input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
-                </div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่องคำสั่ง / ประกาศ</label><input type="text" id="order-form-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่ลงนามประกาศ</label><input type="date" id="order-form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ฝ่ายเจ้าของเรื่อง</label><select id="order-form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-purple-500"><option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option></select></div>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-600 mb-1 text-xs">อัพโหลดไฟล์สแกนคำสั่ง</label>
-                    <input type="file" id="order-form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 file:bg-purple-50 file:text-purple-700 font-bold text-xs">
-                </div>
-                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-3.5">
-                    <button type="button" onclick="closeOrderModal()" class="px-4 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer text-xs">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold cursor-pointer text-xs">ยื่นออกเลขและบันทึก</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- MODAL WINDOWS (ORDERS) -->
+    <div id="order-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-sm">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
+                <button type="button" onclick="closeOrderModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+            </div>
+            <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-5 space-y-3.5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขที่คำสั่งโรงเรียน</label><input type="text" id="order-form-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-bold text-purple-600" readonly></div>
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ปี พ.ศ.</label><input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
+                </div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่องคำสั่ง / ประกาศ</label><input type="text" id="order-form-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่ลงนามประกาศ</label><input type="date" id="order-form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ฝ่ายเจ้าของเรื่อง</label><select id="order-form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-purple-500"><option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option></select></div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-600 mb-1 text-xs">อัพโหลดไฟล์สแกนคำสั่ง</label>
+                    <input type="file" id="order-form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 file:bg-purple-50 file:text-purple-700 font-bold text-xs">
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-3.5">
+                    <button type="button" onclick="closeOrderModal()" class="px-4 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer text-xs">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold cursor-pointer text-xs">ยื่นออกเลขและบันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <!-- MAIN JAVASCRIPT SYSTEM ENGINE -->
-    <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydKNXs6N6A7Fn1BSI0dfQyKKCFo997rTFFEb2uNNMpSddMjsyFxuSoGsJMLyVHLbeSvQ/exec"; 
+    <!-- MAIN JAVASCRIPT SYSTEM ENGINE -->
+    <script>
+        // ⚠️ ลิงก์เว็บแอปคลาวด์ Google Apps Script ของคุณครู
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydKNXs6N6A7Fn1BSI0dfQyKKCFo997rTFFEb2uNNMpSddMjsyFxuSoGsJMLyVHLbeSvQ/exec"; 
 
-        let globalSarabanData = [];
-        let globalOrdersData = [];
-        let currentSarabanTab = 'inbound';
-        let sarabanEditIndex = null;
-        let currentUser = null; 
-        let calendarObj = null;
-        let deptChart = null;
-        let priorityChart = null;
+        let globalSarabanData = [];
+        let globalOrdersData = [];
+        let currentSarabanTab = 'inbound';
+        let sarabanEditIndex = null;
+        let currentUser = null; 
+        let calendarObj = null;
 
-        window.onload = function() { checkAuth(); };
+        window.onload = function() { checkAuth(); };
 
-        function showLoading(text) {
-            document.getElementById('loading-text').innerText = text;
-            document.getElementById('loading-spinner').classList.remove('hidden');
-        }
-        function hideLoading() { document.getElementById('loading-spinner').classList.add('hidden'); }
+        function showLoading(text) {
+            document.getElementById('loading-text').innerText = text;
+            document.getElementById('loading-spinner').classList.remove('hidden');
+        }
+        function hideLoading() { document.getElementById('loading-spinner').classList.add('hidden'); }
 
-        function checkAuth() {
-            const saved = localStorage.getItem("smart_user_session");
-            if (saved) {
-                try {
-                    currentUser = JSON.parse(saved);
-                    document.getElementById("login-screen").classList.add("hidden");
-                    document.getElementById("main-app").classList.remove("hidden");
-                    initLiveHeader();
-                    fetchSystemData();
-                    navigateTo('menu-dashboard');
-                } catch(e) {
-                    localStorage.removeItem("smart_user_session");
-                }
-            } else {
-                document.getElementById("main-app").classList.add("hidden");
-                document.getElementById("login-screen").classList.remove("hidden");
-            }
-        }
+        function checkAuth() {
+            const saved = localStorage.getItem("smart_user_session");
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    document.getElementById("login-screen").classList.add("hidden");
+                    document.getElementById("main-app").classList.remove("hidden");
+                    initLiveHeader();
+                    fetchSystemData();
+                    navigateTo('menu-dashboard');
+                } catch(e) {
+                    localStorage.removeItem("smart_user_session");
+                }
+            } else {
+                document.getElementById("main-app").classList.add("hidden");
+                document.getElementById("login-screen").classList.remove("hidden");
+            }
+        }
 
-        async function handleLogin(event) {
-            event.preventDefault();
-            showLoading("กำลังตรวจสอบสิทธิ์และดึงข้อมูลโครงสร้างโรงเรียนบ้านกาหยี...");
-            const userInp = document.getElementById("username").value.trim().toLowerCase();
-            const passInp = document.getElementById("password").value.trim();
-            const errorDiv = document.getElementById("login-error");
+        async function handleLogin(event) {
+            event.preventDefault();
+            showLoading("กำลังตรวจสอบสิทธิ์และดึงข้อมูลโครงสร้างโรงเรียนบ้านกาหยี...");
+            const userInp = document.getElementById("username").value.trim().toLowerCase();
+            const passInp = document.getElementById("password").value.trim();
+            const errorDiv = document.getElementById("login-error");
 
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "login", username: userInp, password: passInp })
-                });
-                const res = await response.json();
-                
-                if (res.status === "success") {
-                    currentUser = res.user;
-                    localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
-                    errorDiv.classList.add("hidden");
-                    checkAuth();
-                } else {
-                    errorDiv.classList.remove("hidden");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("การเชื่อมต่อเซิร์ฟเวอร์คลาวด์ขัดข้อง โปรดเช็คสิทธิ์หรือใช้ระบบด่วนฉุกเฉิน");
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function bypassLoginSystem() {
-            currentUser = { username: "emergency_admin", role: "ผู้ดูแลระบบ (Admin)", name: "ผู้บริหารสถานศึกษาด่วน" };
-            localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
-            checkAuth();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem("smart_user_session");
-            currentUser = null;
-            checkAuth();
-        }
-
-        function initLiveHeader() {
-            document.getElementById("user-role-badge").innerText = `สิทธิ์: ${currentUser.role || currentUser.username}`;
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById("clock-display").innerText = now.toLocaleDateString('th-TH', {
-                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-                }) + " น.";
-            }, 1000);
-        }
-
-        function navigateTo(targetId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(targetId).classList.remove('hidden');
-            
-            document.querySelectorAll('aside nav button').forEach(btn => btn.classList.remove('sidebar-active'));
-            const activeNavMap = {
-                'menu-dashboard': 'nav-dashboard',
-                'menu-saraban': 'nav-saraban',
-                'menu-workflow': 'nav-workflow',
-                'menu-orders': 'nav-orders',
-                'menu-calendar': 'nav-calendar'
-            };
-            if(activeNavMap[targetId]) {
-                document.getElementById(activeNavMap[targetId]).classList.add('sidebar-active');
-            }
-
-            if (targetId === 'menu-calendar') {
-                setTimeout(initCalendar, 200);
-            }
-        }
-
-        async function fetchSystemData() {
-            showLoading("กำลังซิงค์อัพเดตข้อมูลเอกสารล่าพัสดุและสารบรรณกลาง...");
-            try {
-                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData`);
-                const data = await response.json();
-                globalSarabanData = data.saraban || [];
-                globalOrdersData = data.orders || [];
-                
-                updateDashboardCounters();
-                renderSarabanTable();
-                renderWorkflowTable();
-                renderOrdersTable();
-                initCharts();
-            } catch (error) {
-                console.error("Fetch Data Error:", error);
-                globalSarabanData = [
-                    { internalId: "REC-001", docId: "ศธ 04023/124", date: "2026-06-01", department: "ฝ่ายบริหารงานวิชาการ", title: "การจัดสรรงบประมาณกิจกรรมจิตศึกษาพัฒนาผู้เรียน", priority: "ด่วนที่สุด", deadline: "2026-06-10", status: "รอดำเนินการ", fileUrl: "#", type: "inbound", command: "" }
-                ];
-                globalOrdersData = [
-                    { orderId: "1/2569", year: "2569", title: "แต่งตั้งคณะกรรมการขับเคลื่อนนวัตกรรมจิตศึกษา (Jit-Sueksa)", date: "2026-05-20", department: "ฝ่ายบริหารงานบุคคล", fileUrl: "#" }
-                ];
-                updateDashboardCounters();
-                renderSarabanTable();
-                renderWorkflowTable();
-                renderOrdersTable();
-                initCharts();
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function updateDashboardCounters() {
-            const countIn = globalSarabanData.filter(d => d.type === 'inbound').length;
-            const countOut = globalSarabanData.filter(d => d.type === 'outbound').length;
-            const countPending = globalSarabanData.filter(d => d.status === 'รอดำเนินการ').length;
-            const countOrders = globalOrdersData.length;
-
-            document.getElementById("dash-in").innerText = countIn;
-            document.getElementById("dash-out").innerText = countOut;
-            document.getElementById("dash-pending").innerText = countPending;
-            document.getElementById("dash-orders").innerText = countOrders;
-        }
-
-        function switchSarabanTab(tab) {
-            currentSarabanTab = tab;
-            document.getElementById("subtab-inbound").className = tab === 'inbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-600 cursor-pointer";
-            document.getElementById("subtab-outbound").className = tab === 'outbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-600 cursor-pointer";
-            document.getElementById("th-saraban-id").innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
-            renderSarabanTable();
-        }
-
-        function renderSarabanTable() {
-            const tbody = document.getElementById("saraban-table-body");
-            tbody.innerHTML = "";
-            const searchVal = document.getElementById("search-saraban").value.toLowerCase();
-
-            const filtered = globalSarabanData.filter(d => d.type === currentSarabanTab && d.title.toLowerCase().includes(searchVal));
-
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400 text-xs">📭 ไม่พบข้อมูลรายการสารบรรณในระบบขณะนี้</td></tr>`;
-                return;
-            }
-
-            filtered.forEach((item, index) => {
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-50 border-b border-slate-100 transition-colors";
-                
-                let priorityClass = "bg-slate-100 text-slate-700";
-                if(item.priority === "ด่วนที่สุด") priorityClass = "bg-rose-50 text-rose-700 border border-rose-200";
-                else if(item.priority === "ด่วนมาก") priorityClass = "bg-orange-50 text-orange-700 border border-orange-200";
-                else if(item.priority === "ด่วน") priorityClass = "bg-amber-50 text-amber-700 border border-amber-200";
-
-                let statusClass = item.status === "สำเร็จแล้ว" ? "bg-green-50 text-green-700 border border-green-200" : "bg-rose-50 text-rose-600 border border-rose-200 animate-pulse";
-
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-bold text-slate-900">${item.internalId}</td>
-                    <td class="py-3 px-3">${item.docId}</td>
-                    <td class="py-3 px-3">${item.date}</td>
-                    <td class="py-3 px-3 text-xs"><span class="bg-slate-100 px-2 py-1 rounded">${item.department}</span></td>
-                    <td class="py-3 px-4 font-semibold text-slate-800">${item.title}</td>
-                    <td class="py-3 px-3 text-center"><span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${priorityClass}">${item.priority}</span></td>
-                    <td class="py-3 px-3 text-center text-xs text-slate-500">${item.deadline || '-'}</td>
-                    <td class="py-3 px-3 text-center"><span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${statusClass}">${item.status}</span></td>
-                    <td class="py-3 px-3 text-center">${item.fileUrl && item.fileUrl !== '#' ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 hover:underline">📂 เปิดดู</a>` : 'ไม่มี'}</td>
-                    <td class="py-3 px-4 text-right">
-                        <button onclick="editSaraban('${item.internalId}')" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer">✏️ แก้ไข</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderWorkflowTable() {
-            const tbody = document.getElementById("workflow-table-body");
-            tbody.innerHTML = "";
-            const pendingItems = globalSarabanData.filter(d => d.type === 'inbound');
-
-            if(pendingItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-xs">📂 ไม่มีหนังสือเสนอพิจารณาในขณะนี้</td></tr>`;
-                return;
-            }
-
-            pendingItems.forEach(item => {
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-50 border-b border-slate-100 transition-colors";
-                let statusClass = item.status === "สำเร็จแล้ว" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700";
-                
-                tr.innerHTML = `
-                    <td class="py-3.5 px-4 font-bold text-slate-900">${item.internalId}</td>
-                    <td class="py-3.5 px-3 text-xs font-bold text-blue-700">${item.department}</td>
-                    <td class="py-3.5 px-4 font-semibold">${item.title}</td>
-                    <td class="py-3.5 px-3 text-center">${item.fileUrl && item.fileUrl !== '#' ? `<a href="${item.fileUrl}" target="_blank" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">📄 เปิดดูไฟล์</a>` : 'ไม่มีไฟล์'}</td>
-                    <td class="py-3.5 px-4">
-                        <input type="text" id="command-${item.internalId}" value="${item.command || ''}" placeholder="ระบุคำสั่งข้อสั่งการ ผอ..." class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-500">
-                    </td>
-                    <td class="py-3.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-xs font-bold ${statusClass}">${item.status}</span></td>
-                    <td class="py-3.5 px-4 text-center">
-                        <button onclick="submitWorkflowCommand('${item.internalId}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-transform active:scale-95 cursor-pointer">✍️ ลงนามคำสั่ง</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function submitWorkflowCommand(internalId) {
-            const cmdVal = document.getElementById(`command-${internalId}`).value.trim();
-            if(!cmdVal) { alert("โปรดกรอกรายละเอียดบันทึกข้อสั่งการก่อนลงนามดิจิทัลครับ"); return; }
-            
-            showLoading("ระบบกำลังบันทึกสั่งการ ผอ. ลงแชร์ไดรฟ์สารเบสส่วนกลาง...");
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "updateCommand", internalId: internalId, command: cmdVal, status: "สำเร็จแล้ว" })
-                });
-                const res = await response.json();
-                if(res.status === "success") {
-                    alert("บันทึกการเกษียณสั่งการสถานศึกษาเรียบร้อยกริบ!");
-                    fetchSystemData();
-                }
-            } catch (error) {
-                console.error(error);
-                const idx = globalSarabanData.findIndex(d => d.internalId === internalId);
-                if(idx !== -1) {
-                    globalSarabanData[idx].command = cmdVal;
-                    globalSarabanData[idx].status = "สำเร็จแล้ว";
-                    alert("จำลองการบันทึกสถานะเรียบร้อย (ตารางอัพเดตแล้ว)");
-                    updateDashboardCounters(); renderWorkflowTable(); renderSarabanTable();
-                }
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function renderOrdersTable() {
-            const tbody = document.getElementById("orders-table-body");
-            tbody.innerHTML = "";
-
-            if(globalOrdersData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-xs">📜 ยังไม่มีการออกเลขที่คำสั่งโรงเรียนในปีนี้</td></tr>`;
-                return;
-            }
-
-            globalOrdersData.forEach(item => {
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-50 border-b border-slate-100 transition-colors";
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-bold text-purple-700">${item.orderId}</td>
-                    <td class="py-3 px-3 text-center">${item.year}</td>
-                    <td class="py-3 px-5 font-semibold text-slate-900">${item.title}</td>
-                    <td class="py-3 px-4">${item.date}</td>
-                    <td class="py-3 px-4 text-xs font-bold">${item.department}</td>
-                    <td class="py-3 px-3 text-center">${item.fileUrl && item.fileUrl !== '#' ? `<a href="${item.fileUrl}" target="_blank" class="text-purple-600 hover:underline font-bold">เปิดสแกน</a>` : '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function openSarabanModal() {
-            sarabanEditIndex = null;
-            document.getElementById("saraban-modal-title").innerText = "静态 / ทะเบียนส่งคำขอลงรับหนังสือส่งกลาง";
-            document.getElementById("saraban-form").reset();
-            document.getElementById("form-internal-id").value = "AUTO-GEN";
-            document.getElementById("saraban-modal").classList.remove("hidden");
-        }
-        function closeSarabanModal() { document.getElementById("saraban-modal").classList.add("hidden"); }
-
-        function editSaraban(internalId) {
-            const item = globalSarabanData.find(d => d.internalId === internalId);
-            if(!item) return;
-            sarabanEditIndex = internalId;
-            document.getElementById("saraban-modal-title").innerText = `✏️ แก้ไขข้อมูลทะเบียนระบบ [${internalId}]`;
-            document.getElementById("form-internal-id").value = item.internalId;
-            document.getElementById("form-doc-id").value = item.docId;
-            document.getElementById("form-date").value = item.date;
-            document.getElementById("form-department").value = item.department;
-            document.getElementById("form-title").value = item.title;
-            document.getElementById("form-priority").value = item.priority;
-            document.getElementById("form-deadline").value = item.deadline || "";
-            document.getElementById("form-status").value = item.status;
-            document.getElementById("saraban-modal").classList.remove("hidden");
-        }
-
-        async function handleSarabanSubmit(event) {
-            event.preventDefault();
-            showLoading("กำลังอัพโหลดแพ็กเกจข้อมูลเอกสารเข้าสู่ Cloud Storage...");
-            
-            const fileInput = document.getElementById("form-file");
-            let fileData = null;
-            if(fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                fileData = await convertFileToBase64(file);
-            }
-
-            const payload = {
-                action: sarabanEditIndex ? "editSaraban" : "addSaraban",
-                internalId: sarabanEditIndex || "",
-                type: currentSarabanTab,
-                docId: document.getElementById("form-doc-id").value,
-                date: document.getElementById("form-date").value,
-                department: document.getElementById("form-department").value,
-                title: document.getElementById("form-title").value,
-                priority: document.getElementById("form-priority").value,
-                deadline: document.getElementById("form-deadline").value,
-                status: document.getElementById("form-status").value,
-                file: fileData
-            };
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                const res = await response.json();
-                if(res.status === "success") {
-                    closeSarabanModal();
-                    fetchSystemData();
-                }
-            } catch (error) {
-                console.error(error);
-                if(!sarabanEditIndex) {
-                    globalSarabanData.push({
-                        internalId: "REC-" + Math.floor(100+Math.random()*900),
-                        docId: payload.docId, date: payload.date, department: payload.department,
-                        title: payload.title, priority: payload.priority, deadline: payload.deadline,
-                        status: payload.status, type: payload.type, fileUrl: "#", command: ""
-                    });
-                }
-                closeSarabanModal(); updateDashboardCounters(); renderSarabanTable();
-                alert("บันทึกจำลองแบบออฟไลน์เรียบร้อย");
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function openOrderModal() {
-            document.getElementById("order-form").reset();
-            const nextNum = globalOrdersData.length + 1;
-            document.getElementById("order-form-id").value = `${nextNum}/2569`;
-            document.getElementById("order-modal").classList.remove("hidden");
-        }
-        function closeOrderModal() { document.getElementById("order-modal").classList.add("hidden"); }
-
-        async function handleOrderSubmit(event) {
-            event.preventDefault();
-            showLoading("กำลังอนุมัติรันเลขที่คำสั่งโรงเรียนสารบรรณดิจิทัล...");
-            
-            const fileInput = document.getElementById("order-form-file");
-            let fileData = null;
-            if(fileInput.files.length > 0) {
-                fileData = await convertFileToBase64(fileInput.files[0]);
-            }
-
-            const payload = {
-                action: "addOrder",
-                orderId: document.getElementById("order-form-id").value,
-                year: document.getElementById("order-form-year").value,
-                title: document.getElementById("order-form-title").value,
-                date: document.getElementById("order-form-date").value,
-                department: document.getElementById("order-form-department").value,
-                file: fileData
-            };
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                const res = await response.json();
-                if(res.status === "success") {
-                    closeOrderModal();
-                    fetchSystemData();
-                }
-            } catch (error) {
-                console.error(error);
-                globalOrdersData.push({
-                    orderId: payload.orderId, year: payload.year, title: payload.title,
-                    date: payload.date, department: payload.department, fileUrl: "#"
-                });
-                closeOrderModal(); updateDashboardCounters(); renderOrdersTable();
-                alert("ออกเลขที่คำสั่งจำลองสำเร็จในหน้าเบราว์เซอร์แล้วครับ");
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function convertFileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve({ data: reader.result.split(',')[1], name: file.name, mimeType: file.type });
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        function initCharts() {
-            const counts = { "บริหารงานทั่วไป": 0, "บริหารงานงบประมาณ": 0, "บริหารงานวิชาการ": 0, "บริหารงานบุคคล": 0 };
-            globalSarabanData.forEach(d => {
-                if(d.department.includes("ทั่วไป")) counts["บริหารงานทั่วไป"]++;
-                else if(d.department.includes("งบประมาณ")) counts["บริหารงานงบประมาณ"]++;
-                else if(d.department.includes("วิชาการ")) counts["บริหารงานวิชาการ"]++;
-                else if(d.department.includes("บุคคล")) counts["บริหารงานบุคคล"]++;
-            });
-
-            if(deptChart) deptChart.destroy();
-            deptChart = new Chart(document.getElementById('chart-departments'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['งานทั่วไป', 'งานงบประมาณ', 'งานวิชาการ', 'งานบุคคล'],
-                    datasets: [{
-                        data: [counts["บริหารงานทั่วไป"], counts["บริหารงานงบประมาณ"], counts["บริหารงานวิชาการ"], counts["บริหารงานบุคคล"]],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            const priorityCounts = { "ปกติ": 0, "ด่วน": 0, "ด่วนมาก": 0, "ด่วนที่สุด": 0 };
-            globalSarabanData.forEach(d => { if(priorityCounts[d.priority] !== undefined) priorityCounts[d.priority]++; });
-
-            if(priorityChart) priorityChart.destroy();
-            priorityChart = new Chart(document.getElementById('chart-priority'), {
-                type: 'bar',
-                data: {
-                    labels: ['ปกติ', 'ด่วน', 'ด่วนมาก', 'ด่วนที่สุด'],
-                    datasets: [{
-                        label: 'จำนวนเรื่อง',
-                        data: [priorityCounts["ปกติ"], priorityCounts["ด่วน"], priorityCounts["ด่วนมาก"], priorityCounts["ด่วนที่สุด"]],
-                        backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
-        }
-
-        function initCalendar() {
-            const calendarEl = document.getElementById('calendar-container');
-            if (!calendarEl) return;
-
-            if(calendarObj) { calendarObj.render(); return; }
-
-            const events = globalSarabanData.filter(d => d.deadline).map(item => {
-                let color = "#3b82f6";
-                if(item.priority === "ด่วนที่สุด") color = "#ef4444";
-                else if(item.priority === "ด่วนมาก") color = "#f97316";
-                return { title: `[${item.priority}] ${item.title}`, start: item.deadline, backgroundColor: color, allDay: true };
-            });
-
-            calendarObj = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'th',
-                themeSystem: 'standard',
-                events: events,
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-                buttonText: { today: 'วันนี้', month: 'เดือน', week: 'สัปดาห์' }
-            });
-            calendarObj.render();
-        }
-    </script>
-</body>
-</html>
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "login", username: userInp, password: passInp })
+                });
+                const res = await response.json();
+                
+                if (res.status === "success") {
+                    currentUser = res.user;
+                    localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
+                    errorDiv.classList.add("hidden");
+                    document.getEleme
