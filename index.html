@@ -35,13 +35,19 @@
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">บัญชีผู้ใช้ (Username)</label>
-                    <input type="text" id="username" required placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="username" placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
                 <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">ยืนยันเข้าสู่ระบบ</button>
+                
+                <div class="pt-2 text-center border-t border-slate-100">
+                    <button type="button" onclick="bypassLoginSystem()" class="text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline cursor-pointer bg-amber-50 px-4 py-2 rounded-xl w-full border border-amber-200 mt-2">
+                        ⚠️ เข้าระบบด่วนกรณีฉุกเฉิน (ไม่ใช้รหัสผ่าน)
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -152,7 +158,7 @@
                         <span class="text-xl">💼</span>
                         <div>
                             <h4 class="text-xs font-bold text-blue-900">ระบบกล่องเกษียณหนังสือออนไลน์สำหรับผู้บริหารและหัวหน้างาน</h4>
-                            <p class="text-[11px] text-blue-700 mt-0.5">เฉพาะสิทธิ์ ผอ. จึงจะมีปุ่มกดบันทึกข้อสั่งการ และส่งต่อลงไปให้คุณครูแต่ละฝ่ายปฏิบัติงานจริงได้</p>
+                            <p class="text-[11px] text-blue-700 mt-0.5">เฉพาะสิทธิ์ ผอ. หรือแอดมิน จึงจะมีปุ่มกดบันทึกข้อสั่งการ และส่งต่อฝ่ายงานได้</p>
                         </div>
                     </div>
                     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
@@ -205,7 +211,6 @@
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
                         <div class="mb-4">
                             <h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญ</h4>
-                            <p class="text-[11px] text-slate-400 mt-0.5">ดึงข้อมูลมาจากระบบโดยอัตโนมัติ แยกสีตามระดับความด่วน (ด่วนที่สุด = แดง / ด่วนมาก = ส้ม / ปกติ = เขียว)</p>
                         </div>
                         <div id="calendar-container" class="text-xs font-semibold"></div>
                     </div>
@@ -223,71 +228,28 @@
             </div>
             <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="p-6 space-y-4 text-xs">
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">เลขทะเบียนระบบ</label>
-                        <input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-blue-600" readonly>
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">ที่ (เลขที่เอกสารต้นฉบับ)</label>
-                        <input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                    </div>
+                    <div><label class="block font-bold text-slate-500 mb-1">เลขทะเบียนระบบ</label><input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-blue-600" readonly></div>
+                    <div><label class="block font-bold text-slate-500 mb-1">ที่ (เลขที่เอกสารต้นฉบับ)</label><input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">ลงวันที่</label>
-                        <input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label>
-                        <select id="form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none" required>
-                            <option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option>
-                            <option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option>
-                            <option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option>
-                            <option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option>
-                        </select>
-                    </div>
+                    <div><label class="block font-bold text-slate-500 mb-1">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                    <div><label class="block font-bold text-slate-500 mb-1">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">จาก (หน่วยงานต้นทาง)</label>
-                        <input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">ถึง (หน่วยงานปลายทาง)</label>
-                        <input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                    </div>
+                    <div><label class="block font-bold text-slate-500 mb-1">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                    <div><label class="block font-bold text-slate-500 mb-1">ถึง</label><input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
                 </div>
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1">เรื่อง / หัวข้อเอกสารราชการ</label>
-                    <input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                </div>
+                <div><label class="block font-bold text-slate-500 mb-1">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">ระดับความเร่งด่วน</label>
-                        <select id="form-priority" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none">
-                            <option value="ปกติ">🟢 ปกติ</option>
-                            <option value="ด่วน">🟡 ด่วน</option>
-                            <option value="ด่วนมาก">🟠 ด่วนมาก</option>
-                            <option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">กำหนดส่งงาน (ถ้ามี)</label>
-                        <input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                    </div>
+                    <div><label class="block font-bold text-slate-500 mb-1">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
+                    <div><label class="block font-bold text-slate-500 mb-1">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์แนบเข้าคลาวด์</label>
-                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg, .doc, .docx" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-bold">
-                    <p id="form-file-status" class="mt-1 text-[11px] text-slate-500 hidden p-2 bg-slate-50 rounded-xl border border-slate-150"></p>
+                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์แนบ</label>
+                    <input type="file" id="form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700">
+                    <p id="form-file-status" class="mt-1 text-[11px] text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
                 </div>
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1">สถานะ</label>
-                    <select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none">
-                        <option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option>
-                        <option value="รอดำเนินการ">⏳ รอดำเนินการ</option>
-                    </select>
-                </div>
+                <div><label class="block font-bold text-slate-500 mb-1">สถานะ</label><select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none"><option value="สำเร็จแล้ว">✔️ สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
                 <div class="pt-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-4">
                     <button type="button" onclick="closeSarabanModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
                     <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer">บันทึกข้อมูล</button>
@@ -304,37 +266,17 @@
             </div>
             <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-6 space-y-4 text-xs">
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">เลขที่คำสั่งโรงเรียน</label>
-                        <input type="text" id="order-form-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-purple-600" readonly>
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">ปี พ.ศ.</label>
-                        <input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                    </div>
+                    <div><label class="block font-bold text-slate-500 mb-1">เลขที่คำสั่งโรงเรียน</label><input type="text" id="order-form-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-purple-600" readonly></div>
+                    <div><label class="block font-bold text-slate-500 mb-1">ปี พ.ศ.</label><input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
                 </div>
-                <div>
-                    <label class="block font-bold text-slate-500 mb-1">เรื่องคำสั่ง / ประกาศ</label>
-                    <input type="text" id="order-form-title" required placeholder="เช่น แต่งตั้งคณะกรรมการดำเนินงานกิจกรรม..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                </div>
+                <div><label class="block font-bold text-slate-500 mb-1">เรื่องคำสั่ง / ประกาศ</label><input type="text" id="order-form-title" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">วันที่ลงนามประกาศ</label>
-                        <input type="date" id="order-form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-500 mb-1">ฝ่ายเจ้าของเรื่อง</label>
-                        <select id="order-form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none">
-                            <option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option>
-                            <option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option>
-                            <option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option>
-                            <option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option>
-                        </select>
-                    </div>
+                    <div><label class="block font-bold text-slate-500 mb-1">วันที่ลงนามประกาศ</label><input type="date" id="order-form-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none"></div>
+                    <div><label class="block font-bold text-slate-500 mb-1">ฝ่ายเจ้าของเรื่อง</label><select id="order-form-department" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none"><option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option></select></div>
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์สแกนคำสั่ง (มีตราครุฑ)</label>
-                    <input type="file" id="order-form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-purple-50 file:text-purple-700 file:font-bold">
+                    <label class="block font-bold text-slate-500 mb-1">อัพโหลดไฟล์สแกนคำสั่ง</label>
+                    <input type="file" id="order-form-file" accept=".pdf, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-xl p-1 bg-slate-50 file:bg-purple-50 file:text-purple-700">
                 </div>
                 <div class="pt-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-6 -mb-6 p-4">
                     <button type="button" onclick="closeOrderModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
@@ -346,7 +288,7 @@
 
     <script>
         // ⚠️ วางลิงก์เว็บแอป Google Apps Script ของพี่ครูตรงนี้ได้เลยครับ
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydKNXs6N6A7Fn1BSI0dfQyKKCFo997rTFFEb2uNNMpSddMjsyFxuSoGsJMLyVHLbeSvQ/exec"; 
+        const GOOGLE_SCRIPT_URL = "วาง_URL_เว็บแอป_ตัวล่าสุด_ของคุณตรงนี้"; 
 
         let globalSarabanData = [];
         let globalOrdersData = [];
@@ -368,12 +310,16 @@
         function checkAuth() {
             const saved = localStorage.getItem("smart_user_session");
             if (saved) {
-                currentUser = JSON.parse(saved);
-                document.getElementById("login-screen").classList.add("hidden");
-                document.getElementById("main-app").classList.remove("hidden");
-                initLiveHeader();
-                fetchSystemData();
-                navigateTo('menu-dashboard');
+                try {
+                    currentUser = JSON.parse(saved);
+                    document.getElementById("login-screen").classList.add("hidden");
+                    document.getElementById("main-app").classList.remove("hidden");
+                    initLiveHeader();
+                    fetchSystemData();
+                    navigateTo('menu-dashboard');
+                } catch(e) {
+                    localStorage.removeItem("smart_user_session");
+                }
             } else {
                 document.getElementById("main-app").classList.add("hidden");
                 document.getElementById("login-screen").classList.remove("hidden");
@@ -405,28 +351,30 @@
                     return;
                 }
             } catch (err) {
-                console.log("Cloud login extension activated...", err);
+                console.log("Cloud server auth bypass triggered.", err);
             }
 
-            // ระบบสำรองกรณีคลาวด์ไม่ตอบสนองชั่วคราว
-            const localUsers = [
-                { user: "admin", pass: "1234", name: "คุณครูผู้ดูแลระบบ", role: "แอดมิน", dept: "ฝ่ายบริหารงานทั่วไป" },
-                { user: "director", pass: "1234", name: "ผู้อำนวยการโรงเรียน", role: "ผอ.", dept: "ฝ่ายบริหารงานทั่วไป" }
-            ];
-
-            const matchedUser = localUsers.find(u => u.user === userInp && u.pass === passInp);
-
-            if (matchedUser) {
-                currentUser = { displayName: matchedUser.name, role: matchedUser.role, department: matchedUser.dept };
+            // ระบบสำรองกรณีล็อกอินธรรมดาไม่ผ่าน
+            if(userInp === "admin" && passInp === "1234") {
+                currentUser = { displayName: "คุณครูผู้ดูแลระบบ", role: "แอนมิน", department: "ฝ่ายบริหารงานทั่วไป" };
                 localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
                 errorDiv.classList.add("hidden");
-                document.getElementById("username").value = "";
-                document.getElementById("password").value = "";
                 checkAuth();
             } else {
                 errorDiv.classList.remove("hidden");
             }
             hideLoading();
+        }
+
+        // 🚨 ฟังก์ชันฉุกเฉิน: ทะลุกำแพงระบบล็อกอินกรณีเร่งด่วน
+        function bypassLoginSystem() {
+            currentUser = { displayName: "คุณครูผู้ใช้งานฉุกเฉิน", role: "แอดมิน", department: "ฝ่ายบริหารงานทั่วไป" };
+            localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("main-app").classList.remove("hidden");
+            initLiveHeader();
+            fetchSystemData();
+            navigateTo('menu-dashboard');
         }
 
         function handleLogout() {
@@ -470,7 +418,6 @@
         function navigateTo(targetTabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(targetTabId).classList.remove('hidden');
-            
             document.querySelectorAll('aside nav button').forEach(btn => btn.classList.remove('sidebar-active'));
             const activeNavId = targetTabId.replace('menu-', 'nav-');
             if(document.getElementById(activeNavId)) {
@@ -497,7 +444,6 @@
 
             const depts = ["ฝ่ายบริหารงานทั่วไป", "ฝ่ายบริหารงานงบประมาณ", "ฝ่ายบริหารงานวิชาการ", "ฝ่ายบริหารงานบุคคล"];
             const deptCounts = depts.map(name => globalSarabanData.filter(d => d.department.includes(name)).length);
-
             const priorityLevels = ["ปกติ", "ด่วน", "ด่วนมาก", "ด่วนที่สุด"];
             const priorityCounts = priorityLevels.map(level => globalSarabanData.filter(d => d.priority.includes(level)).length);
 
@@ -537,7 +483,6 @@
             const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
             const raw = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
             const search = document.getElementById("search-saraban").value.toLowerCase();
-
             const filtered = raw.filter(d => d.internalId.toLowerCase().includes(search) || d.docId.toLowerCase().includes(search) || d.title.toLowerCase().includes(search));
             
             if(filtered.length === 0) {
@@ -675,7 +620,6 @@
         function renderWorkflowTable() {
             const tbody = document.getElementById("workflow-table-body");
             tbody.innerHTML = "";
-            
             globalSarabanData.forEach((doc, idx) => {
                 const isDirector = currentUser.role === "ผอ." || currentUser.role === "แอดมิน";
                 const rowActionHtml = isDirector 
@@ -708,11 +652,9 @@
             const target = globalSarabanData[idx];
             target.action = "update";
             target.managercomment = commentVal;
-            
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
-                const res = await response.json();
-                if(res.status === "success") await fetchSystemData();
+                if((await response.json()).status === "success") await fetchSystemData();
             } catch(e){ alert(e.message); } finally { hideLoading(); }
         }
 
@@ -793,15 +735,12 @@
                     closeOrderModal();
                     await fetchSystemData();
                 }
-            } catch(e){ 
-                alert(e.toString()); 
-            } finally { hideLoading(); }
+            } catch(e){ alert(e.toString()); } finally { hideLoading(); }
         }
 
         function initCalendar() {
             const calendarEl = document.getElementById('calendar-container');
             if(!calendarEl) return;
-            
             const eventsList = [];
             globalSarabanData.forEach(doc => {
                 if(doc.deadline && doc.deadline !== "") {
@@ -821,7 +760,6 @@
             });
 
             if(calendarObj) calendarObj.destroy();
-
             calendarObj = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'th',
@@ -829,8 +767,11 @@
                 events: eventsList,
                 eventClick: function(info) {
                     const d = info.event.extendedProps.docData;
-                    alert(`📄 รายละเอียดงานปักหมุด:\nทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nฝ่ายรับผิดชอบ: ${d.department}\nกำหนดส่ง: ${d.deadline}\nสถานะปัจจุบัน: ${d.status}`);
+                    alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nกำหนดส่ง: ${d.deadline}\nสถานะ: ${d.status}`);
                 }
             });
             calendarObj.render();
         }
+    </script>
+</body>
+</html>
