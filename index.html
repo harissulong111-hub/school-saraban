@@ -527,17 +527,32 @@
             });
         }
 
-        function openSarabanModal() {
+       function openSarabanModal() {
             sarabanEditIndex = null; document.getElementById("saraban-form").reset();
             document.getElementById("form-file-status").classList.add("hidden");
             const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
             const subList = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
+            
             let nextNum = 1;
+            
             if(subList.length > 0) {
-                const lastId = subList[0].internalId; const match = lastId.match(/\d+/);
-                if(match) nextNum = parseInt(match[0]) + 1;
+                // 1. ดึงตัวเลขรันของทุกรายการในระบบออกมาเก็บเป็น Array
+                const allNumbers = subList.map(d => {
+                    const match = d.internalId.match(new RegExp(`${prefix}\\s+(\\d+)`));
+                    return match ? parseInt(match[1]) : 0;
+                });
+                
+                // 2. หาตัวเลขที่มากที่สุดที่เคยบันทึกไว้
+                const maxNum = Math.max(...allNumbers);
+                
+                // 3. เอาเลขที่มากที่สุดมาบวก 1 เป็นเลขถัดไป
+                if (maxNum > 0) {
+                    nextNum = maxNum + 1;
+                }
             }
-            document.getElementById("form-internal-id").value = `${prefix} ${String(nextNum).padStart(3, '0')}/2569`;
+            
+            // นำเลขไปใส่ในฟอร์ม
+            document.getElementById("form-internal-id").value = `${prefix} ${nextNum}/2569`;
             document.getElementById("saraban-modal").classList.remove("hidden");
         }
 
