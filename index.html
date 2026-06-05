@@ -743,7 +743,7 @@
             } catch(e){ alert(e.toString()); } finally { hideLoading(); }
         }
 
-        function initCalendar() {
+       function initCalendar() {
             const calendarEl = document.getElementById('calendar-container'); if(!calendarEl) return;
             const eventsList = [];
             globalSarabanData.forEach(doc => {
@@ -753,9 +753,18 @@
                     else if(doc.priority.includes("มาก")) evColor = "#f97316"; 
                     else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
 
+                    const isDone = (doc.status === 'สำเร็จแล้ว' || doc.status === 'ดำเนินการ');
+                    
+                    // 📌 1. ปรับแต่งให้เครื่องหมายถูกอยู่ภายในแท็ก span ที่ขยายขนาดใหญ่ขึ้น (text-base หรือใส่สไตล์ดักไว้)
+                    // ใส่ inline-block และ mr-1 เพื่อให้เว้นระยะห่างจากตัวอักษรอย่างสวยงาม
+                    const statusIcon = isDone ? '<span style="font-size: 16px; inline-block; margin-right: 3px;">☑️</span>' : '';
+
                     eventsList.push({
-                        title: `${doc.internalId}: ${doc.title}`, start: doc.deadline,
-                        backgroundColor: evColor, borderColor: evColor, extendedProps: { docData: doc }
+                        title: `${statusIcon}${doc.internalId}: ${doc.title}`, 
+                        start: doc.deadline,
+                        backgroundColor: evColor, 
+                        borderColor: evColor, 
+                        extendedProps: { docData: doc }
                     });
                 }
             });
@@ -765,9 +774,20 @@
                 initialView: 'dayGridMonth', locale: 'th',
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
                 events: eventsList,
+                
+                // 📌 2. เพิ่มคำสั่งนี้เข้ามาเพื่อให้ FullCalendar ยอมรับและแสดงผลแท็ก HTML ของเครื่องหมายถูกตัวใหญ่ที่เราตั้งค่าไว้
+                eventContent: function(arg) {
+                    let italicEl = document.createElement('div');
+                    italicEl.className = 'fc-event-title';
+                    italicEl.innerHTML = arg.event.title;
+                    let arrayOfDomNodes = [ italicEl ];
+                    return { domNodes: arrayOfDomNodes };
+                },
+
                 eventClick: function(info) {
                     const d = info.event.extendedProps.docData;
-                    alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nกำหนดส่ง: ${d.deadline}`);
+                    const currentStatus = d.status || 'รอดำเนินการ';
+                    alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nสถานะ: ${currentStatus}\nกำหนดส่ง: ${d.deadline}`);
                 }
             });
             calendarObj.render();
