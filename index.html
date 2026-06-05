@@ -511,7 +511,7 @@
                     <tr class="hover:bg-slate-50/80 transition-colors">
                         <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
                         <td class="py-3 px-3 font-semibold">${doc.docId}</td>
-                        <td class="py-3 px-3">${doc.date}</td>
+                        <td class="py-3 px-3">${formatThaiDate(doc.date)}</td>
                         <td class="py-3 px-3 font-bold text-blue-800">${doc.department.replace("ฝ่ายบริหารงาน", "")}</td>
                         <td class="py-3 px-4 font-bold text-slate-800">${doc.title}</td>
                         <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${doc.priority}</span></td>
@@ -819,6 +819,28 @@
 
         // เริ่มต้นนับเวลาตั้งแต่เปิดหน้าเว็บ
         resetIdleTimer();
+
+        function formatThaiDate(dateString) {
+    if (!dateString || dateString === "") return "-";
+    
+    // แยกปี เดือน วัน ออกมาจากรูปแบบ YYYY-MM-DD
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString; // ป้องกันข้อผิดพลาดหากไม่ใช่รูปแบบปกติ
+    
+    const yearCE = parseInt(parts[0]);
+    const monthIndex = parseInt(parts[1]) - 1;
+    const day = parseInt(parts[2]);
+    
+    // อาร์เรย์ชื่อเดือนย่อไทย
+    const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    
+    // แปลงปี ค.ศ. เป็น พ.ศ. สองหลักท้าย (เช่น 2026 + 543 = 2569 -> ดึงแค่ "69")
+    const yearBE = yearCE + 543;
+    const shortYearBE = yearBE.toString().slice(-2);
+    
+    // ประกอบเป็นรูปแบบ: วัน เดือนย่อ ปีสองหลัก (เช่น 15 ม.ค. 69)
+    return `${day} ${thaiMonths[monthIndex]} ${shortYearBE}`;
+}
     </script>
 </body>
 </html>
