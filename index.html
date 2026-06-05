@@ -805,39 +805,53 @@ function handleLogout(isAuto = false) {
             });
             calendarObj.render();
         }
-   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (แก้ไขปัญหานาฬิกาหยุดเดิน) ---
+   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (เวอร์ชันสลายหน้าจอเด็ดขาด) ---
         let idleTimer;
         const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาทดสอบไว้ที่ 1 นาที
         const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
 
         function resetIdleTimer() {
             clearTimeout(idleTimer);
-            idleTimer = setTimeout(autoLogoutFinal, TIMEOUT_DURATION);
+            idleTimer = setTimeout(autoLogoutAbsolute, TIMEOUT_DURATION);
         }
 
-        function autoLogoutFinal() {
-            // 1. ทำลายสิทธิ์ใน Session ทันที
-            sessionStorage.clear(); 
+        function autoLogoutAbsolute() {
+            // 1. ล้างสิทธิ์และเซสชันทั้งหมดที่มีในระบบทิ้งทันที
+            sessionStorage.clear();
+            localStorage.clear();
+            if (typeof currentUser !== 'undefined') currentUser = null;
             
+            // 2. สั่งเรียกใช้ฟังก์ชันล็อกเอาท์เดิม (เผื่อทำงานได้) 
+            // ครอบด้วย try-catch เพื่อป้องกันไม่ให้โค้ดพังจนนาฬิกาหยุดเดิน
             try {
-                // 2. 📌 บล็อกหน้าต่างถาม "คุณต้องการออกจากระบบใช่หรือไม่" ทั้งหมดของเบราว์เซอร์ชั่วคราว
-                // สั่งให้เมื่อใดก็ตามที่มีคำสั่งถามยืนยัน ให้ตอบ "ตกลง (true)" อัตโนมัติทันทีโดยไม่แสดงป๊อปอัป
-                const originalConfirm = window.confirm;
-                window.confirm = function() { return true; };
-                
-                // 3. เรียกฟังก์ชันล็อกเอาท์เดิมของโรงเรียนที่คุณครูเขียนไว้
-                if (typeof handleLogout === 'function') {
-                    handleLogout(); 
-                } else if (typeof logout === 'function') {
-                    logout();
-                } else {
-                    // ถ้าหาฟังก์ชันไม่เจอเลย ให้ใช้วิธีรีโหลดกลับหน้าแรกเพื่อความปลอดภัย
-                    window.location.reload();
-                }
-                
-                // 4. คืนค่าระบบยืนยันกลับมาเป็นปกติหลังจากล็อกเอาท์เสร็จแล้ว
-                setTimeout(() => { window.confirm = originalConfirm; }, 1000);
+                if (typeof handleLogout === 'function') handleLogout();
+            } catch(e) { console.log('Bypassed original logout'); }
 
+            // 3. 📌 แผนเด็ดขาด: วาดหน้าต่างล็อกอินทับทั้งหน้าจอทันที (สลายร่างสารบรรณเดิม)
+            // โค้ดส่วนนี้จะสร้างกล่องสีขาวขนาดเต็มจอขึ่้นมาบังระบบสารบรรณเดิมไว้ 100% เพื่อความปลอดภัย
+            document.body.innerHTML = `
+                <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background-color:#f1f5f9; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif; z-index:999999;">
+                    <div style="background:white; padding:2rem; border-radius:1rem; box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1); text-align:center; max-width:400px; width:90%;">
+                        <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
+                        <h2 style="font-size:1.25rem; font-weight:bold; color:#1e293b; margin-bottom:0.5rem;">หมดเวลาการใช้งานอย่างปลอดภัย</h2>
+                        <p style="font-size:0.875rem; color:#64748b; margin-bottom:1.5rem;">ระบบสารบรรณโรงเรียนบ้านกาหยี ได้ล็อกเอาท์อัตโนมัติเนื่องจากไม่มีการเคลื่อนไหวเกิน ${TIMEOUT_IN_MINUTES} นาที</p>
+                        <button onclick="window.location.reload();" style="background-color:#9333ea; color:white; font-weight:bold; padding:0.75rem 1.5rem; border-radius:0.75rem; border:none; cursor:pointer; width:100%; transition:background-color 0.2s;">
+                            🔄 คลิกเพื่อเข้าสู่ระบบใหม่อีกครั้ง
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ดักจับเหตุการณ์การขยับเมาส์ พิมพ์งาน หรือแตะหน้าจอ
+        window.onmousemove = resetIdleTimer;
+        window.onmousedown = resetIdleTimer; 
+        window.onclick = resetIdleTimer;     
+        window.onscroll = resetIdleTimer;    
+        window.onkeypress = resetIdleTimer;
+
+        // เริ่มต้นจับเวลาทันทีเมื่อเปิดหน้าเว็บ
+        resetIdleTimer();
             } catch (error) {
                 // 5. หากเกิดข้อผิดพลาดใดๆ ขึ้น (เช่น ตัวแปรพัง) ให้ดักจับ (Catch) ไว้ 
                 // เพื่อไม่ให้โค้ดส่วนอื่นหรือนาฬิกาหยุดทำงาน แล้วสั่งดีดหน้าจอทันที
