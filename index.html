@@ -770,7 +770,7 @@ function handleLogout(isAuto = false) {
                     
                     // 📌 1. ปรับแต่งให้เครื่องหมายถูกอยู่ภายในแท็ก span ที่ขยายขนาดใหญ่ขึ้น (text-base หรือใส่สไตล์ดักไว้)
                     // ใส่ inline-block และ mr-1 เพื่อให้เว้นระยะห่างจากตัวอักษรอย่างสวยงาม
-                    const statusIcon = isDone ? '<span style="font-size: 20px; inline-block; margin-right: 3px;">☑️</span>' : '';
+                    const statusIcon = isDone ? '<span style="font-size: 16px; inline-block; margin-right: 3px;">☑️</span>' : '';
 
                     eventsList.push({
                         title: `${statusIcon}${doc.internalId}: ${doc.title}`, 
@@ -948,7 +948,7 @@ function initCalendar() {
             else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
 
             const isDone = (doc.status === 'สำเร็จแล้ว' || doc.status === 'ดำเนินการ');
-            const statusIcon = isDone ? '<span style="font-size: 16px; inline-block; margin-right: 3px;">✅</span>' : '';
+            const statusIcon = isDone ? '<span style="font-size: 20px; inline-block; margin-right: 3px;">☑️</span>' : '';
 
             eventsList.push({
                 title: `${statusIcon}${doc.internalId}: ${doc.title}`, start: doc.deadline,
