@@ -805,32 +805,55 @@ function handleLogout(isAuto = false) {
             });
             calendarObj.render();
         }
-   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout บล็อกคำถาม) ---
+   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (แก้ไขปัญหานาฬิกาหยุดเดิน) ---
         let idleTimer;
-        const TIMEOUT_IN_MINUTES = 1; // กำหนดเวลาทดสอบ 1 นาที
+        const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาทดสอบไว้ที่ 1 นาที
         const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
 
         function resetIdleTimer() {
             clearTimeout(idleTimer);
-            idleTimer = setTimeout(autoLogoutSilence, TIMEOUT_DURATION);
+            idleTimer = setTimeout(autoLogoutFinal, TIMEOUT_DURATION);
         }
 
-        function autoLogoutSilence() {
-            // 📌 สั่งเรียกใช้ฟังก์ชันล็อกเอาท์เดิมในเครื่อง พร้อมใส่ค่า true 
-            // เพื่อแจ้งระบบว่าครบเวลาแล้ว ให้ดีดไปหน้าล็อกอินทันทีโดยห้ามขึ้นหน้าต่างถาม
-            if (typeof handleLogout === 'function') {
-                handleLogout(true); 
+        function autoLogoutFinal() {
+            // 1. ทำลายสิทธิ์ใน Session ทันที
+            sessionStorage.clear(); 
+            
+            try {
+                // 2. 📌 บล็อกหน้าต่างถาม "คุณต้องการออกจากระบบใช่หรือไม่" ทั้งหมดของเบราว์เซอร์ชั่วคราว
+                // สั่งให้เมื่อใดก็ตามที่มีคำสั่งถามยืนยัน ให้ตอบ "ตกลง (true)" อัตโนมัติทันทีโดยไม่แสดงป๊อปอัป
+                const originalConfirm = window.confirm;
+                window.confirm = function() { return true; };
+                
+                // 3. เรียกฟังก์ชันล็อกเอาท์เดิมของโรงเรียนที่คุณครูเขียนไว้
+                if (typeof handleLogout === 'function') {
+                    handleLogout(); 
+                } else if (typeof logout === 'function') {
+                    logout();
+                } else {
+                    // ถ้าหาฟังก์ชันไม่เจอเลย ให้ใช้วิธีรีโหลดกลับหน้าแรกเพื่อความปลอดภัย
+                    window.location.reload();
+                }
+                
+                // 4. คืนค่าระบบยืนยันกลับมาเป็นปกติหลังจากล็อกเอาท์เสร็จแล้ว
+                setTimeout(() => { window.confirm = originalConfirm; }, 1000);
+
+            } catch (error) {
+                // 5. หากเกิดข้อผิดพลาดใดๆ ขึ้น (เช่น ตัวแปรพัง) ให้ดักจับ (Catch) ไว้ 
+                // เพื่อไม่ให้โค้ดส่วนอื่นหรือนาฬิกาหยุดทำงาน แล้วสั่งดีดหน้าจอทันที
+                console.log("Auto logout system redirected.");
+                window.location.reload();
             }
         }
 
-        // ดักจับเหตุการณ์การใช้งานเพื่อเริ่มนับเวลาใหม่
+        // ดักจับเหตุการณ์ขยับเมาส์ พิมพ์งานปกติ
         window.onmousemove = resetIdleTimer;
         window.onmousedown = resetIdleTimer; 
         window.onclick = resetIdleTimer;     
         window.onscroll = resetIdleTimer;    
         window.onkeypress = resetIdleTimer;
 
-        // เริ่มนับเวลาถอยหลังทันทีเมื่อเปิดหน้าเว็บ
+        // เริ่มต้นเปิดระบบจับเวลาถอยหลัง
         resetIdleTimer();
 
         function formatThaiDate(dateString) {
