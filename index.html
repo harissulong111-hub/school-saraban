@@ -792,39 +792,39 @@
             });
             calendarObj.render();
         }
-    // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout) ---
+   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout เวอร์ชันเสถียร) ---
         let idleTimer;
-        const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาไว้ที่ 1 นาที
+        const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาทดสอบไว้ที่ 1 นาที
         const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
 
         function resetIdleTimer() {
+            // 1. เคลียร์ตัวจับเวลาเก่าออกก่อนเสมอ
             clearTimeout(idleTimer);
-            if (typeof currentUser !== 'undefined' && currentUser) {
-                idleTimer = setTimeout(autoLogoutDirect, TIMEOUT_DURATION);
-            }
+            
+            // 2. สั่งรันตัวนับเวลาถอยหลังทันที (ตัดเงื่อนไขเช็คตัวแปร currentUser ออกเพื่อความชัวร์)
+            idleTimer = setTimeout(autoLogoutDirect, TIMEOUT_DURATION);
         }
 
-        // 📌 ปรับแก้ฟังก์ชันใหม่: บายพาสระบบดักถาม ดีดไปหน้าล็อกอินทันที 100%
         function autoLogoutDirect() {
-            // 1. ทำลายสิทธิ์ใน Session ทั้งหมดทันที
+            // 3. ทำลายสิทธิ์ใน Session ทั้งหมดทันที
             sessionStorage.clear(); 
             
-            // 2. เคลียร์ตัวแปรสิทธิ์ในหน่วยความจำ (ถ้ามี)
+            // 4. ล้างค่าตัวแปรสิทธิ์ชั่วคราว (เผื่อมีในระบบ)
             if (typeof currentUser !== 'undefined') currentUser = null;
+            if (typeof isLoggedIn !== 'undefined') isLoggedIn = false;
             
-            // 3. สั่งรีโหลดหน้าเว็บกลับไปจุดเริ่มต้นทันที (หน้าล็อกอิน) 
-            // วิธีนี้จะเคลียร์โค้ดทั้งหมดใหม่ โดยไม่ผ่านการแจ้งเตือนหรือคำถามใดๆ ทั้งสิ้น
+            // 5. บังคับรีเฟรชหน้าเว็บทันที ดีดกลับไปหน้าแรกสุด
             window.location.reload(); 
         }
 
-        // ดักจับเหตุการณ์การใช้งานของผู้ใช้: ขยับเมาส์, คลิก, หรือกดคีย์บอร์ด
+        // ดักจับเหตุการณ์การใช้งานเพื่อเริ่มนับเวลาใหม่
         window.onmousemove = resetIdleTimer;
         window.onmousedown = resetIdleTimer; 
         window.onclick = resetIdleTimer;     
         window.onscroll = resetIdleTimer;    
         window.onkeypress = resetIdleTimer;
 
-        // เริ่มต้นนับเวลาตั้งแต่เปิดหน้าเว็บ
+        // เริ่มต้นรันระบบนับเวลาทันทีที่โหลดหน้าจอเว็บสำเร็จ
         resetIdleTimer();
 
         function formatThaiDate(dateString) {
