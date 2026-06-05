@@ -794,38 +794,37 @@
         }
     // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout) ---
         let idleTimer;
-        const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาไว้ที่ 1 นาทีตามที่กำหนด
+        const TIMEOUT_IN_MINUTES = 1; // ระบบจะทำงานเมื่อหน้านิ่งครบ 1 นาที
         const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
 
         function resetIdleTimer() {
             clearTimeout(idleTimer);
-            // ถ้าระบบเข้าสู่หน้าหลักแล้ว (มีการล็อกอินอยู่) ถึงจะรันตัวนับเวลาถอยหลัง
             if (typeof currentUser !== 'undefined' && currentUser) {
-                idleTimer = setTimeout(autoLogout, TIMEOUT_DURATION);
+                // 📌 จุดนี้จะเรียกฟังก์ชัน autoLogoutDirect ตัวล่างนี้แทน
+                idleTimer = setTimeout(autoLogoutDirect, TIMEOUT_DURATION);
             }
         }
 
-        // 📌 ปรับแก้ฟังก์ชันนี้: ล็อกเอาท์แบบเด็ดขาด ไม่ต้องขึ้นเตือน และต้องล็อกอินใหม่เท่านั้น
-        function autoLogout() {
-            // 1. ทำลายสิทธิ์ใน Session ทันที (ป้องกันการเปิดแท็บใหม่มาสวมสิทธิ์)
+        // 📌 ฟังก์ชันนี้สร้างขึ้นมาใหม่เพื่อทำงานอัตโนมัติ โดย "ไม่ผ่าน" handleLogout() ตัวเดิม
+        function autoLogoutDirect() {
+            // 1. ทำลายสิทธิ์ใน Session ทั้งหมดทันที ป้องกันคนมาสวมรอย
             sessionStorage.clear(); 
             
-            // 2. เรียกฟังก์ชันดีดตัวผู้ใช้ออกจากระบบ เพื่อซ่อนหน้าจอสารบรรณและเคลียร์ตัวแปรหลัก
-            handleLogout(); 
+            // 2. ล้างค่าตัวแปรสิทธิ์ในหน่วยความจำชั่วคราว
+            if (typeof currentUser !== 'undefined') currentUser = null;
             
-            // 3. แถม (แนะนำ): เพื่อความมั่นใจว่าระบบจะรีเซ็ตค่าและล้างหน่วยความจำอย่างสมบูรณ์แบบ 
-            // สั่งให้เบราว์เซอร์ทำการรีโหลดหน้าเว็บตัวเองใหม่ 1 ครั้ง ไปที่หน้าจอล็อกอินเพียวๆ
+            // 3. สั่งรีโหลดหน้าเว็บกลับไปจุดเริ่มต้นทันที บังคับล็อกอินใหม่โดยไม่ขึ้นคำถามใดๆ
             window.location.reload(); 
         }
 
-        // ดักจับเหตุการณ์การใช้งานของผู้ใช้: ขยับเมาส์, คลิก, หรือกดคีย์บอร์ด
+        // ดักจับเหตุการณ์ขยับเมาส์ พิมพ์งาน เพื่อรีเซ็ตเวลา
         window.onmousemove = resetIdleTimer;
         window.onmousedown = resetIdleTimer; 
         window.onclick = resetIdleTimer;     
         window.onscroll = resetIdleTimer;    
         window.onkeypress = resetIdleTimer;
 
-        // เริ่มต้นนับเวลาตั้งแต่เปิดหน้าเว็บ
+        // เริ่มต้นรันระบบนับเวลาถอยหลัง
         resetIdleTimer();
 
         function formatThaiDate(dateString) {
