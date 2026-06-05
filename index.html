@@ -794,37 +794,37 @@
         }
     // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout) ---
         let idleTimer;
-        const TIMEOUT_IN_MINUTES = 1; // ระบบจะทำงานเมื่อหน้านิ่งครบ 1 นาที
+        const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาไว้ที่ 1 นาที
         const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
 
         function resetIdleTimer() {
             clearTimeout(idleTimer);
             if (typeof currentUser !== 'undefined' && currentUser) {
-                // 📌 จุดนี้จะเรียกฟังก์ชัน autoLogoutDirect ตัวล่างนี้แทน
                 idleTimer = setTimeout(autoLogoutDirect, TIMEOUT_DURATION);
             }
         }
 
-        // 📌 ฟังก์ชันนี้สร้างขึ้นมาใหม่เพื่อทำงานอัตโนมัติ โดย "ไม่ผ่าน" handleLogout() ตัวเดิม
+        // 📌 ปรับแก้ฟังก์ชันใหม่: บายพาสระบบดักถาม ดีดไปหน้าล็อกอินทันที 100%
         function autoLogoutDirect() {
-            // 1. ทำลายสิทธิ์ใน Session ทั้งหมดทันที ป้องกันคนมาสวมรอย
+            // 1. ทำลายสิทธิ์ใน Session ทั้งหมดทันที
             sessionStorage.clear(); 
             
-            // 2. ล้างค่าตัวแปรสิทธิ์ในหน่วยความจำชั่วคราว
+            // 2. เคลียร์ตัวแปรสิทธิ์ในหน่วยความจำ (ถ้ามี)
             if (typeof currentUser !== 'undefined') currentUser = null;
             
-            // 3. สั่งรีโหลดหน้าเว็บกลับไปจุดเริ่มต้นทันที บังคับล็อกอินใหม่โดยไม่ขึ้นคำถามใดๆ
+            // 3. สั่งรีโหลดหน้าเว็บกลับไปจุดเริ่มต้นทันที (หน้าล็อกอิน) 
+            // วิธีนี้จะเคลียร์โค้ดทั้งหมดใหม่ โดยไม่ผ่านการแจ้งเตือนหรือคำถามใดๆ ทั้งสิ้น
             window.location.reload(); 
         }
 
-        // ดักจับเหตุการณ์ขยับเมาส์ พิมพ์งาน เพื่อรีเซ็ตเวลา
+        // ดักจับเหตุการณ์การใช้งานของผู้ใช้: ขยับเมาส์, คลิก, หรือกดคีย์บอร์ด
         window.onmousemove = resetIdleTimer;
         window.onmousedown = resetIdleTimer; 
         window.onclick = resetIdleTimer;     
         window.onscroll = resetIdleTimer;    
         window.onkeypress = resetIdleTimer;
 
-        // เริ่มต้นรันระบบนับเวลาถอยหลัง
+        // เริ่มต้นนับเวลาตั้งแต่เปิดหน้าเว็บ
         resetIdleTimer();
 
         function formatThaiDate(dateString) {
