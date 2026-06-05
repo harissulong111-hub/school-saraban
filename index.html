@@ -792,29 +792,40 @@
             });
             calendarObj.render();
         }
-   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout เวอร์ชันเสถียร) ---
+   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout เวอร์ชันสลับหน้าจอตรง) ---
         let idleTimer;
         const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาทดสอบไว้ที่ 1 นาที
         const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
 
         function resetIdleTimer() {
-            // 1. เคลียร์ตัวจับเวลาเก่าออกก่อนเสมอ
             clearTimeout(idleTimer);
-            
-            // 2. สั่งรันตัวนับเวลาถอยหลังทันที (ตัดเงื่อนไขเช็คตัวแปร currentUser ออกเพื่อความชัวร์)
             idleTimer = setTimeout(autoLogoutDirect, TIMEOUT_DURATION);
         }
 
         function autoLogoutDirect() {
-            // 3. ทำลายสิทธิ์ใน Session ทั้งหมดทันที
+            // 1. ล้างค่าตัวแปรสิทธิ์ในระบบเพื่อความปลอดภัย
             sessionStorage.clear(); 
-            
-            // 4. ล้างค่าตัวแปรสิทธิ์ชั่วคราว (เผื่อมีในระบบ)
             if (typeof currentUser !== 'undefined') currentUser = null;
             if (typeof isLoggedIn !== 'undefined') isLoggedIn = false;
             
-            // 5. บังคับรีเฟรชหน้าเว็บทันที ดีดกลับไปหน้าแรกสุด
-            window.location.reload(); 
+            // 2. 📌 สั่งสลับหน้าจอโดยตรง (ซ่อนหน้าจอระบบสารบรรณหลัก และ แสดงหน้าจอล็อกอินใหม่)
+            // ค้นหา ID หน้าจอหลักของคุณครู (มักจะชื่อ main-dashboard หรือข้อมูลทำนองนี้) เพื่อสั่งซ่อน
+            const mainDashboard = document.getElementById("main-dashboard") || document.querySelector("main");
+            if (mainDashboard) {
+                mainDashboard.classList.add("hidden"); 
+            }
+            
+            // ค้นหา ID หน้าจอล็อกอินของคุณครู (จากโค้ดเดิมชื่อ saraban-modal หรือกล่อง login) เพื่อสั่งแสดงผล
+            const loginPage = document.getElementById("login-page") || document.getElementById("auth-screen");
+            if (loginPage) {
+                loginPage.classList.remove("hidden");
+            }
+
+            // 3. แถม: รีเซ็ตข้อมูลในฟอร์มกรอกรหัสผ่านเดิมให้ว่างเปล่า บังคับให้ต้องพิมพ์ใหม่เท่านั้น
+            const passwordInput = document.getElementById("login-password") || document.querySelector("input[type='password']");
+            if (passwordInput) {
+                passwordInput.value = ""; 
+            }
         }
 
         // ดักจับเหตุการณ์การใช้งานเพื่อเริ่มนับเวลาใหม่
@@ -824,7 +835,7 @@
         window.onscroll = resetIdleTimer;    
         window.onkeypress = resetIdleTimer;
 
-        // เริ่มต้นรันระบบนับเวลาทันทีที่โหลดหน้าจอเว็บสำเร็จ
+        // เริ่มต้นรันระบบนับเวลาทันที
         resetIdleTimer();
 
         function formatThaiDate(dateString) {
