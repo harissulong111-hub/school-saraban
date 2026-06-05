@@ -391,14 +391,27 @@
             hideLoading();
         }
 
-        function handleLogout() {
-            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                localStorage.removeItem("smart_user_session");
-                currentUser = null;
-                checkAuth();
-            }
-        }
+       // 📄 ปรับฟังก์ชันเดิมในเครื่องให้มีคำว่า (isAuto) ด้านหลัง เพื่อเช็กการทำงานอัตโนมัติ
+function handleLogout(isAuto = false) {
+    
+    // ถ้าไม่ใช่การล็อกเอาท์อัตโนมัติ (คุณครูกดปุ่มเองด้วยมือ) ให้ขึ้นถามตามปกติ
+    if (!isAuto) {
+        const confirmLogout = confirm("คุณต้องการออกจากระบบใช่หรือไม่?");
+        if (!confirmLogout) return; // ถ้ากด "ยกเลิก" ให้หยุดทำงาน ไม่ต้องออก
+    }
 
+    // ----------------------------------------------------
+    // บรรทัดด้านล่างนี้ ให้ใช้โค้ดล็อกเอาท์เดิมทั้งหมดของคุณครู 
+    // (เช่น การซ่อนหน้าจอ เคลียร์ค่าตัวแปรสิทธิ์ บังคับเด้งไปหน้าล็อกอิน)
+    // ----------------------------------------------------
+    sessionStorage.clear(); 
+    if (typeof currentUser !== 'undefined') currentUser = null;
+    
+    // ตัวอย่างโค้ดสลับหน้าจอเดิมของคุณครู (ให้คงไว้ตามระบบเดิมในเครื่อง)
+    document.getElementById("main-dashboard").classList.add("hidden");
+    document.getElementById("login-page").classList.remove("hidden");
+    // ----------------------------------------------------
+}
         function initLiveHeader() {
             const clockEl = document.getElementById("clock-display");
             const badgeEl = document.getElementById("user-role-badge");
@@ -792,39 +805,21 @@
             });
             calendarObj.render();
         }
-   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout เวอร์ชันสลับหน้าจอตรง) ---
+   // --- ระบบล็อกเอาท์อัตโนมัติเมื่อไม่มีการใช้งาน (Idle Timeout บล็อกคำถาม) ---
         let idleTimer;
-        const TIMEOUT_IN_MINUTES = 1; // ตั้งเวลาทดสอบไว้ที่ 1 นาที
+        const TIMEOUT_IN_MINUTES = 1; // กำหนดเวลาทดสอบ 1 นาที
         const TIMEOUT_DURATION = TIMEOUT_IN_MINUTES * 60 * 1000; 
 
         function resetIdleTimer() {
             clearTimeout(idleTimer);
-            idleTimer = setTimeout(autoLogoutDirect, TIMEOUT_DURATION);
+            idleTimer = setTimeout(autoLogoutSilence, TIMEOUT_DURATION);
         }
 
-        function autoLogoutDirect() {
-            // 1. ล้างค่าตัวแปรสิทธิ์ในระบบเพื่อความปลอดภัย
-            sessionStorage.clear(); 
-            if (typeof currentUser !== 'undefined') currentUser = null;
-            if (typeof isLoggedIn !== 'undefined') isLoggedIn = false;
-            
-            // 2. 📌 สั่งสลับหน้าจอโดยตรง (ซ่อนหน้าจอระบบสารบรรณหลัก และ แสดงหน้าจอล็อกอินใหม่)
-            // ค้นหา ID หน้าจอหลักของคุณครู (มักจะชื่อ main-dashboard หรือข้อมูลทำนองนี้) เพื่อสั่งซ่อน
-            const mainDashboard = document.getElementById("main-dashboard") || document.querySelector("main");
-            if (mainDashboard) {
-                mainDashboard.classList.add("hidden"); 
-            }
-            
-            // ค้นหา ID หน้าจอล็อกอินของคุณครู (จากโค้ดเดิมชื่อ saraban-modal หรือกล่อง login) เพื่อสั่งแสดงผล
-            const loginPage = document.getElementById("login-page") || document.getElementById("auth-screen");
-            if (loginPage) {
-                loginPage.classList.remove("hidden");
-            }
-
-            // 3. แถม: รีเซ็ตข้อมูลในฟอร์มกรอกรหัสผ่านเดิมให้ว่างเปล่า บังคับให้ต้องพิมพ์ใหม่เท่านั้น
-            const passwordInput = document.getElementById("login-password") || document.querySelector("input[type='password']");
-            if (passwordInput) {
-                passwordInput.value = ""; 
+        function autoLogoutSilence() {
+            // 📌 สั่งเรียกใช้ฟังก์ชันล็อกเอาท์เดิมในเครื่อง พร้อมใส่ค่า true 
+            // เพื่อแจ้งระบบว่าครบเวลาแล้ว ให้ดีดไปหน้าล็อกอินทันทีโดยห้ามขึ้นหน้าต่างถาม
+            if (typeof handleLogout === 'function') {
+                handleLogout(true); 
             }
         }
 
@@ -835,7 +830,7 @@
         window.onscroll = resetIdleTimer;    
         window.onkeypress = resetIdleTimer;
 
-        // เริ่มต้นรันระบบนับเวลาทันที
+        // เริ่มนับเวลาถอยหลังทันทีเมื่อเปิดหน้าเว็บ
         resetIdleTimer();
 
         function formatThaiDate(dateString) {
