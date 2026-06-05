@@ -515,7 +515,7 @@
                         <td class="py-3 px-3 font-bold text-blue-800">${doc.department.replace("ฝ่ายบริหารงาน", "")}</td>
                         <td class="py-3 px-4 font-bold text-slate-800">${doc.title}</td>
                         <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${doc.priority}</span></td>
-                        <td class="py-3 px-3 text-center font-bold text-rose-500">${doc.deadline || '-'}</td>
+                        <td class="py-3 px-3 text-center font-bold text-rose-500">${formatThaiDateShort(doc.date) || '-'}</td>
                         <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status}</span></td>
                         <td class="py-3 px-3 text-center">${fileLink}</td>
                         <td class="py-3 px-4 text-right space-x-2 font-bold">
@@ -839,6 +839,27 @@
     const shortYearBE = yearBE.toString().slice(-2);
     
     // ประกอบเป็นรูปแบบ: วัน เดือนย่อ ปีสองหลัก (เช่น 15 ม.ค. 69)
+    return `${day} ${thaiMonths[monthIndex]} ${shortYearBE}`;
+}
+    function formatThaiDateShort(dateString) {
+    if (!dateString || dateString.trim() === "") return "-";
+    
+    // มาตรฐานอินพุต html date จะส่งค่ามาเป็น YYYY-MM-DD (เช่น 2026-01-15)
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString; // ป้องกันกรณีข้อมูลผิดพลาด
+    
+    const yearCE = parseInt(parts[0]);
+    const monthIndex = parseInt(parts[1]) - 1;
+    const day = parseInt(parts[2]);
+    
+    // อาร์เรย์ชื่อเดือนย่อไทย
+    const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    
+    // แปลงปี ค.ศ. เป็น พ.ศ. สองหลักท้าย (เช่น ค.ศ. 2026 + 543 = พ.ศ. 2569 -> ตัดเหลือแค่ "69")
+    const yearBE = yearCE + 543;
+    const shortYearBE = yearBE.toString().slice(-2);
+    
+    // ส่งค่ากลับเป็นรูปแบบ: วัน เดือนย่อ ปีสองหลักท้าย
     return `${day} ${thaiMonths[monthIndex]} ${shortYearBE}`;
 }
     </script>
