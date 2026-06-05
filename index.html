@@ -862,6 +862,78 @@
     // ส่งค่ากลับเป็นรูปแบบ: วัน เดือนย่อ ปีสองหลักท้าย
     return `${day} ${thaiMonths[monthIndex]} ${shortYearBE}`;
 }
+    // 📌 1. เพิ่มฟังก์ชันแปลงวันที่ภาษาอังกฤษ (YYYY-MM-DD) ให้เป็น ภาษาไทยตัวเต็ม
+function formatThaiDateFull(dateString) {
+    if (!dateString || dateString.trim() === "") return "ไม่ระบุ";
+    
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString;
+    
+    const yearCE = parseInt(parts[0]);
+    const monthIndex = parseInt(parts[1]) - 1;
+    const day = parseInt(parts[2]);
+    
+    // อาร์เรย์ชื่อเดือนเต็มภาษาไทย
+    const thaiMonthsFull = [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", 
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+    
+    // แปลงปี ค.ศ. เป็น พ.ศ. (บวก 543)
+    const yearBE = yearCE + 543;
+    
+    // ส่งค่ากลับเป็นรูปแบบเต็ม เช่น 15 มกราคม 2569
+    return `${day} ${thaiMonthsFull[monthIndex]} ${yearBE}`;
+}
+
+// 📌 2. ปรับปรุงฟังก์ชันปฏิทินเดิมของคุณครู
+function initCalendar() {
+    const calendarEl = document.getElementById('calendar-container'); if(!calendarEl) return;
+    const eventsList = [];
+    globalSarabanData.forEach(doc => {
+        if(doc.deadline && doc.deadline !== "") {
+            let evColor = "#10b981"; 
+            if(doc.priority.includes("ที่สุด")) evColor = "#ef4444"; 
+            else if(doc.priority.includes("มาก")) evColor = "#f97316"; 
+            else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
+
+            const isDone = (doc.status === 'สำเร็จแล้ว' || doc.status === 'ดำเนินการ');
+            const statusIcon = isDone ? '<span style="font-size: 16px; inline-block; margin-right: 3px;">✅</span>' : '';
+
+            eventsList.push({
+                title: `${statusIcon}${doc.internalId}: ${doc.title}`, start: doc.deadline,
+                backgroundColor: evColor, borderColor: evColor, extendedProps: { docData: doc }
+            });
+        }
+    });
+
+    if(calendarObj) calendarObj.destroy();
+    calendarObj = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth', locale: 'th',
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
+        events: eventsList,
+        
+        eventContent: function(arg) {
+            let italicEl = document.createElement('div');
+            italicEl.className = 'fc-event-title';
+            italicEl.innerHTML = arg.event.title;
+            let arrayOfDomNodes = [ italicEl ];
+            return { domNodes: arrayOfDomNodes };
+        },
+
+        // 📌 จุดแก้ไขสำคัญ: เมื่อคลิกที่กิจกรรมบนปฏิทิน ให้แปลงวันที่ผ่านฟังก์ชันตัวเต็ม
+        eventClick: function(info) {
+            const d = info.event.extendedProps.docData;
+            
+            // เรียกใช้ฟังก์ชันแปลงวันที่แบบไทยตัวเต็มตรงนี้
+            const thaiDeadline = formatThaiDateFull(d.deadline);
+            
+            // แสดงผลกล่อง Alert เป็นภาษาไทยสวยงาม
+            alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nกำหนดส่ง: ${thaiDeadline}`);
+        }
+    });
+    calendarObj.render();
+}
     </script>
 </body>
 </html>
