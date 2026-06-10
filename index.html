@@ -638,6 +638,12 @@ function handleLogout(isAuto = false) {
             globalGenDocsData = out.genDocsData || [];
             globalReceiptsData = out.receiptsData || [];
             globalAttendanceData = out.attendanceData || [];
+
+            calculateDashboardCounters();
+            renderSarabanTable();
+            renderWorkflowTable();
+            renderOrdersTable();
+            initCalendar();
             
             // เรียกคอมโพเนนต์ Render ของเดิมและของใหม่ทั้งหมด
             if(typeof renderSarabanTable === "function") renderSarabanTable();
