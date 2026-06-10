@@ -1297,7 +1297,7 @@ async function uploadAndProcessForm(actionType, idVal, payload, fileElementId) {
 async function sendPostData(actionType, payload) {
     payload.action = actionType;
     try {
-        const res = await fetch(script.google.com/macros/s/AKfycbzDqL3VmIiJZY-TtepGOSjlqRzfQsjQhTKE2djZ_ZCJJuaE90XNpnWjl11whtAme9p5/exec, { method: 'POST', body: JSON.stringify(payload) });
+        const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
         const data = await res.json();
         if(data.status === "success") {
             alert("บันทึกการประมวลผลสำเร็จเรียบร้อย");
