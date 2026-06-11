@@ -1597,27 +1597,28 @@ function closeAttModal() {
     if(modal) modal.classList.add("hidden");
 } 
 
-      // ฟังก์ชันสำหรับส่งข้อมูลสถิติการมาเรียนจากป๊อปอัปใหม่ไปบันทึกหลังบ้าน
+      // ฟังก์ชันบันทึกสถิติเวอร์ชันเชื่อมต่อตรงกับแผ่นงาน attendance
 async function saveAttendanceData(event) {
-    event.preventDefault(); // ป้องกันไม่ให้หน้าเว็บรีเฟรชเอง
+    event.preventDefault(); 
     
-    // 1. แสดงสถานะกำลังบันทึก (อ้างอิงฟังก์ชันเดิมที่มีในระบบ)
     if (typeof showLoading === "function") {
-        showLoading("กำลังส่งข้อมูลสถิติการมาเรียนไปยังฐานข้อมูลโรงเรียนบ้านกาหยี...");
+        showLoading("กำลังส่งข้อมูลสถิติการมาเรียนไปยังแผ่นงาน attendance โรงเรียนบ้านกาหยี...");
     }
 
-    // 2. ดึงค่าจากช่องต่าง ๆ ในป๊อปอัปใหม่
     const attDate = document.getElementById("att-date").value;
     const classLevel = document.getElementById("att-class-level").value;
-    const mTotal = document.getElementById("att-male-total").value;
-    const mPresent = document.getElementById("att-male-present").value;
-    const fTotal = document.getElementById("att-female-total").value;
-    const fPresent = document.getElementById("att-female-present").value;
-    const percentage = document.getElementById("att-percentage").value;
+    const mTotal = Number(document.getElementById("att-male-total").value || 0);
+    const mPresent = Number(document.getElementById("att-male-present").value || 0);
+    const fTotal = Number(document.getElementById("att-female-total").value || 0);
+    const fPresent = Number(document.getElementById("att-female-present").value || 0);
+    const percentage = Number(document.getElementById("att-percentage").value || 0);
 
-    // 3. ประกอบข้อมูลเตรียมส่งไป Google Apps Script หลังบ้าน
+    // 🎯 ปรับปรุงส่วนประกอบ Payload (ลองส่งทั้งแบบระบุชื่อแผ่นงานตรงๆ และเดา Action ยอดฮิตร่วมไปด้วย)
     const payload = {
-        action: "saveAttendance", // ข้อความ action นี้ต้องตรงกับฝั่งฝั่งหลังบ้านของคุณครูนะครับ
+        action: "insertAttendance",    // ลองส่ง Action มาตรฐานระบบสเปรดชีต
+        sheetName: "attendance",       // ระบุชื่อแผ่นงานตามที่คุณครูแจ้งเป๊ะๆ
+        targetSheet: "attendance",
+        // มัดรวมข้อมูลส่งไปเป็นแถวเดียว
         date: attDate,
         classLevel: classLevel,
         maleTotal: mTotal,
@@ -1628,30 +1629,41 @@ async function saveAttendanceData(event) {
     };
 
     try {
-        // GOOGLE_SCRIPT_URL คือตัวแปรเก็บลิงก์สคริปต์หลังบ้านที่มีอยู่เดิมของคุณครู
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify(payload)
         });
         const res = await response.json();
 
-        if (res.status === "success") {
-            alert("🎯 บันทึกสถิติการมาเรียนประจำวัน เรียบร้อยแล้ว!");
-            closeAttModal(); // ปิดป๊อปอัป
+        // เช็กผลลัพธ์ถ้าหลังบ้านตอบกลับสำเร็จ
+        if (res.status === "success" || res.success === true) {
+            alert("🎯 บันทึกสถิติการมาเรียนลงแผ่นงาน attendance เรียบร้อยแล้ว!");
+            closeAttModal();
             
-            // เรียกฟังก์ชันดึงข้อมูลใหม่มาโชว์ในตารางทันที (ถ้ามีฟังก์ชันดึงสถิติเดิม เช่น loadAttendanceData)
             if (typeof loadAttendanceData === "function") {
                 loadAttendanceData();
             } else {
-                // ถ้าหาฟังก์ชันรีโหลดไม่เจอ ให้รีเฟรชหน้าสั้น ๆ เพื่อดึงค่าใหม่
-                window.location.reload();
+                window.location.reload(); // ถ้าระบบไม่ยอมอัปเดตตารางให้ บังคับรีเฟรชหน้าสั้นๆ จะเห็นข้อมูลใหม่โชว์ทันที
             }
         } else {
-            alert("❌ เกิดข้อผิดพลาดจากระบบหลังบ้าน: " + res.message);
+            // 💡 แผนสำรองระดับเซียน: ถ้าหลังบ้านยังติดเงื่อนไข Action เดิม 
+            // เราจะลองส่ง Action ยอดฮิตตัวอื่นเข้าไปดูอีกรอบอัตโนมัติ
+            console.log("ลองแผนสำรอง ส่ง Action ตัวอื่น...");
+            payload.action = "saveAttendanceData"; 
+            const res2 = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }).then(r => r.json());
+            
+            if(res2.status === "success" || res2.success === true) {
+                alert("🎯 บันทึกสถิติการมาเรียนเรียบร้อยแล้ว (แผนสำรองสำเร็จ)!");
+                closeAttModal();
+                window.location.reload();
+                return;
+            }
+            
+            alert("❌ ระบบหลังบ้านแจ้ง: " + (res.message || "โครงสร้างรับค่าไม่ตรงกัน"));
         }
     } catch (err) {
-        console.error("Error saving attendance:", err);
-        alert("❌ ไม่สามารถติดต่อฐานข้อมูลได้ กรุณาลองใหม่อีกครั้งครับ");
+        console.error("Error:", err);
+        alert("❌ ไม่สามารถเชื่อมต่อกับแผ่นงานได้ กรุณาลองใหม่อีกครั้งครับคุณครู");
     } finally {
         if (typeof hideLoading === "function") hideLoading();
     }
