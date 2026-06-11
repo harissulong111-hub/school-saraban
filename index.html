@@ -1131,25 +1131,20 @@ function handleLogout(isAuto = false) {
             }); // 🟢 ปิดเครื่องยนต์ตรวจสอบสิทธิ์ตรงนี้อย่างถูกต้อง
         } // 🟢 ปิดเงื่อนไข if(currentUser) ตรงนี้ให้เรียบร้อย
 
-        // === 📊 ระบบยุบรวมข้อมูลสถิติรายวัน ภาพรวมโรงเรียนบ้านกาหยี (แยกตัวออกมาอยู่เป็นอิสระ) ===
+        // === 📊 ระบบยุบรวมข้อมูลสถิติรายวัน ภาพรวมโรงเรียนบ้านกาหยี ===
         setTimeout(() => {
             const tbody = document.getElementById("attendance-table-body");
             if (tbody) {
-                // สร้างระบบแอบส่องตารางสถิติ ถ้าเห็นว่าตารางมีข้อมูลแยกชั้นเรียนมาเทลงเมื่อไหร่ จะทำงานทันที
                 const summaryObserver = new MutationObserver(() => {
                     const rows = tbody.getElementsByTagName("tr");
                     if (rows.length === 0 || tbody.hasAttribute("data-summary-done")) return;
 
-                    // 1. ดักจับข้อมูลดิบที่ระบบเดิมดึงมาลงตารางแยกบรรทัด เอามาแปลงกลับเป็นตัวเลข
                     const summaryByDate = {};
-                    
                     for (let i = 0; i < rows.length; i++) {
                         const cells = rows[i].getElementsByTagName("td");
-                        if (cells.length < 6) continue; // ป้องกันแถวเปล่าหรือโครงสร้างไม่ครบ
+                        if (cells.length < 6) continue;
 
-                        // แกะข้อความตามลำดับช่องของตารางเดิม
                         const dateText = cells[0].innerText.trim();
-                        // ดึงเฉพาะตัวเลขออกมาจากช่องข้อมูลเพื่อนำมาคำนวณรวม
                         const mTotal = Number(cells[2]?.innerText.replace(/[^0-9]/g, "") || 0);
                         const mPresent = Number(cells[3]?.innerText.replace(/[^0-9]/g, "") || 0);
                         const fTotal = Number(cells[4]?.innerText.replace(/[^0-9]/g, "") || 0);
@@ -1160,7 +1155,6 @@ function handleLogout(isAuto = false) {
                                 date: dateText, totalM: 0, presM: 0, totalF: 0, presF: 0, classCount: 0
                             };
                         }
-                        
                         summaryByDate[dateText].totalM += mTotal;
                         summaryByDate[dateText].presM += mPresent;
                         summaryByDate[dateText].totalF += fTotal;
@@ -1168,13 +1162,10 @@ function handleLogout(isAuto = false) {
                         summaryByDate[dateText].classCount += 1;
                     }
 
-                    // 2. ล้างตารางเดิมที่เป็นรายห้องทิ้งไปชั่วคราว เพื่อเตรียมวาดภาพรวมรายวันแทน
-                    tbody.setAttribute("data-summary-done", "true"); // ติดป้ายล็อกไม่ให้วนลูปไม่สิ้นสุด
+                    tbody.setAttribute("data-summary-done", "true");
                     tbody.innerHTML = "";
 
-                    // 3. เรียงวันที่ล่าสุดขึ้นก่อนและวาดแถวตารางใหม่แบบรวมยอด
                     const sortedDates = Object.keys(summaryByDate).sort((a, b) => new Date(b) - new Date(a));
-                    
                     sortedDates.forEach(dateKey => {
                         const data = summaryByDate[dateKey];
                         const allStudents = data.totalM + data.totalF;
@@ -1203,13 +1194,9 @@ function handleLogout(isAuto = false) {
                         tbody.appendChild(newRow);
                     });
                 });
-
-                // สั่งระบบแอบส่องตารางเริ่มทำงานตรวจจับข้อมูลสถิติการมาเรียน
                 summaryObserver.observe(tbody, { childList: true });
             }
         }, 1500);
-        // ===================================================================================
-             
         // 3. ผูกคำสั่งเปิดเช็กรายชื่อชั้นเรียนกับฟอร์มลงทะเบียนสถิติการมาเรียน
         // (ให้มองหา Element ชั้นเรียนหน้าบ้าน และเปิดระบบคำนวณอัตโนมัติ)
         setTimeout(() => {
