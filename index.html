@@ -243,13 +243,16 @@
                 </div>
 
                  <!-- MENU 6: ฟังก์ชั่นเพิ่มเติม -->
-               <section id="menu-memos" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-4">
+              <section id="menu-memos" class="tab-content hidden animate-fade-in">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
         <div>
             <h4 class="text-xs font-bold text-slate-800">📝 ระบบทะเบียนคุมเลขที่บันทึกข้อความ</h4>
             <p class="text-[11px] text-slate-400 mt-0.5">บันทึกข้อมูลรายงานทางราชการและข้อความภายในส่วนงาน</p>
         </div>
-        <button onclick="openMemoModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs">➕ ลงทะเบียนบันทึกข้อความใหม่</button>
+        <button id="btn-add-memo" onclick="openMemoModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ ลงทะเบียนบันทึกข้อความใหม่</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-memos" onkeyup="filterTable('search-memos', 'memos-table-body')" placeholder="🔍 ค้นหาบันทึกข้อความ (เลขที่, เรื่อง, ฝ่ายงาน)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
     </div>
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
@@ -271,12 +274,15 @@
 </section>
 
 <section id="menu-gendocs" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-4">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
         <div>
             <h4 class="text-xs font-bold text-slate-800">🗂️ ระบบสารสนเทศการคุมไฟล์เอกสารทั่วไป</h4>
             <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บแฟ้มข้อมูล ความรู้ คู่มือภายนอก และเอกสารเบ็ดเตล็ด</p>
         </div>
-        <button onclick="openGenDocModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs">➕ เพิ่มเอกสารทั่วไป</button>
+        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ เพิ่มเอกสารทั่วไป</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-gendocs" onkeyup="filterTable('search-gendocs', 'gendocs-table-body')" placeholder="🔍 ค้นหาเอกสารทั่วไป (รหัส, ชื่อเอกสาร, หมวดหมู่)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white">
     </div>
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
@@ -298,12 +304,15 @@
 </section>
 
 <section id="menu-receipts" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-4">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
         <div>
             <h4 class="text-xs font-bold text-slate-800">💰 ระบบควบคุมทะเบียนใบเสร็จและใบรับเงิน</h4>
             <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บหลักฐานการเงิน เอกสารงบประมาณ และใบเสร็จจัดซื้อจัดจ้าง</p>
         </div>
-        <button onclick="openReceiptModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs">➕ ลงทะเบียนหลักฐานใบเสร็จ</button>
+        <button id="btn-add-receipt" onclick="openReceiptModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ ลงทะเบียนหลักฐานใบเสร็จ</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-receipts" onkeyup="filterTable('search-receipts', 'receipts-table-body')" placeholder="🔍 ค้นหาใบเสร็จ (เลขที่, ร้านค้า, หมายเหตุ)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white">
     </div>
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
@@ -325,12 +334,15 @@
 </section>
 
 <section id="menu-attendance" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-4">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
         <div>
             <h4 class="text-xs font-bold text-slate-800">📊 ระบบบันทึกสถิติการมาเรียนของนักเรียนประจำวัน</h4>
             <p class="text-[11px] text-slate-400 mt-0.5">จำแนกแยกรายระดับชั้น อนุบาล 1 ถึง ประถมศึกษาปีที่ 6 (ชาย/หญิง)</p>
         </div>
-        <button onclick="openAttModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs">➕ บันทึกสถิติการมาเรียนใหม่</button>
+        <button id="btn-add-att" onclick="openAttModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ บันทึกสถิติการมาเรียนใหม่</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-attendance" onkeyup="filterTable('search-attendance', 'attendance-table-body')" placeholder="🔍 ค้นหาสถิติการมาเรียน (วันที่, ชั้นเรียน)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
     </div>
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
@@ -593,7 +605,44 @@
             }
             hideLoading();
         }
+// ฟังก์ชันกลางใช้สำหรับการค้นหาในแต่ละตารางแบบทันที
+function filterTable(inputId, tableBodyId) {
+    const input = document.getElementById(inputId);
+    const filter = input.value.toLowerCase().trim();
+    const tbody = document.getElementById(tableBodyId);
+    const rows = tbody.getElementsByTagName('tr');
 
+    for (let i = 0; i < rows.length; i++) {
+        let rowContainsFilter = false;
+        const cells = rows[i].getElementsByTagName('td');
+        
+        for (let j = 0; j < cells.length; j++) {
+            if (cells[j] && cells[j].innerText.toLowerCase().includes(filter)) {
+                rowContainsFilter = true;
+                break;
+            }
+        }
+        rows[i].style.display = rowContainsFilter ? "" : "none";
+    }
+}
+
+        function updateUIByRole() {
+    if (!currentUser) return;
+    const role = currentUser.role; // "แอดมิน", "director", "ครู"
+
+    // 1. ควบคุมสิทธิ์ปุ่มลงทะเบียน "เพิ่มข้อมูลใหม่" ด้านบนตาราง
+    const showForAdmin = (role === "แอดมิน") ? "block" : "none";
+    
+    // กลุ่ม 4 เมนูใหม่
+    if(document.getElementById("btn-add-memo")) document.getElementById("btn-add-memo").style.display = showForAdmin;
+    if(document.getElementById("btn-add-gendoc")) document.getElementById("btn-add-gendoc").style.display = showForAdmin;
+    if(document.getElementById("btn-add-receipt")) document.getElementById("btn-add-receipt").style.display = showForAdmin;
+    if(document.getElementById("btn-add-att")) document.getElementById("btn-add-att").style.display = showForAdmin;
+    
+    // หากมีปุ่มเพิ่มของเมนูเก่า (เช่น สารบรรณกลาง, คำสั่ง) ก็ทำในลักษณะเดียวกันครับ
+    // if(document.getElementById("btn-add-saraban")) document.getElementById("btn-add-saraban").style.display = showForAdmin;
+}
+        
        // 📄 ปรับฟังก์ชันเดิมในเครื่องให้มีคำว่า (isAuto) ด้านหลัง เพื่อเช็กการทำงานอัตโนมัติ
 function handleLogout(isAuto = false) {
     
@@ -1037,6 +1086,100 @@ function handleLogout(isAuto = false) {
                 document.getElementById("main-app").classList.add("hidden");
                 document.getElementById("login-screen").classList.remove("hidden");
             }
+
+            // === 🚨 โค้ดควบคุมสิทธิ์และระบบสถิติโรงเรียนบ้านกาหยี (แปะไว้ท้ายสุดของ checkAuth) ===
+    if (typeof currentUser !== 'undefined' && currentUser) {
+        const role = currentUser.role || "ครู";
+
+        // 1. จัดการปุ่มลงทะเบียน "เพิ่มข้อมูลใหม่" ด้านบนของทั้ง 4 เมนูใหม่ตามสิทธิ์แอดมิน
+        const btnMemo = document.getElementById("btn-add-memo");
+        const btnGen = document.getElementById("btn-add-gendoc");
+        const btnRec = document.getElementById("btn-add-receipt");
+        const btnAtt = document.getElementById("btn-add-att");
+
+        if (btnMemo) btnMemo.style.display = (role === "แอดมิน") ? "block" : "none";
+        if (btnGen) btnGen.style.display = (role === "แอดมิน") ? "block" : "none";
+        if (btnRec) btnRec.style.display = (role === "แอดมิน") ? "block" : "none";
+        if (btnAtt) btnAtt.style.display = (role === "แอดมิน") ? "block" : "none";
+
+        // 2. เฝ้าติดตามตาราง (MutationObserver) เพื่อจำกัดสิทธิ์ปุ่ม ลบ/แก้ไข/เกษียณ อัตโนมัติเวลาตารางโหลดข้อมูล
+        const tableIds = ["memos-table-body", "gendocs-table-body", "receipts-table-body", "attendance-table-body"];
+        tableIds.forEach(tbodyId => {
+            const tbody = document.getElementById(tbodyId);
+            if (tbody) {
+                const observer = new MutationObserver(() => {
+                    const rows = tbody.getElementsByTagName("tr");
+                    for (let i = 0; i < rows.length; i++) {
+                        const lastCell = rows[i].lastElementChild;
+                        if (lastCell && !rows[i].hasAttribute("data-role-checked")) {
+                            rows[i].setAttribute("data-role-checked", "true");
+                            
+                            if (role === "แอดมิน") {
+                                // แอดมินปล่อยผ่านให้เห็นปุ่มแก้ไข/ลบตามปกติ
+                            } else if (role === "director" && tbodyId === "memos-table-body") {
+                                // ผอ. เห็นเฉพาะปุ่มเกษียณหนังสือในเมนูบันทึกข้อความ
+                                lastCell.innerHTML = `<button onclick="alert('กำลังพัฒนาระบบเกษียณหนังสืออิเล็กทรอนิกส์')" class="text-purple-600 hover:underline text-xs font-bold cursor-pointer">✍️ เกษียณหนังสือ</button>`;
+                            } else {
+                                // ครู หรือบุคคลอื่น ดึงปุ่มจัดการออกทั้งหมดให้เหลือแค่สถานะดู
+                                lastCell.innerHTML = `<span class="text-slate-400 text-[11px]">👁️ ดูได้อย่างเดียว</span>`;
+                            }
+                        }
+                    }
+                });
+                observer.observe(tbody, { childList: true });
+            }
+        });
+
+        // 3. ผูกคำสั่งเปิดเช็กรายชื่อชั้นเรียนกับฟอร์มลงทะเบียนสถิติการมาเรียน
+        // (ให้มองหา Element ชั้นเรียนหน้าบ้าน และเปิดระบบคำนวณอัตโนมัติ)
+        setTimeout(() => {
+            const classSelect = document.querySelector("select[id*='class'], select[id*='level'], select"); 
+            if (classSelect && !classSelect.hasAttribute("data-hooked")) {
+                classSelect.setAttribute("data-hooked", "true");
+                classSelect.addEventListener("change", function() {
+                    const KAN_YEE_STUDENTS = {
+                        "อนุบาล 1": { male: 2, female: 4 }, "อ.1": { male: 2, female: 4 },
+                        "อนุบาล 2": { male: 5, female: 5 }, "อ.2": { male: 5, female: 5 },
+                        "อนุบาล 3": { male: 7, female: 3 }, "อ.3": { male: 7, female: 3 },
+                        "ประถมศึกษาปีที่ 1": { male: 7, female: 3 }, "ป.1": { male: 7, female: 3 },
+                        "ประถมศึกษาปีที่ 2": { male: 8, female: 6 }, "ป.2": { male: 8, female: 6 },
+                        "ประถมศึกษาปีที่ 3": { male: 4, female: 4 }, "ป.3": { male: 4, female: 4 },
+                        "ประถมศึกษาปีที่ 4": { male: 7, female: 4 }, "ป.4": { male: 7, female: 4 },
+                        "ประถมศึกษาปีที่ 5": { male: 5, female: 0 }, "ป.5": { male: 5, female: 0 },
+                        "ประถมศึกษาปีที่ 6": { male: 6, female: 7 }, "ป.6": { male: 6, female: 7 }
+                    };
+                    
+                    const selectedVal = classSelect.value;
+                    const mTotalInp = document.querySelector("input[id*='male-total'], input[id*='male_total']");
+                    const fTotalInp = document.querySelector("input[id*='female-total'], input[id*='female_total']");
+                    
+                    if (KAN_YEE_STUDENTS[selectedVal] && mTotalInp && fTotalInp) {
+                        mTotalInp.value = KAN_YEE_STUDENTS[selectedVal].male;
+                        fTotalInp.value = KAN_YEE_STUDENTS[selectedVal].female;
+                        mTotalInp.readOnly = true; fTotalInp.readOnly = true;
+                        mTotalInp.classList.add("bg-slate-100"); fTotalInp.classList.add("bg-slate-100");
+                        
+                        // บังคับคำนวณเปอร์เซ็นต์อัตโนมัติ
+                        const runCalc = () => {
+                            const mP = Number(document.querySelector("input[id*='male-present'], input[id*='male_present'] Folks")?.value || 0);
+                            const fP = Number(document.querySelector("input[id*='female-present'], input[id*='female_present']")?.value || 0);
+                            const totalS = KAN_YEE_STUDENTS[selectedVal].male + KAN_YEE_STUDENTS[selectedVal].female;
+                            const totalP = mP + fP;
+                            const pct = totalS > 0 ? ((totalP / totalS) * 100).toFixed(2) : "0.00";
+                            const pctInp = document.querySelector("input[id*='percent'], input[id*='pct']");
+                            if (pctInp) pctInp.value = pct;
+                        };
+                        
+                        const mPresentInp = document.querySelector("input[id*='male-present'], input[id*='male_present']");
+                        const fPresentInp = document.querySelector("input[id*='female-present'], input[id*='female_present']");
+                        if(mPresentInp) mPresentInp.addEventListener("keyup", runCalc);
+                        if(fPresentInp) fPresentInp.addEventListener("keyup", runCalc);
+                    }
+                });
+            }
+        }, 1000);
+    }
+    // ===================================================================================
         }
 
         async function handleLogin(event) {
@@ -1416,6 +1559,26 @@ function editAtt(id) {
     document.getElementById('att-pres-f').value = item.presentFemale;
     document.getElementById('att-modal-title').innerText = "✏️ แก้ไขข้อมูลสถิติการมาเรียน";
 }
+   function filterTable(inputId, tableBodyId) {
+    const input = document.getElementById(inputId);
+    const filter = input.value.toLowerCase().trim();
+    const tbody = document.getElementById(tableBodyId);
+    const rows = tbody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        let rowContainsFilter = false;
+        const cells = rows[i].getElementsByTagName('td');
+        
+        for (let j = 0; j < cells.length; j++) {
+            if (cells[j] && cells[j].innerText.toLowerCase().includes(filter)) {
+                rowContainsFilter = true;
+                break;
+            }
+        }
+        rows[i].style.display = rowContainsFilter ? "" : "none";
+    }
+}
+    
     </script>
 </body>
 </html>
