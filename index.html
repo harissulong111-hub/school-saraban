@@ -1598,37 +1598,50 @@ function closeAttModal() {
     if(modal) modal.classList.add("hidden");
 } 
 
-// ฟังก์ชันบันทึกสถิติการมาเรียนเวอร์ชันเข้าล็อกโค้ดหลังบ้านโรงเรียนบ้านกาหยีเป๊ะๆ
 async function saveAttendanceData(event) {
     event.preventDefault(); // ป้องกันหน้าเว็บรีเฟรชเอง
     
     if (typeof showLoading === "function") {
-        showLoading("กำลังส่งข้อมูลสถิติไปยังแผ่นงาน attendance...");
+        showLoading("กำลังคำนวณยอดร้อยละและส่งข้อมูลไปยังแผ่นงาน attendance...");
     }
 
-    // 1. เจาะดึงค่าจาก ID ป๊อปอัปหน้าบ้าน
+    // 1. ดึงค่าจำนวนนักเรียนทั้งหมด (ชาย/หญิง) 
+    const mTotal = Number(document.getElementById("att-male-total").value || 0);
+    const fTotal = Number(document.getElementById("att-female-total").value || 0);
+
+    // 2. ดึงค่าจำนวนนักเรียนที่มาเรียนจริง (ชาย/หญิง)ที่คุณครูกรอก
+    const mPresent = Number(document.getElementById("att-male-present").value || 0);
+    const fPresent = Number(document.getElementById("att-female-present").value || 0);
+
+    // 🧮 3. บังคับคำนวณสูตรร้อยละสดๆ ตรงนี้เลย เพื่อป้องกันค่า 0.00%
+    const totalStudents = mTotal + fTotal;
+    const totalPresent = mPresent + fPresent;
+    let finalPercentage = "0.00";
+    
+    if (totalStudents > 0) {
+        finalPercentage = ((totalPresent / totalStudents) * 100).toFixed(2);
+    }
+
+    // แอบหยอดแสดงผลบนหน้าจอให้คุณครูอุ่นใจด้วย
+    const percentInput = document.getElementById("att-percentage");
+    if (percentInput) percentInput.value = finalPercentage;
+
+    // สร้าง ID แถวตามโครงสร้างหลังบ้าน
+    const randomId = "ATT" + Date.now();
     const attDate = document.getElementById("att-date").value;
     const classLevel = document.getElementById("att-class-level").value;
-    const mTotal = Number(document.getElementById("att-male-total").value || 0);
-    const mPresent = Number(document.getElementById("att-male-present").value || 0);
-    const fTotal = Number(document.getElementById("att-female-total").value || 0);
-    const fPresent = Number(document.getElementById("att-female-present").value || 0);
-    const percentage = document.getElementById("att-percentage").value || "0.00";
 
-    // สุ่มสร้าง ID แถวขึ้นมาใหม่ (เนื่องจากหลังบ้านต้องการช่อง params.id เป็นช่องแรกสุด)
-    const randomId = "ATT" + Date.now();
-
-    // 2. ประกอบพัสดุ (Payload) ส่งไปหลังบ้านตามที่โค้ดหลังบ้านรอแกะ
+    // 4. ประกอบพัสดุ (Payload) ส่งไปหลังบ้านตามที่โค้ดหลังบ้านรอแกะเป๊ะๆ
     const payload = {
-        action: "insertatt",          // 🎯 แก้เป็นพิมพ์เล็กและตรงล็อกบรรทัดที่ 124 ของหลังบ้านเป๊ะๆ
-        id: randomId,                 // ส่ง id ไปเป็นคอลัมน์ที่ 1
-        date: attDate,                // ส่ง date ไปเป็นคอลัมน์ที่ 2
-        classLevel: classLevel,       // ส่ง classLevel ไปเป็นคอลัมน์ที่ 3
-        totalMale: mTotal,            // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 4)
-        presentMale: mPresent,        // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 5)
-        totalFemale: fTotal,          // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 6)
-        presentFemale: fPresent,      // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 7)
-        percentage: percentage        // ส่งเปอร์เซ็นต์ไปเป็นคอลัมน์ที่ 8
+        action: "insertatt",          
+        id: randomId,                 
+        date: attDate,                
+        classLevel: classLevel,       
+        totalMale: mTotal,            
+        presentMale: mPresent,        
+        totalFemale: fTotal,          
+        presentFemale: fPresent,      
+        percentage: finalPercentage   // 🎯 ส่งค่าที่คำนวณสดๆ สำเร็จรูปตรงนี้ไปเลยครับ
     };
 
     try {
@@ -1639,10 +1652,9 @@ async function saveAttendanceData(event) {
         const res = await response.json();
 
         if (res.status === "success") {
-            alert("🎯 บันทึกสถิติการมาเรียนลงแผ่นงาน attendance สำเร็จเรียบร้อยแล้วครับคุณครู!");
+            alert("🎯 บันทึกสถิติการมาเรียนลงแผ่นงานเรียบร้อย และคำนวณร้อยละได้ " + finalPercentage + "% สำเร็จแล้วครับคุณครู!");
             closeAttModal(); // ปิดป๊อปอัป
             
-            // ตรวจสอบว่าในระบบหน้าบ้านมีฟังก์ชันดึงข้อมูลใหม่มาโชว์หรือไม่ ถ้าไม่มีจะสั่งรีเฟรชหน้าจอ
             if (typeof loadAttendanceData === "function") {
                 loadAttendanceData();
             } else {
@@ -1658,32 +1670,6 @@ async function saveAttendanceData(event) {
         if (typeof hideLoading === "function") hideLoading();
     }
 }
-
-       // ฟังก์ชันคำนวณร้อยละอัตโนมัติ สำหรับฟอร์มสถิติการมาเรียน โรงเรียนบ้านกาหยี
-function calculateAttendancePercentage() {
-    // 1. ดึงค่าจำนวนนักเรียนทั้งหมด (ชาย/หญิง) จากช่องล็อกค่าอัตโนมัติ
-    const mTotal = Number(document.getElementById("att-male-total").value || 0);
-    const fTotal = Number(document.getElementById("att-female-total").value || 0);
-    
-    // 2. ดึงค่าจำนวนนักเรียนที่มาเรียนจริง ที่คุณครูกรอกลงไป
-    const mPresent = Number(document.getElementById("att-male-present").value || 0);
-    const fPresent = Number(document.getElementById("att-female-present").value || 0);
-    
-    const totalStudents = mTotal + fTotal;      // นักเรียนทั้งหมดในห้อง
-    const totalPresent = mPresent + fPresent;   // มาเรียนทั้งหมดในวันนั้น
-    
-    let percentage = 0;
-    if (totalStudents > 0) {
-        // สูตรคำนวณ: (จำนวนที่มาเรียนจริง ÷ จำนวนนักเรียนทั้งหมด) × 100
-        percentage = (totalPresent / totalStudents) * 100;
-    }
-    
-    // 3. ส่งตัวเลขเปอร์เซ็นต์ไปโชว์ในกล่องร้อยละทันที (ล็อกทศนิยม 2 ตำแหน่ง)
-    const percentInput = document.getElementById("att-percentage");
-    if (percentInput) {
-        percentInput.value = percentage.toFixed(2);
-    }
-} 
     </script>
 
     <div id="att-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden z-50 animate-fade-in">
