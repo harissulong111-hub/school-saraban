@@ -1129,23 +1129,7 @@ function handleLogout(isAuto = false) {
                 observer.observe(tbody, { childList: true });
             }
         });
-             // ฟังก์ชันสำหรับเปิดหน้าต่างบันทึกสถิติ
-function openAttModal() {
-    const modal = document.getElementById("att-modal");
-    if(modal) {
-        document.getElementById("attendance-form").reset(); // ล้างข้อมูลเก่าค้างฟอร์ม
-        document.getElementById("att-percentage").value = "0.00";
-        // ตั้งค่าวันที่ปัจจุบันให้ฟอร์มอัตโนมัติ เพื่อให้ครูไม่ต้องเลือกวันเอง
-        document.getElementById("att-date").value = new Date().toISOString().split('T')[0];
-        modal.classList.remove("hidden");
-    }
-}
-
-// ฟังก์ชันสำหรับปิดหน้าต่างบันทึกสถิติ
-function closeAttModal() {
-    const modal = document.getElementById("att-modal");
-    if(modal) modal.classList.add("hidden");
-}
+             
         // 3. ผูกคำสั่งเปิดเช็กรายชื่อชั้นเรียนกับฟอร์มลงทะเบียนสถิติการมาเรียน
         // (ให้มองหา Element ชั้นเรียนหน้าบ้าน และเปิดระบบคำนวณอัตโนมัติ)
         setTimeout(() => {
@@ -1595,6 +1579,23 @@ function editAtt(id) {
     }
 }
 
+       // ฟังก์ชันสำหรับเปิดหน้าต่างบันทึกสถิติ
+function openAttModal() {
+    const modal = document.getElementById("att-modal");
+    if(modal) {
+        document.getElementById("attendance-form").reset(); // ล้างข้อมูลเก่าค้างฟอร์ม
+        document.getElementById("att-percentage").value = "0.00";
+        // ตั้งค่าวันที่ปัจจุบันให้ฟอร์มอัตโนมัติ เพื่อให้ครูไม่ต้องเลือกวันเอง
+        document.getElementById("att-date").value = new Date().toISOString().split('T')[0];
+        modal.classList.remove("hidden");
+    }
+}
+
+// ฟังก์ชันสำหรับปิดหน้าต่างบันทึกสถิติ
+function closeAttModal() {
+    const modal = document.getElementById("att-modal");
+    if(modal) modal.classList.add("hidden");
+} 
         
     </script>
 
