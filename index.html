@@ -1158,7 +1158,8 @@ function handleLogout(isAuto = false) {
                         fTotalInp.value = KAN_YEE_STUDENTS[selectedVal].female;
                         mTotalInp.readOnly = true; fTotalInp.readOnly = true;
                         mTotalInp.classList.add("bg-slate-100"); fTotalInp.classList.add("bg-slate-100");
-                        
+                    
+                        calculateAttendancePercentage();
                         // บังคับคำนวณเปอร์เซ็นต์อัตโนมัติ
                         const runCalc = () => {
                             const mP = Number(document.querySelector("input[id*='male-present'], input[id*='male_present'] Folks")?.value || 0);
@@ -1657,7 +1658,32 @@ async function saveAttendanceData(event) {
         if (typeof hideLoading === "function") hideLoading();
     }
 }
-        
+
+       // ฟังก์ชันคำนวณร้อยละอัตโนมัติ สำหรับฟอร์มสถิติการมาเรียน โรงเรียนบ้านกาหยี
+function calculateAttendancePercentage() {
+    // 1. ดึงค่าจำนวนนักเรียนทั้งหมด (ชาย/หญิง) จากช่องล็อกค่าอัตโนมัติ
+    const mTotal = Number(document.getElementById("att-male-total").value || 0);
+    const fTotal = Number(document.getElementById("att-female-total").value || 0);
+    
+    // 2. ดึงค่าจำนวนนักเรียนที่มาเรียนจริง ที่คุณครูกรอกลงไป
+    const mPresent = Number(document.getElementById("att-male-present").value || 0);
+    const fPresent = Number(document.getElementById("att-female-present").value || 0);
+    
+    const totalStudents = mTotal + fTotal;      // นักเรียนทั้งหมดในห้อง
+    const totalPresent = mPresent + fPresent;   // มาเรียนทั้งหมดในวันนั้น
+    
+    let percentage = 0;
+    if (totalStudents > 0) {
+        // สูตรคำนวณ: (จำนวนที่มาเรียนจริง ÷ จำนวนนักเรียนทั้งหมด) × 100
+        percentage = (totalPresent / totalStudents) * 100;
+    }
+    
+    // 3. ส่งตัวเลขเปอร์เซ็นต์ไปโชว์ในกล่องร้อยละทันที (ล็อกทศนิยม 2 ตำแหน่ง)
+    const percentInput = document.getElementById("att-percentage");
+    if (percentInput) {
+        percentInput.value = percentage.toFixed(2);
+    }
+} 
     </script>
 
     <div id="att-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden z-50 animate-fade-in">
@@ -1703,15 +1729,15 @@ async function saveAttendanceData(event) {
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-emerald-700 mb-1">✅ มาเรียน (ชาย)</label>
-                    <input type="number" id="att-male-present" required min="0" placeholder="กรอกจำนวน" class="w-full p-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-emerald-700 mb-1">✅ มาเรียน (หญิง)</label>
-                    <input type="number" id="att-female-present" required min="0" placeholder="กรอกจำนวน" class="w-full p-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                </div>
-            </div>
+    <div>
+        <label class="block text-xs font-bold text-emerald-700 mb-1">✅ มาเรียน (ชาย)</label>
+        <input type="number" id="att-male-present" onkeyup="calculateAttendancePercentage()" required min="0" placeholder="กรอกจำนวน" class="...">
+    </div>
+    <div>
+        <label class="block text-xs font-bold text-emerald-700 mb-1">✅ มาเรียน (หญิง)</label>
+        <input type="number" id="att-female-present" onkeyup="calculateAttendancePercentage()" required min="0" placeholder="กรอกจำนวน" class="...">
+    </div>
+</div>
 
             <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-100/50">
                 <label class="block text-xs font-bold text-blue-900 mb-1">📈 สรุปร้อยละการมาเรียนของห้องนี้</label>
