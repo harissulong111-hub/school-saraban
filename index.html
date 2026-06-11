@@ -1597,62 +1597,37 @@ function closeAttModal() {
     if(modal) modal.classList.add("hidden");
 } 
 
+// ฟังก์ชันบันทึกสถิติการมาเรียนเวอร์ชันเข้าล็อกโค้ดหลังบ้านโรงเรียนบ้านกาหยีเป๊ะๆ
 async function saveAttendanceData(event) {
-    event.preventDefault(); 
+    event.preventDefault(); // ป้องกันหน้าเว็บรีเฟรชเอง
     
     if (typeof showLoading === "function") {
-        showLoading("กำลังจัดรูปแบบโครงสร้างข้อมูลส่งไปยังแผ่นงาน attendance...");
+        showLoading("กำลังส่งข้อมูลสถิติไปยังแผ่นงาน attendance...");
     }
 
+    // 1. เจาะดึงค่าจาก ID ป๊อปอัปหน้าบ้าน
     const attDate = document.getElementById("att-date").value;
     const classLevel = document.getElementById("att-class-level").value;
     const mTotal = Number(document.getElementById("att-male-total").value || 0);
     const mPresent = Number(document.getElementById("att-male-present").value || 0);
     const fTotal = Number(document.getElementById("att-female-total").value || 0);
     const fPresent = Number(document.getElementById("att-female-present").value || 0);
-    const percentage = Number(document.getElementById("att-percentage").value || 0);
+    const percentage = document.getElementById("att-percentage").value || "0.00";
 
-    // 🎯 มัดรวมร่างตัวแปรทุกรูปแบบ (เพื่อรองรับโค้ดแกะหลังบ้านเดิมของคุณครูทุกค่าย)
+    // สุ่มสร้าง ID แถวขึ้นมาใหม่ (เนื่องจากหลังบ้านต้องการช่อง params.id เป็นช่องแรกสุด)
+    const randomId = "ATT" + Date.now();
+
+    // 2. ประกอบพัสดุ (Payload) ส่งไปหลังบ้านตามที่โค้ดหลังบ้านรอแกะ
     const payload = {
-        action: "insertAttendance",    // ชื่อ Action ที่ส่งผ่านรอบแรก
-        sheetName: "attendance",
-        targetSheet: "attendance",
-        
-        // แบบที่ 1: แบบเต็มทางการ (CamelCase / lowercase)
-        date: attDate,
-        classLevel: classLevel,
-        className: classLevel,
-        maleTotal: mTotal,
-        malePresent: mPresent,
-        femaleTotal: fTotal,
-        femalePresent: fPresent,
-        percentage: percentage,
-
-        // แบบที่ 2: แบบตัวพิมพ์เล็กมีขีดล่าง (Snake_case)
-        class_level: classLevel,
-        male_total: mTotal,
-        male_present: mPresent,
-        female_total: fTotal,
-        female_present: fPresent,
-
-        // แบบที่ 3: แบบตัวย่อสั้น (มักใช้ในตารางสถิติ)
-        class: classLevel,
-        m_total: mTotal,
-        m_present: mPresent,
-        f_total: fTotal,
-        f_present: fPresent,
-        percent: percentage,
-        pct: percentage,
-
-        // แบบที่ 4: แบบภาษาไทย (เผื่อโค้ดเก่าดักจับตามหัวตาราง Sheets)
-        "วันที่": attDate,
-        "ระดับชั้น": classLevel,
-        "ชั้นเรียน": classLevel,
-        "ชายทั้งหมด": mTotal,
-        "มาเรียนชาย": mPresent,
-        "หญิงทั้งหมด": fTotal,
-        "มาเรียนหญิง": fPresent,
-        "ร้อยละ": percentage
+        action: "insertatt",          // 🎯 แก้เป็นพิมพ์เล็กและตรงล็อกบรรทัดที่ 124 ของหลังบ้านเป๊ะๆ
+        id: randomId,                 // ส่ง id ไปเป็นคอลัมน์ที่ 1
+        date: attDate,                // ส่ง date ไปเป็นคอลัมน์ที่ 2
+        classLevel: classLevel,       // ส่ง classLevel ไปเป็นคอลัมน์ที่ 3
+        totalMale: mTotal,            // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 4)
+        presentMale: mPresent,        // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 5)
+        totalFemale: fTotal,          // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 6)
+        presentFemale: fPresent,      // 🎯 แก้ชื่อให้ตรงตัวแปรหลังบ้าน (คอลัมน์ที่ 7)
+        percentage: percentage        // ส่งเปอร์เซ็นต์ไปเป็นคอลัมน์ที่ 8
     };
 
     try {
@@ -1662,32 +1637,21 @@ async function saveAttendanceData(event) {
         });
         const res = await response.json();
 
-        if (res.status === "success" || res.success === true) {
+        if (res.status === "success") {
             alert("🎯 บันทึกสถิติการมาเรียนลงแผ่นงาน attendance สำเร็จเรียบร้อยแล้วครับคุณครู!");
-            closeAttModal();
-            window.location.reload(); // รีเฟรชหน้าจอเพื่อดึงสถิติล่าสุดมาโชว์ในตาราง
-        } else {
-            // แผนสำรอง: สลับ Action เป็นอีกตัวแปร แล้วยิงซ้ำเผื่อหลังบ้านเช็ก Action คนละชื่อ
-            console.log("เข้าสู่แผนสำรอง เปลี่ยน Action ส่งซ้ำ...");
-            payload.action = "saveAttendanceData";
+            closeAttModal(); // ปิดป๊อปอัป
             
-            const response2 = await fetch(GOOGLE_SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify(payload)
-            });
-            const res2 = await response2.json();
-
-            if (res2.status === "success" || res2.success === true) {
-                alert("🎯 บันทึกสถิติการมาเรียนสำเร็จเรียบร้อยแล้ว (แผนสำรองสำเร็จ)!");
-                closeAttModal();
-                window.location.reload();
-                return;
+            // ตรวจสอบว่าในระบบหน้าบ้านมีฟังก์ชันดึงข้อมูลใหม่มาโชว์หรือไม่ ถ้าไม่มีจะสั่งรีเฟรชหน้าจอ
+            if (typeof loadAttendanceData === "function") {
+                loadAttendanceData();
+            } else {
+                window.location.reload(); 
             }
-
-            alert("❌ ระบบหลังบ้านแจ้ง: " + (res.message || "โครงสร้างอาร์เรย์แถวยังไม่เข้าล็อก"));
+        } else {
+            alert("❌ ระบบหลังบ้านแจ้งข้อผิดพลาด: " + res.message);
         }
     } catch (err) {
-        console.error("Error:", err);
+        console.error("Error saving attendance:", err);
         alert("❌ ไม่สามารถเชื่อมต่อระบบแผ่นงานได้ กรุณาลองใหม่อีกครั้งครับ");
     } finally {
         if (typeof hideLoading === "function") hideLoading();
