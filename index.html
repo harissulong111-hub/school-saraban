@@ -1129,7 +1129,23 @@ function handleLogout(isAuto = false) {
                 observer.observe(tbody, { childList: true });
             }
         });
+             // ฟังก์ชันสำหรับเปิดหน้าต่างบันทึกสถิติ
+function openAttModal() {
+    const modal = document.getElementById("att-modal");
+    if(modal) {
+        document.getElementById("attendance-form").reset(); // ล้างข้อมูลเก่าค้างฟอร์ม
+        document.getElementById("att-percentage").value = "0.00";
+        // ตั้งค่าวันที่ปัจจุบันให้ฟอร์มอัตโนมัติ เพื่อให้ครูไม่ต้องเลือกวันเอง
+        document.getElementById("att-date").value = new Date().toISOString().split('T')[0];
+        modal.classList.remove("hidden");
+    }
+}
 
+// ฟังก์ชันสำหรับปิดหน้าต่างบันทึกสถิติ
+function closeAttModal() {
+    const modal = document.getElementById("att-modal");
+    if(modal) modal.classList.add("hidden");
+}
         // 3. ผูกคำสั่งเปิดเช็กรายชื่อชั้นเรียนกับฟอร์มลงทะเบียนสถิติการมาเรียน
         // (ให้มองหา Element ชั้นเรียนหน้าบ้าน และเปิดระบบคำนวณอัตโนมัติ)
         setTimeout(() => {
@@ -1578,7 +1594,77 @@ function editAtt(id) {
         rows[i].style.display = rowContainsFilter ? "" : "none";
     }
 }
-    
+
+        
     </script>
+
+    <div id="att-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden z-50 animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 w-full max-w-md p-6 m-4 overflow-hidden transform transition-all">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                📊 บันทึกสถิติการมาเรียนประจำวัน
+            </h3>
+            <button onclick="closeAttModal()" class="text-slate-400 hover:text-slate-600 text-sm cursor-pointer">&times;</button>
+        </div>
+
+        <form id="attendance-form" onsubmit="saveAttendanceData(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">วันที่บันทึกสถิติ</label>
+                <input type="date" id="att-date" required class="w-full p-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">ระดับชั้นเรียน</label>
+                <select id="att-class-level" required class="w-full p-2.5 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="">-- เลือกระดับชั้นเรียน --</option>
+                    <option value="อนุบาล 1">อนุบาล 1 (อ.1)</option>
+                    <option value="อนุบาล 2">อนุบาล 2 (อ.2)</option>
+                    <option value="อนุบาล 3">อนุบาล 3 (อ.3)</option>
+                    <option value="ประถมศึกษาปีที่ 1">ประถมศึกษาปีที่ 1 (ป.1)</option>
+                    <option value="ประถมศึกษาปีที่ 2">ประถมศึกษาปีที่ 2 (ป.2)</option>
+                    <option value="ประถมศึกษาปีที่ 3">ประถมศึกษาปีที่ 3 (ป.3)</option>
+                    <option value="ประถมศึกษาปีที่ 4">ประถมศึกษาปีที่ 4 (ป.4)</option>
+                    <option value="ประถมศึกษาปีที่ 5">ประถมศึกษาปีที่ 5 (ป.5)</option>
+                    <option value="ประถมศึกษาปีที่ 6">ประถมศึกษาปีที่ 6 (ป.6)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">👨‍เลขา ชายทั้งหมด</label>
+                    <input type="number" id="att-male-total" placeholder="0" class="w-full p-2 text-xs rounded-lg border border-slate-200 bg-slate-100 font-bold text-slate-600">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">👩‍เลขา หญิงทั้งหมด</label>
+                    <input type="number" id="att-female-total" placeholder="0" class="w-full p-2 text-xs rounded-lg border border-slate-200 bg-slate-100 font-bold text-slate-600">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-emerald-700 mb-1">✅ มาเรียน (ชาย)</label>
+                    <input type="number" id="att-male-present" required min="0" placeholder="กรอกจำนวน" class="w-full p-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-emerald-700 mb-1">✅ มาเรียน (หญิง)</label>
+                    <input type="number" id="att-female-present" required min="0" placeholder="กรอกจำนวน" class="w-full p-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </div>
+            </div>
+
+            <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-100/50">
+                <label class="block text-xs font-bold text-blue-900 mb-1">📈 สรุปร้อยละการมาเรียนของห้องนี้</label>
+                <div class="relative flex items-center">
+                    <input type="text" id="att-percentage" placeholder="0.00" class="w-full p-2.5 text-sm rounded-xl border border-blue-200 bg-white font-black text-blue-700 text-center" readonly>
+                    <span class="absolute right-4 text-xs font-bold text-blue-500">%</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="closeAttModal()" class="w-1/3 py-2 text-xs font-medium text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer">ยกเลิก</button>
+                <button type="submit" class="w-2/3 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl cursor-pointer shadow-sm">💾 บันทึกข้อมูล</button>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>
