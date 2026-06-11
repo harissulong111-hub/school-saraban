@@ -1087,48 +1087,128 @@ function handleLogout(isAuto = false) {
                 document.getElementById("login-screen").classList.remove("hidden");
             }
 
-            // === 🚨 โค้ดควบคุมสิทธิ์และระบบสถิติโรงเรียนบ้านกาหยี (แปะไว้ท้ายสุดของ checkAuth) ===
-    if (typeof currentUser !== 'undefined' && currentUser) {
-        const role = currentUser.role || "ครู";
+            // === 🚨 โค้ดควบคุมสิทธิ์และระบบสถิติโรงเรียนบ้านกาหยี (เวอร์ชันจัดระเบียบปีกกาถูกต้อง) ===
+        if (typeof currentUser !== 'undefined' && currentUser) {
+            const role = currentUser.role || "ครู";
 
-        // 1. จัดการปุ่มลงทะเบียน "เพิ่มข้อมูลใหม่" ด้านบนของทั้ง 4 เมนูใหม่ตามสิทธิ์แอดมิน
-        const btnMemo = document.getElementById("btn-add-memo");
-        const btnGen = document.getElementById("btn-add-gendoc");
-        const btnRec = document.getElementById("btn-add-receipt");
-        const btnAtt = document.getElementById("btn-add-att");
+            // 1. จัดการปุ่มลงทะเบียน "เพิ่มข้อมูลใหม่" ด้านบนของทั้ง 4 เมนูใหม่ตามสิทธิ์แอดมิน
+            const btnMemo = document.getElementById("btn-add-memo");
+            const btnGen = document.getElementById("btn-add-gendoc");
+            const btnRec = document.getElementById("btn-add-receipt");
+            const btnAtt = document.getElementById("btn-add-att");
 
-        if (btnMemo) btnMemo.style.display = (role === "แอดมิน") ? "block" : "none";
-        if (btnGen) btnGen.style.display = (role === "แอดมิน") ? "block" : "none";
-        if (btnRec) btnRec.style.display = (role === "แอดมิน") ? "block" : "none";
-        if (btnAtt) btnAtt.style.display = (role === "แอดมิน") ? "block" : "none";
+            if (btnMemo) btnMemo.style.display = (role === "แอดมิน") ? "block" : "none";
+            if (btnGen) btnGen.style.display = (role === "แอดมิน") ? "block" : "none";
+            if (btnRec) btnRec.style.display = (role === "แอดมิน") ? "block" : "none";
+            if (btnAtt) btnAtt.style.display = (role === "แอดมิน") ? "block" : "none";
 
-        // 2. เฝ้าติดตามตาราง (MutationObserver) เพื่อจำกัดสิทธิ์ปุ่ม ลบ/แก้ไข/เกษียณ อัตโนมัติเวลาตารางโหลดข้อมูล
-        const tableIds = ["memos-table-body", "gendocs-table-body", "receipts-table-body", "attendance-table-body"];
-        tableIds.forEach(tbodyId => {
-            const tbody = document.getElementById(tbodyId);
-            if (tbody) {
-                const observer = new MutationObserver(() => {
-                    const rows = tbody.getElementsByTagName("tr");
-                    for (let i = 0; i < rows.length; i++) {
-                        const lastCell = rows[i].lastElementChild;
-                        if (lastCell && !rows[i].hasAttribute("data-role-checked")) {
-                            rows[i].setAttribute("data-role-checked", "true");
-                            
-                            if (role === "แอดมิน") {
-                                // แอดมินปล่อยผ่านให้เห็นปุ่มแก้ไข/ลบตามปกติ
-                            } else if (role === "director" && tbodyId === "memos-table-body") {
-                                // ผอ. เห็นเฉพาะปุ่มเกษียณหนังสือในเมนูบันทึกข้อความ
-                                lastCell.innerHTML = `<button onclick="alert('กำลังพัฒนาระบบเกษียณหนังสืออิเล็กทรอนิกส์')" class="text-purple-600 hover:underline text-xs font-bold cursor-pointer">✍️ เกษียณหนังสือ</button>`;
-                            } else {
-                                // ครู หรือบุคคลอื่น ดึงปุ่มจัดการออกทั้งหมดให้เหลือแค่สถานะดู
-                                lastCell.innerHTML = `<span class="text-slate-400 text-[11px]">👁️ ดูได้อย่างเดียว</span>`;
+            // 2. เฝ้าติดตามตารางเพื่อจำกัดสิทธิ์ปุ่ม ลบ/แก้ไข/เกษียณ อัตโนมัติเวลาตารางโหลดข้อมูล
+            const tableIds = ["memos-table-body", "gendocs-table-body", "receipts-table-body", "attendance-table-body"];
+            tableIds.forEach(tbodyId => {
+                const tbody = document.getElementById(tbodyId);
+                if (tbody) {
+                    const observer = new MutationObserver(() => {
+                        const rows = tbody.getElementsByTagName("tr");
+                        for (let i = 0; i < rows.length; i++) {
+                            const lastCell = rows[i].lastElementChild;
+                            if (lastCell && !rows[i].hasAttribute("data-role-checked")) {
+                                rows[i].setAttribute("data-role-checked", "true");
+                                
+                                if (role === "แอดมิน") {
+                                    // แอดมินปล่อยผ่านให้เห็นปุ่มแก้ไข/ลบตามปกติ
+                                } else if (role === "director" && tbodyId === "memos-table-body") {
+                                    // ผอ. เห็นเฉพาะปุ่มเกษียณหนังสือในเมนูบันทึกข้อความ
+                                    lastCell.innerHTML = `<button onclick="alert('กำลังพัฒนาระบบเกษียณหนังสืออิเล็กทรอนิกส์')" class="text-purple-600 hover:underline text-xs font-bold cursor-pointer">✍️ เกษียณหนังสือ</button>`;
+                                } else {
+                                    // ครู หรือบุคคลอื่น ดึงปุ่มจัดการออกทั้งหมดให้เหลือแค่สถานะดู
+                                    lastCell.innerHTML = `<span class="text-slate-400 text-[11px]">👁️ ดูได้อย่างเดียว</span>`;
+                                }
                             }
                         }
+                    });
+                    observer.observe(tbody, { childList: true });
+                }
+            }); // 🟢 ปิดเครื่องยนต์ตรวจสอบสิทธิ์ตรงนี้อย่างถูกต้อง
+        } // 🟢 ปิดเงื่อนไข if(currentUser) ตรงนี้ให้เรียบร้อย
+
+        // === 📊 ระบบยุบรวมข้อมูลสถิติรายวัน ภาพรวมโรงเรียนบ้านกาหยี (แยกตัวออกมาอยู่เป็นอิสระ) ===
+        setTimeout(() => {
+            const tbody = document.getElementById("attendance-table-body");
+            if (tbody) {
+                // สร้างระบบแอบส่องตารางสถิติ ถ้าเห็นว่าตารางมีข้อมูลแยกชั้นเรียนมาเทลงเมื่อไหร่ จะทำงานทันที
+                const summaryObserver = new MutationObserver(() => {
+                    const rows = tbody.getElementsByTagName("tr");
+                    if (rows.length === 0 || tbody.hasAttribute("data-summary-done")) return;
+
+                    // 1. ดักจับข้อมูลดิบที่ระบบเดิมดึงมาลงตารางแยกบรรทัด เอามาแปลงกลับเป็นตัวเลข
+                    const summaryByDate = {};
+                    
+                    for (let i = 0; i < rows.length; i++) {
+                        const cells = rows[i].getElementsByTagName("td");
+                        if (cells.length < 6) continue; // ป้องกันแถวเปล่าหรือโครงสร้างไม่ครบ
+
+                        // แกะข้อความตามลำดับช่องของตารางเดิม
+                        const dateText = cells[0].innerText.trim();
+                        // ดึงเฉพาะตัวเลขออกมาจากช่องข้อมูลเพื่อนำมาคำนวณรวม
+                        const mTotal = Number(cells[2]?.innerText.replace(/[^0-9]/g, "") || 0);
+                        const mPresent = Number(cells[3]?.innerText.replace(/[^0-9]/g, "") || 0);
+                        const fTotal = Number(cells[4]?.innerText.replace(/[^0-9]/g, "") || 0);
+                        const fPresent = Number(cells[5]?.innerText.replace(/[^0-9]/g, "") || 0);
+
+                        if (!summaryByDate[dateText]) {
+                            summaryByDate[dateText] = {
+                                date: dateText, totalM: 0, presM: 0, totalF: 0, presF: 0, classCount: 0
+                            };
+                        }
+                        
+                        summaryByDate[dateText].totalM += mTotal;
+                        summaryByDate[dateText].presM += mPresent;
+                        summaryByDate[dateText].totalF += fTotal;
+                        summaryByDate[dateText].presF += fPresent;
+                        summaryByDate[dateText].classCount += 1;
                     }
+
+                    // 2. ล้างตารางเดิมที่เป็นรายห้องทิ้งไปชั่วคราว เพื่อเตรียมวาดภาพรวมรายวันแทน
+                    tbody.setAttribute("data-summary-done", "true"); // ติดป้ายล็อกไม่ให้วนลูปไม่สิ้นสุด
+                    tbody.innerHTML = "";
+
+                    // 3. เรียงวันที่ล่าสุดขึ้นก่อนและวาดแถวตารางใหม่แบบรวมยอด
+                    const sortedDates = Object.keys(summaryByDate).sort((a, b) => new Date(b) - new Date(a));
+                    
+                    sortedDates.forEach(dateKey => {
+                        const data = summaryByDate[dateKey];
+                        const allStudents = data.totalM + data.totalF;
+                        const allPresent = data.presM + data.presF;
+                        const allAbsent = allStudents - allPresent;
+                        
+                        let schoolPct = 0;
+                        if (allStudents > 0) {
+                            schoolPct = (allPresent / allStudents) * 100;
+                        }
+
+                        const newRow = document.createElement("tr");
+                        newRow.className = "border-b border-slate-100 hover:bg-slate-50 transition-colors";
+                        newRow.innerHTML = `
+                            <td class="p-3 text-xs font-bold text-slate-700 text-center">${data.date}</td>
+                            <td class="p-3 text-xs text-slate-600 text-center font-bold text-indigo-600">📊 ส่งแล้ว ${data.classCount} ชั้นเรียน</td>
+                            <td class="p-3 text-xs text-slate-600 text-center">${allStudents} คน</td>
+                            <td class="p-3 text-xs text-emerald-600 text-center font-bold">${allPresent} คน</td>
+                            <td class="p-3 text-xs text-rose-500 text-center font-semibold">${allAbsent} คน</td>
+                            <td class="p-3 text-xs text-center">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                    📈 ${schoolPct.toFixed(2)}%
+                                </span>
+                            </td>
+                        `;
+                        tbody.appendChild(newRow);
+                    });
                 });
-                observer.observe(tbody, { childList: true });
+
+                // สั่งระบบแอบส่องตารางเริ่มทำงานตรวจจับข้อมูลสถิติการมาเรียน
+                summaryObserver.observe(tbody, { childList: true });
             }
-        });
+        }, 1500);
+        // ===================================================================================
              
         // 3. ผูกคำสั่งเปิดเช็กรายชื่อชั้นเรียนกับฟอร์มลงทะเบียนสถิติการมาเรียน
         // (ให้มองหา Element ชั้นเรียนหน้าบ้าน และเปิดระบบคำนวณอัตโนมัติ)
