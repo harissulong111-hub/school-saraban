@@ -279,6 +279,32 @@
                                     </thead>
                                     <tbody id="orders-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
+                                <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางทะเบียนคำสั่ง -->
+<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+    <!-- ปุ่มกดบนมือถือ -->
+    <div class="flex flex-1 justify-between sm:hidden">
+        <button type="button" onclick="changeTablePage('orders', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+        <button type="button" onclick="changeTablePage('orders', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+    </div>
+    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
+    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+        <div>
+            <p class="text-xs text-slate-500">
+                แสดงหน้า <span id="menu-orders" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button type="button" onclick="changeTablePage('orders', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>◀ ก่อนหน้า</span>
+                </button>
+                <button type="button" onclick="changeTablePage('orders', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>ถัดไป ▶</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
                             </div>
                         </div>
                     </section>
@@ -320,6 +346,32 @@
                 </thead>
                 <tbody id="memos-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
             </table>
+            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบเลขที่บันทึกข้อความ -->
+<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+    <!-- ปุ่มกดบนมือถือ -->
+    <div class="flex flex-1 justify-between sm:hidden">
+        <button type="button" onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+        <button type="button" onclick="changeTablePage('memos', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+    </div>
+    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
+    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+        <div>
+            <p class="text-xs text-slate-500">
+                แสดงหน้า <span id="menu-memos" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button type="button" onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>◀ ก่อนหน้า</span>
+                </button>
+                <button type="button" onclick="changeTablePage('memos', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>ถัดไป ▶</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </section>
@@ -350,6 +402,32 @@
                 </thead>
                 <tbody id="gendocs-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
             </table>
+            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบจัดเก็บข้อมูลเอกสารทั่วไป -->
+<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+    <!-- ปุ่มกดบนมือถือ -->
+    <div class="flex flex-1 justify-between sm:hidden">
+        <button type="button" onclick="changeTablePage('gendocs', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+        <button type="button" onclick="changeTablePage('gendocs', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+    </div>
+    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
+    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+        <div>
+            <p class="text-xs text-slate-500">
+                แสดงหน้า <span id="menu-gendocs" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button type="button" onclick="changeTablePage('gendocs', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>◀ ก่อนหน้า</span>
+                </button>
+                <button type="button" onclick="changeTablePage('gendocs', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>ถัดไป ▶</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </section>
@@ -380,6 +458,32 @@
                 </thead>
                 <tbody id="receipts-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
             </table>
+            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบใบเสร็จรับเงิน -->
+<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+    <!-- ปุ่มกดบนมือถือ -->
+    <div class="flex flex-1 justify-between sm:hidden">
+        <button type="button" onclick="changeTablePage('receipts', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+        <button type="button" onclick="changeTablePage('receipts', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+    </div>
+    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
+    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+        <div>
+            <p class="text-xs text-slate-500">
+                แสดงหน้า <span id="menu-receipts" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button type="button" onclick="changeTablePage('receipts', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>◀ ก่อนหน้า</span>
+                </button>
+                <button type="button" onclick="changeTablePage('receipts', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>ถัดไป ▶</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </section>
@@ -412,6 +516,32 @@
                 </thead>
                 <tbody id="attendance-table-body" class="divide-y divide-slate-100 font-medium text-slate-600 text-center"></tbody>
             </table>
+            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบสถิติการมาเรียน -->
+<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+    <!-- ปุ่มกดบนมือถือ -->
+    <div class="flex flex-1 justify-between sm:hidden">
+        <button type="button" onclick="changeTablePage('attendance', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+        <button type="button" onclick="changeTablePage('attendance', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+    </div>
+    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
+    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+        <div>
+            <p class="text-xs text-slate-500">
+                แสดงหน้า <span id="menu-attendance" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button type="button" onclick="changeTablePage('attendance', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>◀ ก่อนหน้า</span>
+                </button>
+                <button type="button" onclick="changeTablePage('attendance', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
+                    <span>ถัดไป ▶</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </section>
