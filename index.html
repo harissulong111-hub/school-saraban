@@ -1517,64 +1517,54 @@ function initCalendar() {
 }
 
 // ระบบแปลงไฟล์และส่งข้อมูลขึ้นระบบย่อยกลางแบบครอบคลุม
-async function sendPostData(actionType, payload) {
-    payload.action = actionType;
-
-    // 🚨 [ระบบเรดาร์ดักข้อมูลซ้ำ] คัดกรองก่อนส่งข้อมูลขึ้น Google Sheets คลาวด์
+// ระบบแปลงไฟล์และส่งข้อมูลขึ้นระบบย่อยกลางแบบครอบคลุม (เวอร์ชันปรับปรุงตามโค้ดคุณครู)
+async function uploadAndProcessForm(actionType, idVal, payload, fileElementId) {
     
-    // 1️⃣ เมนูบันทึกข้อความ: ดักจาก "ชื่อเรื่อง"
+    // 🚨 [ระบบเรดาร์] ดักจับข้อมูลซ้ำอัจฉริยะ แมตช์ตามชื่อตัวแปรจริงของคุณครู
+    
+    // 1️⃣ เมนูบันทึกข้อความ (เช็คคำซ้ำจากชื่อเรื่อง)
     if (actionType === "insertMemo") {
+        // ใช้ payload.title ตามโค้ดคุณครู
         if (isDuplicateData("memos-table-body", 2, payload.title)) {
-            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำ (เมนูบันทึกข้อความ):\nเรื่อง "${payload.title}" นี้เคยลงทะเบียนคุมเลขไว้แล้วครับ`);
-            hideLoading();
-            return; // ⛔ เบรกมือ สั่งหยุดส่งข้อมูล
+            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำ (เมนูบันทึกข้อความ):\nเรื่อง "${payload.title}" นี้เคยลงทะเบียนไว้ในระบบคุมเลขแล้วครับ ลองตรวจสอบดูอีกครั้งนะครับ`);
+            return; // ⛔ เบรกมือ! สั่งหยุดทำงานทันที
         }
     }
     
-    // 2️⃣ เมนูจัดเก็บเอกสารทั่วไป: ดักจาก "ชื่อเอกสาร"
+    // 2️⃣ เมนูจัดเก็บเอกสารทั่วไป (เช็คคำซ้ำจากชื่อเอกสาร)
     else if (actionType === "insertGenDoc") {
+        // 🌟 ปรับเป็น payload.docName ตามโค้ดจริงของคุณครูแล้วครับ
         if (isDuplicateData("gendocs-table-body", 1, payload.docName)) {
-            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำ (คลังเอกสารทั่วไป):\nชื่อเอกสาร "${payload.docName}" นี้มีรายงานการจัดเก็บไว้แล้วครับ`);
-            hideLoading();
-            return; // ⛔ เบรกมือ สั่งหยุดส่งข้อมูล
+            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำ (คลังเอกสารทั่วไป):\nชื่อเอกสาร "${payload.docName}" นี้มีรายงานการจัดเก็บไว้ในระบบแล้วครับ`);
+            return; // ⛔ เบรกมือ! สั่งหยุดทำงานทันที
         }
     }
     
-    // 3️⃣ เมนูจัดเก็บใบเสร็จ: ดักจาก "เลขที่ใบเสร็จ" กันคีย์เลขซ้ำ
+    // 3️⃣ เมนูจัดเก็บใบเสร็จใบรับเงิน (เช็คคำซ้ำจากเลขที่ใบเสร็จ)
     else if (actionType === "insertReceipt") {
+        // 🌟 ปรับเป็น payload.receiptNo เพื่อดักไม่ให้คีย์เลขใบเสร็จซ้ำซ้อนกันครับ
         if (isDuplicateData("receipts-table-body", 1, payload.receiptNo)) {
-            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำ (ทะเบียนใบเสร็จ):\nเลขที่ใบเสร็จ "${payload.receiptNo}" นี้เคยถูกคีย์บันทึกไว้แล้วครับ`);
-            hideLoading();
-            return; // ⛔ เบรกมือ สั่งหยุดส่งข้อมูล
+            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำ (ทะเบียนใบเสร็จ):\nเลขที่ใบเสร็จ "${payload.receiptNo}" นี้เคยถูกบันทึกเข้าระบบคลาวด์แล้วครับ`);
+            return; // ⛔ เบรกมือ! สั่งหยุดทำงานทันที
         }
     }
 
-    // 4️⃣ เมนูสถิติการมาเรียน: ดักซ้ำกรณีคุณครูเผลอกดบันทึกซ้ำใน "วันเดียวกัน" และ "ชั้นเรียนเดียวกัน"
-    else if (actionType === "insertAtt") {
-        // สมมติตารางชื่อ "attendance-table-body" 
-        // คอลัมน์ที่ 1 (ดัชนี 0) เป็นวันที่, คอลัมน์ที่ 2 (ดัชนี 1) เป็นระดับชั้น
-        // (ส่วนนี้ระบบตรวจละเอียดแบบ 2 เงื่อนไขพร้อมกันเพื่อความแม่นยำ)
-        if (isDuplicateAttendance("attendance-table-body", payload.date, payload.classLevel)) {
-            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำ (สถิติการมาเรียน):\nชั้นเรียน ${payload.classLevel} ของวันที่ ${payload.date} มีการบันทึกสถิติไว้แล้วครับ หากต้องการเปลี่ยนข้อมูลให้ใช้ปุ่มแก้ไขแทนนะครับ`);
-            hideLoading();
-            return; // ⛔ เบรกมือ สั่งหยุดส่งข้อมูล
-        }
+    // --- (โค้ดอัปโหลดไฟล์และส่งค่าขึ้นคลาวด์ตัวเดิมของคุณครู ทำงานตามปกติ) ---
+    showLoading("กำลังส่งข้อมูลอัปเดตระบบฐานข้อมูลคลาวด์...");
+    const fileInput = document.getElementById(fileElementId);
+    if(fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            payload.fileData = e.target.result.split(',')[1];
+            payload.fileName = file.name;
+            payload.mimeType = file.type;
+            await sendPostData(actionType, payload);
+        };
+        reader.readAsDataURL(file);
+    } else {
+        await sendPostData(actionType, payload);
     }
-
-    // --- (โค้ดส่งข้อมูลเข้าเซิร์ฟเวอร์เดิมของคุณครู ทำงานต่อเมื่อข้อมูลผ่านการคัดกรอง) ---
-    try {
-        const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const data = await res.json();
-        if(data.status === "success") {
-            alert("บันทึกการประมวลผลสำเร็จเรียบร้อย");
-            // ปิดทุก Modal อัตโนมัติ
-            document.getElementById('memo-modal').classList.add('hidden');
-            document.getElementById('gendoc-modal').classList.add('hidden');
-            document.getElementById('receipt-modal').classList.add('hidden');
-            document.getElementById('attendance-modal').classList.add('hidden');
-            fetchSystemData();
-        } else { alert("เกิดข้อผิดพลาด: " + data.message); hideLoading(); }
-    } catch(e) { alert("การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด"); hideLoading(); }
 }
 // ---------------------- บล็อกคำสั่งเปิด/ปิด/ซับมิท หน้าโมดอลงานย่อย ----------------------
 function openMemoModal() { document.getElementById('memo-form').reset(); document.getElementById('memo-id').value = ''; document.getElementById('memo-modal-title').innerText = "📝 ลงทะเบียนบันทึกข้อความใหม่"; document.getElementById('memo-modal').classList.remove('hidden'); }
@@ -1796,26 +1786,7 @@ function isDuplicateData(tbodyId, columnIndex, newValue) {
     }
     return false;
 }
-
-       function isDuplicateAttendance(tbodyId, newDate, newClass) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody) return false;
-
-    const rows = tbody.getElementsByTagName("tr");
-    for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName("td");
-        // สมมติว่า คอลัมน์แรกสุดคือวันที่ และ คอลัมน์สองคือระดับชั้น
-        if (cells[0] && cells[1]) {
-            const existingDate = cells[0].innerText.trim();
-            const existingClass = cells[1].innerText.trim();
-            
-            if (existingDate === newDate && existingClass === newClass) {
-                return true; // พบข้อมูลซ้ำ วันเดียวกัน ชั้นเดียวกัน!
-            }
-        }
-    }
-    return false;
-} 
+    
     </script>
 </body>
 </html>
