@@ -352,7 +352,128 @@
         </div>
     </div>
 </section>
+                 <section id="menu-memos" class="tab-content hidden animate-fade-in">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
+        <div>
+            <h4 class="text-xs font-bold text-slate-800">📝 ระบบทะเบียนคุมเลขที่บันทึกข้อความ</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">บันทึกข้อมูลรายงานทางราชการและข้อความภายในส่วนงาน</p>
+        </div>
+        <button id="btn-add-memo" onclick="openMemoModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ ลงทะเบียนบันทึกข้อความใหม่</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-memos" onkeyup="filterTable('search-memos', 'memos-table-body')" placeholder="🔍 ค้นหาบันทึกข้อความ (เลขที่, เรื่อง, ฝ่ายงาน)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                        <th class="py-3.5 px-4">เลขที่บันทึก</th>
+                        <th class="py-3.5 px-3">ลงวันที่</th>
+                        <th class="py-3.5 px-4 w-1/3">เรื่อง / สาระสำคัญ</th>
+                        <th class="py-3.5 px-4">ฝ่ายงาน/เจ้าของเรื่อง</th>
+                        <th class="py-3.5 px-3 text-center">ไฟล์เอกสาร</th>
+                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="memos-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
+<section id="menu-gendocs" class="tab-content hidden animate-fade-in">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
+        <div>
+            <h4 class="text-xs font-bold text-slate-800">🗂️ ระบบสารสนเทศการคุมไฟล์เอกสารทั่วไป</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บแฟ้มข้อมูล ความรู้ คู่มือภายนอก และเอกสารเบ็ดเตล็ด</p>
+        </div>
+        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ เพิ่มเอกสารทั่วไป</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-gendocs" onkeyup="filterTable('search-gendocs', 'gendocs-table-body')" placeholder="🔍 ค้นหาเอกสารทั่วไป (รหัส, ชื่อเอกสาร, หมวดหมู่)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white">
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                        <th class="py-3.5 px-4">รหัสเอกสาร</th>
+                        <th class="py-3.5 px-4 w-1/3">ชื่อเอกสารข้อมูล</th>
+                        <th class="py-3.5 px-3">วันที่จัดเก็บ</th>
+                        <th class="py-3.5 px-4">หมวดหมู่กลุ่มงาน</th>
+                        <th class="py-3.5 px-3 text-center">ไฟล์แนบ</th>
+                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="gendocs-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section id="menu-receipts" class="tab-content hidden animate-fade-in">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
+        <div>
+            <h4 class="text-xs font-bold text-slate-800">💰 ระบบควบคุมทะเบียนใบเสร็จและใบรับเงิน</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บหลักฐานการเงิน เอกสารงบประมาณ และใบเสร็จจัดซื้อจัดจ้าง</p>
+        </div>
+        <button id="btn-add-receipt" onclick="openReceiptModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ ลงทะเบียนหลักฐานใบเสร็จ</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-receipts" onkeyup="filterTable('search-receipts', 'receipts-table-body')" placeholder="🔍 ค้นหาใบเสร็จ (เลขที่, ร้านค้า, หมายเหตุ)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white">
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                        <th class="py-3.5 px-4">เลขที่ใบเสร็จ</th>
+                        <th class="py-3.5 px-3">วันที่ทำรายการ</th>
+                        <th class="py-3.5 px-3">จำนวนเงิน (บาท)</th>
+                        <th class="py-3.5 px-4 w-1/4">ผู้จ่ายเงิน/บริษัทร้านค้า</th>
+                        <th class="py-3.5 px-3 text-center">ดูหลักฐาน</th>
+                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="receipts-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section id="menu-attendance" class="tab-content hidden animate-fade-in">
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
+        <div>
+            <h4 class="text-xs font-bold text-slate-800">📊 ระบบบันทึกสถิติการมาเรียนของนักเรียนประจำวัน</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">จำแนกแยกรายระดับชั้น อนุบาล 1 ถึง ประถมศึกษาปีที่ 6 (ชาย/หญิง)</p>
+        </div>
+        <button id="btn-add-att" onclick="openAttModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs hidden">➕ บันทึกสถิติการมาเรียนใหม่</button>
+    </div>
+    <div class="mb-4">
+        <input type="text" id="search-attendance" onkeyup="filterTable('search-attendance', 'attendance-table-body')" placeholder="🔍 ค้นหาสถิติการมาเรียน (วันที่, ชั้นเรียน)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold text-center">
+                        <th class="py-3.5 px-4 text-left">วันที่บันทึก</th>
+                        <th class="py-3.5 px-3">ระดับชั้นเรียน</th>
+                        <th class="py-3.5 px-2">นักเรียนชายทั้งหมด</th>
+                        <th class="py-3.5 px-2">มาเรียน (ชาย)</th>
+                        <th class="py-3.5 px-2">นักเรียนหญิงทั้งหมด</th>
+                        <th class="py-3.5 px-2">มาเรียน (หญิง)</th>
+                        <th class="py-3.5 px-3 bg-blue-950 text-amber-300">ร้อยละการมาเรียน</th>
+                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="attendance-table-body" class="divide-y divide-slate-100 font-medium text-slate-600 text-center"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+                
                 <!-- ระบบเครดิตท้ายเว็บห้องปฏิบัติการงานสารบรรณหลัก -->
                 <footer class="mt-8 text-center text-xs font-medium text-slate-400 pt-4 border-t border-slate-200/60">
                     @ Copyright ฮาริส สุหลง ติดต่อ 0924291775 
@@ -1416,6 +1537,27 @@ function editAtt(id) {
     document.getElementById('att-pres-f').value = item.presentFemale;
     document.getElementById('att-modal-title').innerText = "✏️ แก้ไขข้อมูลสถิติการมาเรียน";
 }
+   // ฟังก์ชันกลางใช้สำหรับการค้นหาในแต่ละตารางแบบทันที
+function filterTable(inputId, tableBodyId) {
+    const input = document.getElementById(inputId);
+    const filter = input.value.toLowerCase().trim();
+    const tbody = document.getElementById(tableBodyId);
+    const rows = tbody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        let rowContainsFilter = false;
+        const cells = rows[i].getElementsByTagName('td');
+        
+        for (let j = 0; j < cells.length; j++) {
+            if (cells[j] && cells[j].innerText.toLowerCase().includes(filter)) {
+                rowContainsFilter = true;
+                break;
+            }
+        }
+        rows[i].style.display = rowContainsFilter ? "" : "none";
+    }
+}
+    
     </script>
 </body>
 </html>
