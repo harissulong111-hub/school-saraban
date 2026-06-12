@@ -1160,32 +1160,56 @@ function handleLogout(isAuto = false) {
         }
         function closeOrderModal() { document.getElementById("order-modal").classList.add("hidden"); }
 
-        async function handleOrderSubmit(event) {
-            event.preventDefault();
-            showLoading("กำลังรันเลขคำสั่งสารบรรณโรงเรียนบ้านกาหยีและอัพโหลดเอกสารตราครุฑ...");
-            const fileInput = document.getElementById("order-form-file");
-            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+     async function handleOrderSubmit(event) {
+    event.preventDefault();
 
-            if(fileInput.files.length > 0) {
-                const file = fileInput.files[0]; const base64 = await convertFileToBase64(file);
-                fileDataJson.fileData = base64; fileDataJson.fileName = file.name; fileDataJson.mimeType = file.type;
-            }
+    // 1. ดึงชื่อเรื่องคำสั่งมาตรวจสอบก่อนเซฟ
+    const currentOrderTitle = document.getElementById("order-form-title").value;
 
-            const ordObj = {
-                action: "insertOrder",
-                orderId: document.getElementById("order-form-id").value,
-                year: document.getElementById("order-form-year").value,
-                title: document.getElementById("order-form-title").value,
-                signDate: document.getElementById("order-form-date").value,
-                department: document.getElementById("order-form-department").value,
-                status: "เปิดเผย", ...fileDataJson
-            };
+    // 2. 🚨 ดักจับข้อมูลซ้ำในตารางออกเลขคำสั่ง
+    // - "orders-table-body" คือ ID ของตารางทะเบียนคำสั่ง
+    // - เลข 2 คือ คอลัมน์ที่ 3 ในตาราง (ช่องเรื่องคำสั่งโรงเรียน) นับเริ่มจาก 0 จากซ้ายไปขวา
+    if (isDuplicateData("orders-table-body", 2, currentOrderTitle)) {
+        alert(`⚠️ แจ้งเตือนข้อมูลซ้ำครับคุณครู:\nคำสั่งโรงเรียนเรื่อง "${currentOrderTitle}" นี้มีอยู่ในระบบตารางคุมเลขแล้วครับ ลองตรวจสอบดูอีกครั้งนะครับ`);
+        return; // ⛔ เบรกมือ! สั่งหยุดทำงานทันที ไม่ดึงไฟล์ ไม่รันเลขเพิ่ม ไม่ส่งขึ้นคลาวด์
+    }
 
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
-                if((await response.json()).status === "success") { closeOrderModal(); await fetchSystemData(); }
-            } catch(e){ alert(e.toString()); } finally { hideLoading(); }
+    // --- (ด้านล่างนี้คือโค้ดรันเลขและอัปโหลดขึ้นคลาวด์ตัวเดิมของคุณครู ทำงานตามปกติ) ---
+    showLoading("กำลังรันเลขคำสั่งสารบรรณโรงเรียนบ้านกาหยีและอัพโหลดเอกสารตราครุฑ...");
+    const fileInput = document.getElementById("order-form-file");
+    let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+
+    if(fileInput.files.length > 0) {
+        const file = fileInput.files[0]; 
+        const base64 = await convertFileToBase64(file);
+        fileDataJson.fileData = base64; 
+        fileDataJson.fileName = file.name; 
+        fileDataJson.mimeType = file.type;
+    }
+
+    const ordObj = {
+        action: "insertOrder",
+        orderId: document.getElementById("order-form-id").value,
+        year: document.getElementById("order-form-year").value,
+        title: currentOrderTitle, // ดึงค่าจากตัวแปรตรวจสอบด้านบนมาใช้ได้เลย
+        signDate: document.getElementById("order-form-date").value,
+        department: document.getElementById("order-form-department").value,
+        status: "เปิดเผย", 
+        ...fileDataJson
+    };
+
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
+        if((await response.json()).status === "success") { 
+            closeOrderModal(); 
+            await fetchSystemData(); 
         }
+    } catch(e){ 
+        alert(e.toString()); 
+    } finally { 
+        hideLoading(); 
+    }
+}
 
        function initCalendar() {
             const calendarEl = document.getElementById('calendar-container'); if(!calendarEl) return;
