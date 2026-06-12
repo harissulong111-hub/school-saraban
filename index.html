@@ -1496,11 +1496,11 @@ function filterTable(inputId, tableBodyId) {
     }
 }
 
-     // ===================================================================================
-// 📑 ระบบควบคุมการแบ่งหน้าตาราง (Pagination Engine) เวอร์ชันเพิ่มระบบเกษียณหนังสือ
+// ===================================================================================
+// 📑 ระบบควบคุมการแบ่งหน้าตาราง (Pagination Engine) โรงเรียนบ้านกาหยี [อัปเดต ID เกษียณหนังสือ]
 // ===================================================================================
 
-const ROWS_PER_PAGE = 10; // แสดงผลหน้าละ 10 แถว
+const ROWS_PER_PAGE = 10; // กำหนดให้แสดงผลตารางละ 10 แถวต่อ 1 หน้า
 
 const tablePages = {
     "saraban": 1,
@@ -1509,17 +1509,17 @@ const tablePages = {
     "gendocs": 1,
     "receipts": 1,
     "attendance": 1,
-    "sign": 1 // 🟢 เพิ่มระบบความจำหน้าของเมนูเกษียณหนังสือ
+    "sign": 1 // หน่วยความจำของระบบเกษียณหนังสือ
 };
 
 function changeTablePage(tableType, direction) {
-    // จับคู่คัดกรอง ID ตารางของแต่ละเมนู
+    // 🎯 ทำการจับคู่ ID ตารางหน้าบ้านของคุณครูให้ตรงล็อกเป้าหมายเป๊ะๆ
     const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
                     (tableType === "orders") ? "orders-table-body" : 
                     (tableType === "memos") ? "memos-table-body" : 
                     (tableType === "gendocs") ? "gendocs-table-body" : 
                     (tableType === "receipts") ? "receipts-table-body" : 
-                    (tableType === "attendance") ? "attendance-table-body" : "sign-table-body"; // 🟢 ชี้เป้าไปที่ตารางเกษียณหนังสือ
+                    (tableType === "attendance") ? "attendance-table-body" : "menu-workflow"; // 🟢 ปรับเปลี่ยนเป็น ID จริงของคุณครูแล้วครับ
                     
     const tbody = document.getElementById(tbodyId);
     if (!tbody) return;
@@ -1543,16 +1543,15 @@ function changeTablePage(tableType, direction) {
 
     for (let i = 0; i < rows.length; i++) {
         if (i >= startIndex && i < endIndex) {
-            rows[i].style.display = ""; 
+            rows[i].style.display = ""; // แสดงแถวในหน้าปัจจุบัน
         } else {
-            rows[i].style.display = "none"; 
+            rows[i].style.display = "none"; // ซ่อนแถวที่ไม่เกี่ยวข้อง
         }
     }
 }
 
-// ระบบตรวจจับการโหลดข้อมูลและสั่งแบ่งหน้าอัตโนมัติครบทุกเมนู
+// ระบบสังเกตการณ์ตาราง (MutationObserver) สั่งตัดหน้าอัตโนมัติเมื่อข้อมูลมีการอัปเดต
 window.addEventListener('load', () => {
-    // 🟢 รวมกลุ่มตรวจสอบทั้ง 6 เมนูหลักของโรงเรียนบ้านกาหยี
     const tableConfigs = ["saraban", "orders", "memos", "gendocs", "receipts", "attendance", "sign"];
     
     tableConfigs.forEach(tableType => {
@@ -1561,12 +1560,12 @@ window.addEventListener('load', () => {
                         (tableType === "memos") ? "memos-table-body" : 
                         (tableType === "gendocs") ? "gendocs-table-body" : 
                         (tableType === "receipts") ? "receipts-table-body" : 
-                        (tableType === "attendance") ? "attendance-table-body" : "sign-table-body";
+                        (tableType === "attendance") ? "attendance-table-body" : "menu-workflow"; // 🟢 ปรับเปลี่ยนเป็น ID จริงของคุณครูแล้วเช่นกันครับ
         
         const tbody = document.getElementById(tbodyId);
         if (tbody) {
             const pageObserver = new MutationObserver(() => {
-                tablePages[tableType] = 1;
+                tablePages[tableType] = 1; // รีเซ็ตกลับไปหน้า 1 เสมอเวลาข้อมูลรีเฟรชใหม่
                 changeTablePage(tableType, 0); 
             });
             pageObserver.observe(tbody, { childList: true });
