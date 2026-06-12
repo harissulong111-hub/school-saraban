@@ -997,38 +997,63 @@ function handleLogout(isAuto = false) {
         }
         function closeSarabanModal() { document.getElementById("saraban-modal").classList.add("hidden"); }
 
-        async function handleSarabanSubmit(event) {
-            event.preventDefault();
-            showLoading("กำลังทำการสตรีมมิ่งไฟล์แนบลงคลาวด์ไดรฟ์แยกส่วนฝ่ายงาน...");
-            const fileInput = document.getElementById("form-file");
-            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+       async function handleSarabanSubmit(event) {
+    event.preventDefault();
 
-            if(fileInput.files.length > 0) {
-                const file = fileInput.files[0]; const base64 = await convertFileToBase64(file);
-                fileDataJson.fileData = base64; fileDataJson.fileName = file.name; fileDataJson.mimeType = file.type;
-            }
+    // 1. ดึงชื่อเรื่องราชการมาตรวจสอบก่อน
+    const currentTitle = document.getElementById("form-title").value;
 
-            const docObj = {
-                action: sarabanEditIndex !== null ? "update" : "insert",
-                internalId: document.getElementById("form-internal-id").value,
-                docId: document.getElementById("form-doc-id").value,
-                date: document.getElementById("form-date").value,
-                department: document.getElementById("form-department").value,
-                source: document.getElementById("form-source").value,
-                destination: document.getElementById("form-destination").value,
-                title: document.getElementById("form-title").value,
-                priority: document.getElementById("form-priority").value,
-                deadline: document.getElementById("form-deadline").value,
-                status: document.getElementById("form-status").value,
-                fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
-                ...fileDataJson
-            };
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(docObj) });
-                if((await response.json()).status === "success") { closeSarabanModal(); await fetchSystemData(); }
-            } catch(e) { alert("Error: " + e.toString()); } finally { hideLoading(); }
+    // 2. 🚨 ดักจับข้อมูลซ้ำ (เตือนเฉพาะตอน "เพิ่มข้อมูลใหม่" เท่านั้น ถ้าเป็นการ "แก้ไขข้อมูล" จะปล่อยผ่าน)
+    if (sarabanEditIndex === null) { 
+        // "saraban-table-body" คือ ID ของตารางหนังสือรับ-ส่งที่คุณครูใช้
+        // เลข 4 คือ คอลัมน์ที่ 5 (ช่องชื่อเรื่อง) นับเริ่มจาก 0 จากซ้ายไปขวา
+        if (isDuplicateData("saraban-table-body", 4, currentTitle)) {
+            alert(`⚠️ แจ้งเตือนกันลืมครับคุณครู:\nเรื่อง "${currentTitle}" นี้เคยลงทะเบียนไว้ในระบบสารบรรณแล้วครับ ลองเช็คในตารางอีกครั้งนะครับ`);
+            return; // ⛔ เบรกมือ! สั่งหยุดทำงานทันที ไม่สตรีมไฟล์ ไม่ส่งขึ้นคลาวด์
         }
+    }
+
+    // --- (ด้านล่างนี้คือโค้ดสตรีมมิ่งและส่งข้อมูลขึ้นคลาวด์ตัวเดิมของคุณครู ทำงานตามปกติ) ---
+    showLoading("กำลังทำการสตรีมมิ่งไฟล์แนบลงคลาวด์ไดรฟ์แยกส่วนฝ่ายงาน...");
+    const fileInput = document.getElementById("form-file");
+    let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+
+    if(fileInput.files.length > 0) {
+        const file = fileInput.files[0]; 
+        const base64 = await convertFileToBase64(file);
+        fileDataJson.fileData = base64; 
+        fileDataJson.fileName = file.name; 
+        fileDataJson.mimeType = file.type;
+    }
+
+    const docObj = {
+        action: sarabanEditIndex !== null ? "update" : "insert",
+        internalId: document.getElementById("form-internal-id").value,
+        docId: document.getElementById("form-doc-id").value,
+        date: document.getElementById("form-date").value,
+        department: document.getElementById("form-department").value,
+        source: document.getElementById("form-source").value,
+        destination: document.getElementById("form-destination").value,
+        title: currentTitle, // ดึงค่าจากตัวแปรด้านบนมาใช้ได้เลย
+        priority: document.getElementById("form-priority").value,
+        deadline: document.getElementById("form-deadline").value,
+        status: document.getElementById("form-status").value,
+        fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
+        ...fileDataJson
+    };
+
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(docObj) });
+        if((await response.json()).status === "success") { 
+            closeSarabanModal(); 
+            await fetchSystemData(); 
+        }
+    } catch(e) { 
+        alert("Error: " + e.toString()); 
+    } finally { 
+        hideLoading(); 
+    }
+}
 
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
@@ -1706,6 +1731,30 @@ window.addEventListener('load', () => {
     });
 });
 // ===================================================================================
+   // ===================================================================================
+// 🚨 ฟังก์ชั่นอัจฉริยะ ตรวจสอบการเพิ่มข้อมูลซ้ำ (Anti-Duplicate Check Engine)
+// ===================================================================================
+function isDuplicateData(tbodyId, columnIndex, newValue) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return false;
+
+    const rows = tbody.getElementsByTagName("tr");
+    // ตัดช่องว่างและแปลงเป็นตัวพิมพ์เล็กทั้งหมดเพื่อความแม่นยำในการเทียบคำ
+    const cleanNewValue = newValue.trim().toLowerCase();
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        if (cells[columnIndex]) {
+            const existingValue = cells[columnIndex].innerText.trim().toLowerCase();
+            // ถ้าเจอข้อมูลในตารางที่ตรงกับข้อมูลใหม่ที่กำลังจะกรอก
+            if (existingValue === cleanNewValue && cleanNewValue !== "") {
+                return true; 
+            }
+        }
+    }
+    return false;
+}
+    
     </script>
 </body>
 </html>
