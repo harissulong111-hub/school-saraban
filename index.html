@@ -171,8 +171,8 @@
                                     <tbody id="saraban-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                </table> <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
-        <button onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ก่อนหน้า</button>
-        <button onclick="changeTablePage('memos', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป</button>
+        <button onclick="changeTablePage('saraban', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ก่อนหน้า</button>
+        <button onclick="changeTablePage('saraban', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป</button>
     </div>
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
@@ -182,10 +182,10 @@
         </div>
         <div>
             <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button onclick="changeTablePage('menu-saraban', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-2 py-2 text-slate-400 hover:bg-slate-50 focus:z-20">
+                <button onclick="changeTablePage('saraban', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-2 py-2 text-slate-400 hover:bg-slate-50 focus:z-20">
                     <span>◀ ก่อนหน้า</span>
                 </button>
-                <button onclick="changeTablePage('menu-saraban', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-2 py-2 text-slate-400 hover:bg-slate-50 focus:z-20">
+                <button onclick="changeTablePage('saraban', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-2 py-2 text-slate-400 hover:bg-slate-50 focus:z-20">
                     <span>ถัดไป ▶</span>
                 </button>
             </nav>
@@ -1469,7 +1469,89 @@ function filterTable(inputId, tableBodyId) {
         rows[i].style.display = rowContainsFilter ? "" : "none";
     }
 }
+
+       // ===================================================================================
+// 📑 ระบบควบคุมการแบ่งหน้าตาราง (Pagination Engine) สำหรับโรงเรียนบ้านกาหยี
+// ===================================================================================
+
+// คุณครูสามารถเปลี่ยนตัวเลขตรงนี้ได้ครับ ว่าอยากให้ 1 หน้า แสดงผลกี่บรรทัด (เช่น 5, 10, หรือ 15 แถว)
+const ROWS_PER_PAGE = 10; 
+
+// ตัวแปรสำหรับจำว่าตอนนี้แต่ละเมนูอยู่หน้าไหนกันแล้ว
+const tablePages = {
+    "saraban": 1,
+    "orders": 1,
+    "memos": 1,
+    "gendocs": 1,
+    "receipts": 1,
+    "attendance": 1
+};
+
+// ฟังก์ชันหลักในการสั่งสลับหน้าตาราง
+function changeTablePage(tableType, direction) {
+    const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
+                    (tableType === "orders") ? "orders-table-body" : 
+                    (tableType === "memos") ? "memos-table-body" : 
+                    (tableType === "gendocs") ? "gendocs-table-body" : 
+                    (tableType === "receipts") ? "receipts-table-body" : "attendance-table-body";
+                    
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+
+    const rows = tbody.getElementsByTagName("tr");
+    if (rows.length === 0) return;
+
+    // คำนวณหาหน้าสูงสุดที่มีอยู่จริง
+    const maxPage = Math.ceil(rows.length / ROWS_PER_PAGE);
     
+    // อัปเดตตัวเลขหน้าปัจจุบันตามทิศทางที่กด
+    let newPage = tablePages[tableType] + direction;
+    if (newPage < 1) newPage = 1;
+    if (newPage > maxPage) newPage = maxPage;
+    
+    tablePages[tableType] = newPage;
+
+    // สั่งอัปเดตตัวเลขบนป้ายหน้าจอ
+    const pageLabel = document.getElementById(`${tableType}-current-page`);
+    if (pageLabel) pageLabel.innerText = `${newPage} / ${maxPage}`;
+
+    // 🪄 สั่งซ่อน/แสดง แถวในตารางตามหน้าปัจจุบัน
+    const startIndex = (newPage - 1) * ROWS_PER_PAGE;
+    const endIndex = startIndex + ROWS_PER_PAGE;
+
+    for (let i = 0; i < rows.length; i++) {
+        if (i >= startIndex && i < endIndex) {
+            rows[i].style.display = ""; // แสดงแถวที่อยู่ในหน้านั้น
+        } else {
+            rows[i].style.display = "none"; // ซ่อนแถวที่ไม่อยู่ในหน้านั้น
+        }
+    }
+}
+
+// 👁️ ตัวตรวจจับอัจฉริยะ: ทันทีที่ตารางมีการโหลดข้อมูลมาใหม่ ให้ตัดหน้าอัตโนมัติทันที
+window.addEventListener('load', () => {
+    const tableConfigs = ["saraban", "orders", "memos", "gendocs", "receipts", "attendance"];
+    
+    tableConfigs.forEach(tableType => {
+        const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
+                        (tableType === "orders") ? "orders-table-body" : 
+                        (tableType === "memos") ? "memos-table-body" : 
+                        (tableType === "gendocs") ? "gendocs-table-body" : 
+                        (tableType === "receipts") ? "receipts-table-body" : "attendance-table-body";
+        
+        const tbody = document.getElementById(tbodyId);
+        if (tbody) {
+            const pageObserver = new MutationObserver(() => {
+                // รีเซ็ตกลับไปหน้า 1 ทุกครั้งที่ข้อมูลในตารางโดนรีโหลดใหม่สดๆ
+                tablePages[tableType] = 1;
+                changeTablePage(tableType, 0); 
+            });
+            // สั่งเริ่มจับตาดูการเปลี่ยนแปลงของแถวตาราง
+            pageObserver.observe(tbody, { childList: true });
+        }
+    });
+});
+// ===================================================================================  
     </script>
 </body>
 </html>
