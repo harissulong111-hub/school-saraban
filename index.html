@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสารบรรณและบริหารสถานศึกษา | โรงเรียนบ้านกาหยี</title>
-    <!-- Tailwind CSS v4 & Google Fonts -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js & FullCalendar CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <style>
@@ -25,16 +23,13 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- บล็อกหน้าต่างโหลดข้อมูลคลาวด์ -->
     <div id="loading-spinner" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white z-50 hidden">
         <div class="w-16 h-16 border-4 border-t-blue-500 border-r-indigo-500 rounded-full animate-spin mb-4"></div>
         <p class="text-base font-bold text-blue-200" id="loading-text">กำลังประมวลผลระบบฐานข้อมูลโรงเรียน...</p>
     </div>
 
-    <!-- 1. หน้าจอการเข้าสู่ระบบ (LOGIN SCREEN) -->
     <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-tr from-slate-900 via-indigo-950 to-blue-900">
         <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-5 text-center">
-            <!-- ดึงโลโก้โรงเรียนจากระบบ Base64 / Raw URL มั่นใจได้ว่ารูปขึ้นแน่นอน -->
             <div class="space-y-3">
                 <img src="https://thumbs2.imgbox.com/3d/e9/abXHbaY0_t.png" alt="logo School.jpg" class="w-28 h-28 mx-auto object-contain drop-shadow-xl rounded-full bg-white p-1">
                 <h2 class="text-xl font-black tracking-tight text-slate-900 mt-2">ระบบบริหารงานสารบรรณอิเล็กทรอนิกส์ </h2>
@@ -54,14 +49,11 @@
   
             </form>
         </div>
-        <!-- ส่วนแสดง Copyright หน้าแรก -->
         <p class="text-xs text-slate-400 mt-6 font-medium">@ Copyright haris-sulong</p>
     </div>
 
-    <!-- 2. หน้าแอปพลิเคชันหลัก (MAIN APPLICATION) -->
     <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row w-full">
         
-        <!-- SIDEBAR NAVIGATION PANEL -->
         <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl">
             <div class="p-5 border-b border-slate-800 flex items-center gap-3">
                 <img src="https://thumbs2.imgbox.com/22/0d/yregwPRq_t.png" alt="logo School.jpg" class="w-13 h-13 object-contain rounded-full bg-white p-0.5">
@@ -86,9 +78,7 @@
             </div>
         </aside>
 
-        <!-- MAIN CONTENT AREA -->
         <div class="flex-1 flex flex-col min-w-0">
-            <!-- TOP BAR HEADER -->
             <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 shadow-xs">
                 <div class="flex items-center gap-3">
                     <img src="https://thumbs2.imgbox.com/3d/e9/abXHbaY0_t.png" alt="logo School.jpg" class="w-9 h-9 object-contain rounded-full shadow-xs bg-white">
@@ -103,11 +93,9 @@
                 </div>
             </header>
 
-            <!-- MAIN WORKSPACE -->
             <main class="flex-1 p-5 md:p-6 overflow-y-auto flex flex-col ">
                 
                 <div class="w-full">
-                    <!-- MENU 1: DASHBOARD -->
                     <section id="menu-dashboard" class="tab-content space-y-5 hidden">
                         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                             <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs">
@@ -139,7 +127,6 @@
                         </div>
                     </section>
 
-                    <!-- MENU 2: CORE SARABAN -->
                     <section id="menu-saraban" class="tab-content space-y-4 hidden">
                         <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
                             <div class="flex bg-slate-200 p-1 rounded-xl w-full sm:w-auto">
@@ -170,14 +157,11 @@
                                     </thead>
                                     <tbody id="saraban-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
-                                <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางลงทะเบียนหนังสือ -->
-<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <!-- ปุ่มกดบนมือถือ -->
+                                <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
         <button type="button" onclick="changeTablePage('saraban', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
         <button type="button" onclick="changeTablePage('saraban', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
     </div>
-    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
             <p class="text-xs text-slate-500">
@@ -200,7 +184,6 @@
                         </div>
                     </section>
 
-                    <!-- MENU 3: WORKFLOW -->
                     <section id="menu-workflow" class="tab-content space-y-4 hidden">
                         <div class="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 shadow-xs">
                             <span class="text-xl">💼</span>
@@ -225,14 +208,11 @@
                                     </thead>
                                     <tbody id="workflow-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
-                                <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบเกษียณหนังสือ -->
-<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <!-- ปุ่มกดบนมือถือ -->
+                                <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
         <button type="button" onclick="changeTablePage('sign', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
         <button type="button" onclick="changeTablePage('sign', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
     </div>
-    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
             <p class="text-xs text-slate-500">
@@ -255,7 +235,6 @@
                         </div>
                     </section>
 
-                    <!-- MENU 4: SCHOOL ORDERS -->
                     <section id="menu-orders" class="tab-content space-y-4 hidden">
                         <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
                             <div>
@@ -271,22 +250,20 @@
                                         <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
                                             <th class="py-3.5 px-4">เลขที่คำสั่ง</th>
                                             <th class="py-3.5 px-3">ปี พ.ศ.</th>
-                                            <th class="py-3.5 px-5 w-1/2">เรื่องคำสั่งโรงเรียน</th>
+                                            <th class="py-3.5 px-5 w-1/3">เรื่องคำสั่งโรงเรียน</th>
                                             <th class="py-3.5 px-4">วันที่ลงนามประกาศ</th>
                                             <th class="py-3.5 px-4">ฝ่ายผู้รับผิดชอบ</th>
                                             <th class="py-3.5 px-3 text-center">ไฟล์คำสั่ง</th>
+                                            <th class="py-3.5 px-4 text-right">การจัดการ</th>
                                         </tr>
                                     </thead>
                                     <tbody id="orders-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
-                                <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางทะเบียนคำสั่ง -->
-<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <!-- ปุ่มกดบนมือถือ -->
+                                <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
         <button type="button" onclick="changeTablePage('orders', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
         <button type="button" onclick="changeTablePage('orders', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
     </div>
-    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
             <p class="text-xs text-slate-500">
@@ -309,7 +286,6 @@
                         </div>
                     </section>
 
-                    <!-- MENU 5: CALENDAR -->
                     <section id="menu-calendar" class="tab-content hidden">
                         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
                             <div class="mb-3">
@@ -346,14 +322,11 @@
                 </thead>
                 <tbody id="memos-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
             </table>
-            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบเลขที่บันทึกข้อความ -->
-<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <!-- ปุ่มกดบนมือถือ -->
+            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
         <button type="button" onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
         <button type="button" onclick="changeTablePage('memos', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
     </div>
-    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
             <p class="text-xs text-slate-500">
@@ -402,14 +375,11 @@
                 </thead>
                 <tbody id="gendocs-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
             </table>
-            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบจัดเก็บข้อมูลเอกสารทั่วไป -->
-<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <!-- ปุ่มกดบนมือถือ -->
+            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
         <button type="button" onclick="changeTablePage('gendocs', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
         <button type="button" onclick="changeTablePage('gendocs', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
     </div>
-    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
             <p class="text-xs text-slate-500">
@@ -458,14 +428,11 @@
                 </thead>
                 <tbody id="receipts-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
             </table>
-            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบใบเสร็จรับเงิน -->
-<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <!-- ปุ่มกดบนมือถือ -->
+            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
         <button type="button" onclick="changeTablePage('receipts', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
         <button type="button" onclick="changeTablePage('receipts', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
     </div>
-    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
             <p class="text-xs text-slate-500">
@@ -516,14 +483,11 @@
                 </thead>
                 <tbody id="attendance-table-body" class="divide-y divide-slate-100 font-medium text-slate-600 text-center"></tbody>
             </table>
-            <!-- 🎯 วางต่อท้ายใต้แท็ก </table> ของตารางระบบสถิติการมาเรียน -->
-<div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <!-- ปุ่มกดบนมือถือ -->
+            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
     <div class="flex flex-1 justify-between sm:hidden">
         <button type="button" onclick="changeTablePage('attendance', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
         <button type="button" onclick="changeTablePage('attendance', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
     </div>
-    <!-- ปุ่มกดบนคอมพิวเตอร์ -->
     <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
         <div>
             <p class="text-xs text-slate-500">
@@ -545,7 +509,6 @@
         </div>
     </div>
 </section>
-                <!-- ระบบเครดิตท้ายเว็บห้องปฏิบัติการงานสารบรรณหลัก -->
                 <footer class="mt-8 text-center text-xs font-medium text-slate-400 pt-4 border-t border-slate-200/60">
                     @ Copyright ฮาริส สุหลง ติดต่อ 0924291775 
                 </footer>
@@ -554,7 +517,6 @@
         </div>
     </div>
 
-    <!-- MODAL WINDOWS (SARABAN) -->
     <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -593,14 +555,14 @@
         </div>
     </div>
 
-    <!-- MODAL WINDOWS (ORDERS) -->
     <div id="order-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="order-modal-title">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
                 <button type="button" onclick="closeOrderModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
             <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-5 space-y-3.5">
+                <input type="hidden" id="order-unique-id">
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขที่คำสั่งโรงเรียน</label><input type="text" id="order-form-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-bold text-purple-600" readonly></div>
                     <div><label class="block font-bold text-slate-600 mb-1 text-xs">ปี พ.ศ.</label><input type="text" id="order-form-year" value="2569" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-purple-500"></div>
@@ -706,10 +668,9 @@
     </div>
 </div>
 
-    <!-- MAIN JAVASCRIPT SYSTEM ENGINE -->
     <script>
         // ⚠️ ลิงก์เว็บแอปคลาวด์ Google Apps Script ของคุณครู
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2oJnmwaOPK83k2ZjjV6j5XPgpa2UkB4nmby8H22FMnwnq6-DOsKSELvawTuhi1a6q/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzPhHz2LWXjtZufSDNISYLBAID8R0hPwZq9_Lum_aAMm_c6PcNOjzKVKDQabNyAXU2/exec"; 
 
         let globalSarabanData = [];
         let globalOrdersData = [];
@@ -1131,7 +1092,7 @@ function handleLogout(isAuto = false) {
         function renderOrdersTable() {
             const tbody = document.getElementById("orders-table-body"); tbody.innerHTML = "";
             if(globalOrdersData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">📜 ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">📜 ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
                 return;
             }
             globalOrdersData.forEach(ord => {
@@ -1144,13 +1105,20 @@ function handleLogout(isAuto = false) {
                         <td class="py-3 px-4 text-slate-600">${ord.signDate}</td>
                         <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold text-xs">${ord.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
                         <td class="py-3 px-3 text-center">${fl}</td>
+                        <td class="py-3 px-4 text-right space-x-1 font-bold">
+                            <button onclick="editOrder('${ord.id || ord.orderId}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteRowItem('deleteOrder', '${ord.id || ord.orderId}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                        </td>
                     </tr>
                 `;
             });
         }
 
         function openOrderModal() {
-            document.getElementById("order-form").reset(); let nextNum = 1;
+            document.getElementById("order-form").reset(); 
+            document.getElementById("order-unique-id").value = '';
+            document.getElementById("order-modal-title").innerText = "📜 ขอออกเลขคำสั่งโรงเรียนใหม่";
+            let nextNum = 1;
             if(globalOrdersData.length > 0) {
                 const last = globalOrdersData[globalOrdersData.length - 1].orderId; const match = last.match(/\d+/);
                 if(match) nextNum = parseInt(match[0]) + 1;
@@ -1163,19 +1131,18 @@ function handleLogout(isAuto = false) {
      async function handleOrderSubmit(event) {
     event.preventDefault();
 
-    // 1. ดึงชื่อเรื่องคำสั่งมาตรวจสอบก่อนเซฟ
     const currentOrderTitle = document.getElementById("order-form-title").value;
+    const orderUniqueId = document.getElementById("order-unique-id").value;
 
-    // 2. 🚨 ดักจับข้อมูลซ้ำในตารางออกเลขคำสั่ง
-    // - "orders-table-body" คือ ID ของตารางทะเบียนคำสั่ง
-    // - เลข 2 คือ คอลัมน์ที่ 3 ในตาราง (ช่องเรื่องคำสั่งโรงเรียน) นับเริ่มจาก 0 จากซ้ายไปขวา
-    if (isDuplicateData("orders-table-body", 2, currentOrderTitle)) {
-        alert(`⚠️ แจ้งเตือนข้อมูลซ้ำครับคุณครู:\nคำสั่งโรงเรียนเรื่อง "${currentOrderTitle}" นี้มีอยู่ในระบบตารางคุมเลขแล้วครับ ลองตรวจสอบดูอีกครั้งนะครับ`);
-        return; // ⛔ เบรกมือ! สั่งหยุดทำงานทันที ไม่ดึงไฟล์ ไม่รันเลขเพิ่ม ไม่ส่งขึ้นคลาวด์
+    // ดักจับข้อมูลซ้ำเฉพาะตอนเพิ่มใหม่
+    if (!orderUniqueId) {
+        if (isDuplicateData("orders-table-body", 2, currentOrderTitle)) {
+            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำครับคุณครู:\nคำสั่งโรงเรียนเรื่อง "${currentOrderTitle}" นี้มีอยู่ในระบบตารางคุมเลขแล้วครับ ลองตรวจสอบดูอีกครั้งนะครับ`);
+            return;
+        }
     }
 
-    // --- (ด้านล่างนี้คือโค้ดรันเลขและอัปโหลดขึ้นคลาวด์ตัวเดิมของคุณครู ทำงานตามปกติ) ---
-    showLoading("กำลังรันเลขคำสั่งสารบรรณโรงเรียนบ้านกาหยีและอัพโหลดเอกสารตราครุฑ...");
+    showLoading("กำลังประมวลผลระบบคำสั่งสารบรรณโรงเรียนบ้านกาหยีและอัพโหลดเอกสารตราครุฑ...");
     const fileInput = document.getElementById("order-form-file");
     let fileDataJson = { fileData: null, fileName: null, mimeType: null };
 
@@ -1187,11 +1154,15 @@ function handleLogout(isAuto = false) {
         fileDataJson.mimeType = file.type;
     }
 
+    const id = orderUniqueId || 'ORD-' + Date.now();
+    const action = orderUniqueId ? "updateOrder" : "insertOrder";
+
     const ordObj = {
-        action: "insertOrder",
+        action: action,
+        id: id,
         orderId: document.getElementById("order-form-id").value,
         year: document.getElementById("order-form-year").value,
-        title: currentOrderTitle, // ดึงค่าจากตัวแปรตรวจสอบด้านบนมาใช้ได้เลย
+        title: currentOrderTitle,
         signDate: document.getElementById("order-form-date").value,
         department: document.getElementById("order-form-department").value,
         status: "เปิดเผย", 
@@ -1200,9 +1171,12 @@ function handleLogout(isAuto = false) {
 
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
-        if((await response.json()).status === "success") { 
+        const resJson = await response.json();
+        if(resJson.status === "success") { 
             closeOrderModal(); 
             await fetchSystemData(); 
+        } else {
+            alert("เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: " + resJson.message);
         }
     } catch(e){ 
         alert(e.toString()); 
@@ -1210,6 +1184,21 @@ function handleLogout(isAuto = false) {
         hideLoading(); 
     }
 }
+
+        function editOrder(id) {
+            // หาข้อมูลจาก orderId หรือ id
+            const item = globalOrdersData.find(el => (el.id === id || el.orderId === id));
+            if(!item) return;
+            document.getElementById("order-form").reset();
+            document.getElementById("order-unique-id").value = item.id || item.orderId;
+            document.getElementById("order-form-id").value = item.orderId;
+            document.getElementById("order-form-year").value = item.year;
+            document.getElementById("order-form-title").value = item.title;
+            document.getElementById("order-form-date").value = item.signDate;
+            document.getElementById("order-form-department").value = item.department;
+            document.getElementById("order-modal-title").innerText = "✏️ แก้ไขข้อมูลคำสั่งโรงเรียน";
+            document.getElementById("order-modal").classList.remove("hidden");
+        }
 
        function initCalendar() {
             const calendarEl = document.getElementById('calendar-container'); if(!calendarEl) return;
@@ -1543,6 +1532,8 @@ async function sendPostData(actionType, payload) {
         if(data.status === "success") {
             alert("บันทึกการประมวลผลสำเร็จเรียบร้อย");
             // ปิดทุก Modal อัตโนมัติ
+            document.getElementById('saraban-modal').classList.add('hidden');
+            document.getElementById('order-modal').classList.add('hidden');
             document.getElementById('memo-modal').classList.add('hidden');
             document.getElementById('gendoc-modal').classList.add('hidden');
             document.getElementById('receipt-modal').classList.add('hidden');
