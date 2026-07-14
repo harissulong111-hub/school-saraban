@@ -10,12 +10,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; font-size: 15px; }
         .sidebar-active { background-color: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-left: 5px solid #2563eb; }
         .fc-event { cursor: pointer; padding: 4px 6px; font-weight: bold; font-size: 13px; }
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(203, 213, 225, 0.8); }
-        /* สดสัดส่วนขนาดฟอนต์ลงมาให้พอดีตามบรีฟ */
         th { font-size: 14px !important; letter-spacing: 0.03em; }
         td { font-size: 14px !important; }
         input, select, textarea { font-size: 14px !important; }
@@ -39,14 +43,13 @@
             <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">บัญชีผู้ใช้ (Username)</label>
-                    <input type="text" id="username" placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-xs">
+                    <input type="text" id="username" placeholder="ระบุชื่อบัญชีผู้ใช้" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 shadow-xs">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-xs">
+                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 shadow-xs">
                 </div>
                 <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">ยืนยันเข้าสู่ระบบ</button>
-  
             </form>
         </div>
         <p class="text-xs text-slate-400 mt-6 font-medium">@ Copyright haris-sulong</p>
@@ -94,7 +97,6 @@
             </header>
 
             <main class="flex-1 p-5 md:p-6 overflow-y-auto flex flex-col ">
-                
                 <div class="w-full">
                     <section id="menu-dashboard" class="tab-content space-y-5 hidden">
                         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -158,28 +160,20 @@
                                     <tbody id="saraban-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
                                 <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <div class="flex flex-1 justify-between sm:hidden">
-        <button type="button" onclick="changeTablePage('saraban', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
-        <button type="button" onclick="changeTablePage('saraban', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
-        <div>
-            <p class="text-xs text-slate-500">
-                แสดงหน้า <span id="menu-saraban" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button type="button" onclick="changeTablePage('saraban', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>◀ ก่อนหน้า</span>
-                </button>
-                <button type="button" onclick="changeTablePage('saraban', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>ถัดไป ▶</span>
-                </button>
-            </nav>
-        </div>
-    </div>
-</div>
+                                    <div class="flex flex-1 justify-between sm:hidden">
+                                        <button type="button" onclick="changeTablePage('saraban', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+                                        <button type="button" onclick="changeTablePage('saraban', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+                                    </div>
+                                    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+                                        <div><p class="text-xs text-slate-500">แสดงหน้า <span id="saraban-current-page" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span></p></div>
+                                        <div>
+                                            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                                <button type="button" onclick="changeTablePage('saraban', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>◀ ก่อนหน้า</span></button>
+                                                <button type="button" onclick="changeTablePage('saraban', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>ถัดไป ▶</span></button>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -209,28 +203,20 @@
                                     <tbody id="workflow-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
                                 <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <div class="flex flex-1 justify-between sm:hidden">
-        <button type="button" onclick="changeTablePage('sign', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
-        <button type="button" onclick="changeTablePage('sign', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
-        <div>
-            <p class="text-xs text-slate-500">
-                แสดงหน้า <span id="sign-current-page" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button type="button" onclick="changeTablePage('sign', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>◀ ก่อนหน้า</span>
-                </button>
-                <button type="button" onclick="changeTablePage('sign', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>ถัดไป ▶</span>
-                </button>
-            </nav>
-        </div>
-    </div>
-</div>
+                                    <div class="flex flex-1 justify-between sm:hidden">
+                                        <button type="button" onclick="changeTablePage('sign', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+                                        <button type="button" onclick="changeTablePage('sign', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+                                    </div>
+                                    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+                                        <div><p class="text-xs text-slate-500">แสดงหน้า <span id="sign-current-page" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span></p></div>
+                                        <div>
+                                            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                                <button type="button" onclick="changeTablePage('sign', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>◀ ก่อนหน้า</span></button>
+                                                <button type="button" onclick="changeTablePage('sign', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>ถัดไป ▶</span></button>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -260,259 +246,244 @@
                                     <tbody id="orders-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
                                 <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <div class="flex flex-1 justify-between sm:hidden">
-        <button type="button" onclick="changeTablePage('orders', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
-        <button type="button" onclick="changeTablePage('orders', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
-        <div>
-            <p class="text-xs text-slate-500">
-                แสดงหน้า <span id="menu-orders" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button type="button" onclick="changeTablePage('orders', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>◀ ก่อนหน้า</span>
-                </button>
-                <button type="button" onclick="changeTablePage('orders', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>ถัดไป ▶</span>
-                </button>
-            </nav>
-        </div>
-    </div>
-</div>
+                                    <div class="flex flex-1 justify-between sm:hidden">
+                                        <button type="button" onclick="changeTablePage('orders', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+                                        <button type="button" onclick="changeTablePage('orders', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+                                    </div>
+                                    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+                                        <div><p class="text-xs text-slate-500">แสดงหน้า <span id="orders-current-page" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span></p></div>
+                                        <div>
+                                            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                                <button type="button" onclick="changeTablePage('orders', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>◀ ก่อนหน้า</span></button>
+                                                <button type="button" onclick="changeTablePage('orders', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>ถัดไป ▶</span></button>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
 
                     <section id="menu-calendar" class="tab-content hidden">
                         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                            <div class="mb-3">
-                                <h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4>
-                            </div>
+                            <div class="mb-3"><h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4></div>
                             <div id="calendar-container" class="font-semibold text-sm"></div>
                         </div>
                     </section>
                 </div>
                 
-    <section id="menu-memos" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
-        <div>
-            <h4 class="text-xs font-bold text-slate-800">📝 ระบบทะเบียนคุมเลขที่บันทึกข้อความ</h4>
-            <p class="text-[11px] text-slate-400 mt-0.5">บันทึกข้อมูลรายงานทางราชการและข้อความภายในส่วนงาน</p>
-        </div>
-        <button id="btn-add-memo" onclick="openMemoModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs ">➕ ลงทะเบียนบันทึกข้อความใหม่</button>
-    </div>
-    <div class="mb-4">
-        <input type="text" id="search-memos" onkeyup="filterTable('search-memos', 'memos-table-body')" placeholder="🔍 ค้นหาบันทึกข้อความ (เลขที่, เรื่อง, ฝ่ายงาน)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
-                        <th class="py-3.5 px-4">เลขที่บันทึก</th>
-                        <th class="py-3.5 px-3">ลงวันที่</th>
-                        <th class="py-3.5 px-4 w-1/3">เรื่อง / สาระสำคัญ</th>
-                        <th class="py-3.5 px-4">ฝ่ายงาน/เจ้าของเรื่อง</th>
-                        <th class="py-3.5 px-3 text-center">ไฟล์เอกสาร</th>
-                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody id="memos-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
-            </table>
-            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <div class="flex flex-1 justify-between sm:hidden">
-        <button type="button" onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
-        <button type="button" onclick="changeTablePage('memos', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
-        <div>
-            <p class="text-xs text-slate-500">
-                แสดงหน้า <span id="menu-memos" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button type="button" onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>◀ ก่อนหน้า</span>
-                </button>
-                <button type="button" onclick="changeTablePage('memos', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>ถัดไป ▶</span>
-                </button>
-            </nav>
-        </div>
-    </div>
-</div>
-        </div>
-    </div>
-</section>
+                <section id="menu-memos" class="tab-content hidden animate-fade-in">
+                    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">📝 ระบบทะเบียนคุมเลขที่บันทึกข้อความ</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">บันทึกข้อมูลรายงานทางราชการและข้อความภายในส่วนงาน</p>
+                        </div>
+                        <button id="btn-add-memo" onclick="openMemoModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs ">➕ ลงทะเบียนบันทึกข้อความใหม่</button>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" id="search-memos" onkeyup="filterTable('search-memos', 'memos-table-body')" placeholder="🔍 ค้นหาบันทึกข้อความ (เลขที่, เรื่อง, ฝ่ายงาน)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                                        <th class="py-3.5 px-4">เลขที่บันทึก</th>
+                                        <th class="py-3.5 px-3">ลงวันที่</th>
+                                        <th class="py-3.5 px-4 w-1/3">เรื่อง / สาระสำคัญ</th>
+                                        <th class="py-3.5 px-4">ฝ่ายงาน/เจ้าของเรื่อง</th>
+                                        <th class="py-3.5 px-3 text-center">ไฟล์เอกสาร</th>
+                                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="memos-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                            </table>
+                            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+                                <div class="flex flex-1 justify-between sm:hidden">
+                                    <button type="button" onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+                                    <button type="button" onclick="changeTablePage('memos', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+                                </div>
+                                <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+                                    <div><p class="text-xs text-slate-500">แสดงหน้า <span id="memos-current-page" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span></p></div>
+                                    <div>
+                                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                            <button type="button" onclick="changeTablePage('memos', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>◀ ก่อนหน้า</span></button>
+                                            <button type="button" onclick="changeTablePage('memos', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>ถัดไป ▶</span></button>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-<section id="menu-gendocs" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
-        <div>
-            <h4 class="text-xs font-bold text-slate-800">🗂️ ระบบสารสนเทศการคุมไฟล์เอกสารทั่วไป</h4>
-            <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บแฟ้มข้อมูล ความรู้ คู่มือภายนอก และเอกสารเบ็ดเตล็ด</p>
-        </div>
-        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs ">➕ เพิ่มเอกสารทั่วไป</button>
-    </div>
-    <div class="mb-4">
-        <input type="text" id="search-gendocs" onkeyup="filterTable('search-gendocs', 'gendocs-table-body')" placeholder="🔍 ค้นหาเอกสารทั่วไป (รหัส, ชื่อเอกสาร, หมวดหมู่)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white">
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
-                        <th class="py-3.5 px-4">รหัสเอกสาร</th>
-                        <th class="py-3.5 px-4 w-1/3">ชื่อเอกสารข้อมูล</th>
-                        <th class="py-3.5 px-3">วันที่จัดเก็บ</th>
-                        <th class="py-3.5 px-4">หมวดหมู่กลุ่มงาน</th>
-                        <th class="py-3.5 px-3 text-center">ไฟล์แนบ</th>
-                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody id="gendocs-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
-            </table>
-            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <div class="flex flex-1 justify-between sm:hidden">
-        <button type="button" onclick="changeTablePage('gendocs', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
-        <button type="button" onclick="changeTablePage('gendocs', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
-        <div>
-            <p class="text-xs text-slate-500">
-                แสดงหน้า <span id="menu-gendocs" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button type="button" onclick="changeTablePage('gendocs', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>◀ ก่อนหน้า</span>
-                </button>
-                <button type="button" onclick="changeTablePage('gendocs', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>ถัดไป ▶</span>
-                </button>
-            </nav>
-        </div>
-    </div>
-</div>
-        </div>
-    </div>
-</section>
+                <section id="menu-gendocs" class="tab-content hidden animate-fade-in">
+                    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">🗂️ ระบบสารสนเทศการคุมไฟล์เอกสารทั่วไป</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บแฟ้มข้อมูล ความรู้ คู่มือภายนอก และเอกสารเบ็ดเตล็ด</p>
+                        </div>
+                        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs ">➕ เพิ่มเอกสารทั่วไป</button>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" id="search-gendocs" onkeyup="filterTable('search-gendocs', 'gendocs-table-body')" placeholder="🔍 ค้นหาเอกสารทั่วไป (รหัส, ชื่อเอกสาร, หมวดหมู่)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white">
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                                        <th class="py-3.5 px-4">รหัสเอกสาร</th>
+                                        <th class="py-3.5 px-4 w-1/3">ชื่อเอกสารข้อมูล</th>
+                                        <th class="py-3.5 px-3">วันที่จัดเก็บ</th>
+                                        <th class="py-3.5 px-4">หมวดหมู่กลุ่มงาน</th>
+                                        <th class="py-3.5 px-3 text-center">ไฟล์แนบ</th>
+                                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gendocs-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                            </table>
+                            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+                                <div class="flex flex-1 justify-between sm:hidden">
+                                    <button type="button" onclick="changeTablePage('gendocs', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+                                    <button type="button" onclick="changeTablePage('gendocs', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+                                </div>
+                                <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+                                    <div><p class="text-xs text-slate-500">แสดงหน้า <span id="gendocs-current-page" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span></p></div>
+                                    <div>
+                                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                            <button type="button" onclick="changeTablePage('gendocs', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>◀ ก่อนหน้า</span></button>
+                                            <button type="button" onclick="changeTablePage('gendocs', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>ถัดไป ▶</span></button>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-<section id="menu-receipts" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
-        <div>
-            <h4 class="text-xs font-bold text-slate-800">💰 ระบบควบคุมทะเบียนใบเสร็จและใบรับเงิน</h4>
-            <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บหลักฐานการเงิน เอกสารงบประมาณ และใบเสร็จจัดซื้อจัดจ้าง</p>
-        </div>
-        <button id="btn-add-receipt" onclick="openReceiptModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs ">➕ ลงทะเบียนหลักฐานใบเสร็จ</button>
-    </div>
-    <div class="mb-4">
-        <input type="text" id="search-receipts" onkeyup="filterTable('search-receipts', 'receipts-table-body')" placeholder="🔍 ค้นหาใบเสร็จ (เลขที่, ร้านค้า, หมายเหตุ)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white">
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
-                        <th class="py-3.5 px-4">เลขที่ใบเสร็จ</th>
-                        <th class="py-3.5 px-3">วันที่ทำรายการ</th>
-                        <th class="py-3.5 px-3">จำนวนเงิน (บาท)</th>
-                        <th class="py-3.5 px-4 w-1/4">ผู้จ่ายเงิน/บริษัทร้านค้า</th>
-                        <th class="py-3.5 px-3 text-center">ดูหลักฐาน</th>
-                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody id="receipts-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
-            </table>
-            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <div class="flex flex-1 justify-between sm:hidden">
-        <button type="button" onclick="changeTablePage('receipts', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
-        <button type="button" onclick="changeTablePage('receipts', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
-        <div>
-            <p class="text-xs text-slate-500">
-                แสดงหน้า <span id="menu-receipts" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button type="button" onclick="changeTablePage('receipts', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>◀ ก่อนหน้า</span>
-                </button>
-                <button type="button" onclick="changeTablePage('receipts', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>ถัดไป ▶</span>
-                </button>
-            </nav>
-        </div>
-    </div>
-</div>
-        </div>
-    </div>
-</section>
+                <section id="menu-receipts" class="tab-content hidden animate-fade-in">
+                    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">💰 ระบบควบคุมทะเบียนใบเสร็จและใบรับเงิน</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">จัดเก็บหลักฐานการเงิน เอกสารงบประมาณ และใบเสร็จจัดซื้อจัดจ้าง</p>
+                        </div>
+                        <button id="btn-add-receipt" onclick="openReceiptModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs ">➕ ลงทะเบียนหลักฐานใบเสร็จ</button>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" id="search-receipts" onkeyup="filterTable('search-receipts', 'receipts-table-body')" placeholder="🔍 ค้นหาใบเสร็จ (เลขที่, ร้านค้า, หมายเหตุ)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white">
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold">
+                                        <th class="py-3.5 px-4">เลขที่ใบเสร็จ</th>
+                                        <th class="py-3.5 px-3">วันที่ทำรายการ</th>
+                                        <th class="py-3.5 px-3">จำนวนเงิน (บาท)</th>
+                                        <th class="py-3.5 px-4 w-1/4">ผู้จ่ายเงิน/บริษัทร้านค้า</th>
+                                        <th class="py-3.5 px-3 text-center">ดูหลักฐาน</th>
+                                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="receipts-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
+                            </table>
+                            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
+                                <div class="flex flex-1 justify-between sm:hidden">
+                                    <button type="button" onclick="changeTablePage('receipts', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
+                                    <button type="button" onclick="changeTablePage('receipts', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
+                                </div>
+                                <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
+                                    <div><p class="text-xs text-slate-500">แสดงหน้า <span id="receipts-current-page" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span></p></div>
+                                    <div>
+                                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                            <button type="button" onclick="changeTablePage('receipts', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>◀ ก่อนหน้า</span></button>
+                                            <button type="button" onclick="changeTablePage('receipts', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50"><span>ถัดไป ▶</span></button>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-<section id="menu-attendance" class="tab-content hidden animate-fade-in">
-    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs mb-3">
-        <div>
-            <h4 class="text-xs font-bold text-slate-800">📊 ระบบบันทึกสถิติการมาเรียนของนักเรียนประจำวัน</h4>
-            <p class="text-[11px] text-slate-400 mt-0.5">จำแนกแยกรายระดับชั้น อนุบาล 1 ถึง ประถมศึกษาปีที่ 6 (ชาย/หญิง)</p>
-        </div>
-        <button id="btn-add-att" onclick="openAttModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-xs ">➕ บันทึกสถิติการมาเรียนใหม่</button>
-    </div>
-    <div class="mb-4">
-        <input type="text" id="search-attendance" onkeyup="filterTable('search-attendance', 'attendance-table-body')" placeholder="🔍 ค้นหาสถิติการมาเรียน (วันที่, ชั้นเรียน)..." class="w-full sm:w-80 p-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
-    </div>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 font-bold text-center">
-                        <th class="py-3.5 px-4 text-left">วันที่บันทึก</th>
-                        <th class="py-3.5 px-3">ระดับชั้นเรียน</th>
-                        <th class="py-3.5 px-2">นักเรียนชายทั้งหมด</th>
-                        <th class="py-3.5 px-2">มาเรียน (ชาย)</th>
-                        <th class="py-3.5 px-2">นักเรียนหญิงทั้งหมด</th>
-                        <th class="py-3.5 px-2">มาเรียน (หญิง)</th>
-                        <th class="py-3.5 px-3 bg-blue-950 text-amber-300">ร้อยละการมาเรียน</th>
-                        <th class="py-3.5 px-4 text-right">การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody id="attendance-table-body" class="divide-y divide-slate-100 font-medium text-slate-600 text-center"></tbody>
-            </table>
-            <div class="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3 sm:px-6 mt-2">
-    <div class="flex flex-1 justify-between sm:hidden">
-        <button type="button" onclick="changeTablePage('attendance', -1)" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">◀ ก่อนหน้า</button>
-        <button type="button" onclick="changeTablePage('attendance', 1)" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">ถัดไป ▶</button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center justify-between">
-        <div>
-            <p class="text-xs text-slate-500">
-                แสดงหน้า <span id="menu-attendance" class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">1</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                <button type="button" onclick="changeTablePage('attendance', -1)" class="relative inline-flex items-center rounded-l-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>◀ ก่อนหน้า</span>
-                </button>
-                <button type="button" onclick="changeTablePage('attendance', 1)" class="relative inline-flex items-center rounded-r-md border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50">
-                    <span>ถัดไป ▶</span>
-                </button>
-            </nav>
-        </div>
-    </div>
-</div>
-        </div>
-    </div>
-</section>
+                <section id="menu-attendance" class="tab-content hidden animate-fade-in space-y-5">
+                    
+                    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">📊 ระบบสถิติการมาเรียนของนักเรียนประจำวัน (ซิงค์ข้อมูล Cloud Firebase อัตโนมัติ)</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">ดึงฐานข้อมูลแบบเรียลไทม์จำแนกแยกรายระดับชั้น อนุบาล 1 ถึง ประถมศึกษาปีที่ 6</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="sync-att-date" onchange="fetchFirebaseAttendanceData(this.value)" class="p-2 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold">
+                            <button onclick="syncAttendanceWithFirebase()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5">🔄 ดึงข้อมูลล่าสุด</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-blue-500">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase">👥 นักเรียนทั้งหมด</p>
+                                <h3 class="text-2xl font-black text-slate-800 mt-1" id="att-dash-total">0 <span class="text-xs font-normal text-slate-400">คน</span></h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-2xs">👥</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-emerald-500">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase">🟢 มาเรียนวันนี้</p>
+                                <h3 class="text-2xl font-black text-emerald-600 mt-1" id="att-dash-present">0 <span class="text-xs font-normal text-slate-400">(0.00%)</span></h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-2xs">📅</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-rose-500">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase">🔴 ขาดเรียน</p>
+                                <h3 class="text-2xl font-black text-rose-600 mt-1" id="att-dash-absent">0 <span class="text-xs font-normal text-slate-400">คน</span></h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-lg shadow-2xs">👤</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-amber-500">
+                            <div class="grid grid-cols-2 gap-4 w-full">
+                                <div class="border-r border-slate-100 pr-2">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🟡 ลาเรียน</p>
+                                    <h4 class="text-lg font-black text-amber-500 mt-0.5" id="att-dash-leave">0 <span class="text-[10px] font-normal text-slate-400">คน</span></h4>
+                                </div>
+                                <div class="pl-1">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🔵 มาสาย</p>
+                                    <h4 class="text-lg font-black text-blue-500 mt-0.5" id="att-dash-late">0 <span class="text-[10px] font-normal text-slate-400">คน</span></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50/70 text-slate-400 font-bold uppercase text-xs tracking-wider border-b border-slate-100 text-center">
+                                        <th class="p-4 text-center">ระดับชั้น</th>
+                                        <th class="p-4 text-center">ชาย (ทั้งหมด)</th>
+                                        <th class="p-4 text-center">หญิง (ทั้งหมด)</th>
+                                        <th class="p-4 text-center bg-blue-500/5 text-blue-500 font-bold">นักเรียนชายมา</th>
+                                        <th class="p-4 text-center bg-pink-500/5 text-pink-500 font-bold">นักเรียนหญิงมา</th>
+                                        <th class="p-4 text-center bg-emerald-500/5 text-emerald-500 font-bold">รวมนักเรียนมาวันนี้</th>
+                                        <th class="p-4 text-center">ขาดเรียน</th>
+                                        <th class="p-4 text-center">ลาเรียน</th>
+                                        <th class="p-4 text-center">มาสาย</th>
+                                        <th class="p-4 text-right pr-6">ร้อยละการมาเรียน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table-body" class="text-sm divide-y divide-slate-100 text-center">
+                                    <tr><td colspan="10" class="py-6 text-slate-400 text-xs">📅 กรุณาเลือกวันที่หรือกดรีเฟรชเพื่อซิงค์ข้อมูลสถิติจากระบบ Firebase</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
                 <footer class="mt-8 text-center text-xs font-medium text-slate-400 pt-4 border-t border-slate-200/60">
                     @ Copyright ฮาริส สุหลง ติดต่อ 0924291775 
                 </footer>
-
             </main>
         </div>
     </div>
@@ -585,92 +556,76 @@
     </div>
 
     <div id="memo-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-            <h3 class="font-extrabold text-slate-900 text-sm" id="memo-modal-title">📝 ข้อมูลบันทึกข้อความ</h3>
-            <button onclick="closeMemoModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
-        </div>
-        <form id="memo-form" onsubmit="handleMemoSubmit(event)" class="p-5 space-y-3.5">
-            <input type="hidden" id="memo-id">
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขที่บันทึกข้อความ</label><input type="text" id="memo-no" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">ลงวันที่</label><input type="date" id="memo-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่อง / สาระสำคัญ</label><input type="text" id="memo-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">ฝ่ายงานเจ้าของเรื่อง</label><select id="memo-dept" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"><option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option></select></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">อัปโหลดไฟล์ (.pdf, รูปภาพ)</label><input type="file" id="memo-file" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs"></div>
-            <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeMemoModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">บันทึกข้อมูล</button></div>
-        </form>
-    </div>
-</div>
-
-<div id="gendoc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-            <h3 class="font-extrabold text-slate-900 text-sm" id="gendoc-modal-title">🗂️ แฟ้มจัดเก็บเอกสารทั่วไป</h3>
-            <button onclick="closeGenDocModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
-        </div>
-        <form id="gendoc-form" onsubmit="handleGenDocSubmit(event)" class="p-5 space-y-3.5">
-            <input type="hidden" id="gendoc-id">
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">ชื่อเอกสาร/รายละเอียดแฟ้มข้อมูล</label><input type="text" id="gendoc-name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่บันทึกจัดเก็บ</label><input type="date" id="gendoc-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">หมวดหมู่เอกสาร</label><input type="text" id="gendoc-category" placeholder="เช่น นโยบายสพฐ., แผนงานพัฒนาชุมชน" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">แนบไฟล์หลักฐานเอกสาร</label><input type="file" id="gendoc-file" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs"></div>
-            <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeGenDocModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">บันทึกส่งคลาวด์</button></div>
-        </form>
-    </div>
-</div>
-
-<div id="receipt-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-            <h3 class="font-extrabold text-slate-900 text-sm" id="receipt-modal-title">💰 หลักฐานเอกสารการเงินใบเสร็จ</h3>
-            <button onclick="closeReceiptModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
-        </div>
-        <form id="receipt-form" onsubmit="handleReceiptSubmit(event)" class="p-5 space-y-3.5">
-            <input type="hidden" id="receipt-id">
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขที่ใบเสร็จ / ใบสำคัญรับเงิน</label><input type="text" id="receipt-no" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่ทำจ่าย/ลงนาม</label><input type="date" id="receipt-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">จำนวนเงินรวม (บาท)</label><input type="number" step="0.01" id="receipt-amount" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">จ่ายให้แก่/ผู้รับเงิน/ร้านค้าคู่สัญญา</label><input type="text" id="receipt-payer" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
-            <div><label class="block font-bold text-slate-600 mb-1 text-xs">สแกนใบเสร็จอัปโหลด</label><input type="file" id="receipt-file" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs"></div>
-            <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeReceiptModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-amber-600 text-white rounded-xl text-xs font-bold">บันทึกคลังการเงิน</button></div>
-        </form>
-    </div>
-</div>
-
-<div id="attendance-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-            <h3 class="font-extrabold text-slate-900 text-sm" id="att-modal-title">📊 บันทึกแบบสรุปการสถิติตามรายชั้นเรียนประจำวัน</h3>
-            <button onclick="closeAttModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
-        </div>
-        <form id="attendance-form" onsubmit="handleAttSubmit(event)" class="p-5 space-y-3.5">
-            <input type="hidden" id="att-id">
-            <div class="grid grid-cols-2 gap-4">
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่ทำการเช็คชื่อ</label><input type="date" id="att-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none"></div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">ระดับชั้นเรียนที่เช็ค</label>
-                    <select id="att-class" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white">
-                        <option value="อ.1">อ.1 (อนุบาล 1)</option><option value="อ.2">อ.2 (อนุบาล 2)</option><option value="อ.3">อ.3 (อนุบาล 3)</option>
-                        <option value="ป.1">ป.1 (ประถมศึกษาปีที่ 1)</option><option value="ป.2">ป.2 (ประถมศึกษาปีที่ 2)</option><option value="ป.3">ป.3 (ประถมศึกษาปีที่ 3)</option>
-                        <option value="ป.4">ป.4 (ประถมศึกษาปีที่ 4)</option><option value="ป.5">ป.5 (ประถมศึกษาปีที่ 5)</option><option value="ป.6">ป.6 (ประถมศึกษาปีที่ 6)</option>
-                    </select>
-                </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-sm" id="memo-modal-title">📝 ข้อมูลบันทึกข้อความ</h3>
+                <button onclick="closeMemoModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
-            <div class="grid grid-cols-2 gap-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs text-blue-800">จำนวนนักเรียนชายทั้งหมด</label><input type="number" id="att-total-m" required class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"></div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs text-blue-800">มาเรียน (ชาย)</label><input type="number" id="att-pres-m" required class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4 p-3 bg-rose-50/50 rounded-xl border border-rose-100">
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs text-rose-800">จำนวนนักเรียนหญิงทั้งหมด</label><input type="number" id="att-total-f" required class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"></div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs text-rose-800">มาเรียน (หญิง)</label><input type="number" id="att-pres-f" required class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"></div>
-            </div>
-            <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeAttModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">บันทึกสถิติและคำนวณร้อยละ</button></div>
-        </form>
+            <form id="memo-form" onsubmit="handleMemoSubmit(event)" class="p-5 space-y-3.5">
+                <input type="hidden" id="memo-id">
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขที่บันทึกข้อความ</label><input type="text" id="memo-no" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">ลงวันที่</label><input type="date" id="memo-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่อง / สาระสำคัญ</label><input type="text" id="memo-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">ฝ่ายงานเจ้าของเรื่อง</label><select id="memo-dept" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"><option value="ฝ่ายบริหารงานทั่วไป">ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">ฝ่ายบริหารงานบุคคล</option></select></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">อัปโหลดไฟล์ (.pdf, รูปภาพ)</label><input type="file" id="memo-file" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs"></div>
+                <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeMemoModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">บันทึกข้อมูล</button></div>
+            </form>
+        </div>
     </div>
-</div>
+
+    <div id="gendoc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-sm" id="gendoc-modal-title">🗂️ แฟ้มจัดเก็บเอกสารทั่วไป</h3>
+                <button onclick="closeGenDocModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+            </div>
+            <form id="gendoc-form" onsubmit="handleGenDocSubmit(event)" class="p-5 space-y-3.5">
+                <input type="hidden" id="gendoc-id">
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">ชื่อเอกสาร/รายละเอียดแฟ้มข้อมูล</label><input type="text" id="gendoc-name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่บันทึกจัดเก็บ</label><input type="date" id="gendoc-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">หมวดหมู่เอกสาร</label><input type="text" id="gendoc-category" placeholder="เช่น นโยบายสพฐ., แผนงานพัฒนาชุมชน" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">แนบไฟล์หลักฐานเอกสาร</label><input type="file" id="gendoc-file" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs"></div>
+                <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeGenDocModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">บันทึกส่งคลาวด์</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 class="font-extrabold text-slate-900 text-sm" id="receipt-modal-title">💰 หลักฐานเอกสารการเงินใบเสร็จ</h3>
+                <button onclick="closeReceiptModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+            </div>
+            <form id="receipt-form" onsubmit="handleReceiptSubmit(event)" class="p-5 space-y-3.5">
+                <input type="hidden" id="receipt-id">
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขที่ใบเสร็จ / ใบสำคัญรับเงิน</label><input type="text" id="receipt-no" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่ทำจ่าย/ลงนาม</label><input type="date" id="receipt-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">จำนวนเงินรวม (บาท)</label><input type="number" step="0.01" id="receipt-amount" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">จ่ายให้แก่/ผู้รับเงิน/ร้านค้าคู่สัญญา</label><input type="text" id="receipt-payer" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500"></div>
+                <div><label class="block font-bold text-slate-600 mb-1 text-xs">สแกนใบเสร็จอัปโหลด</label><input type="file" id="receipt-file" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs"></div>
+                <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeReceiptModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-amber-600 text-white rounded-xl text-xs font-bold">บันทึกคลังการเงิน</button></div>
+            </form>
+        </div>
+    </div>
 
     <script>
-        // ⚠️ ลิงก์เว็บแอปคลาวด์ Google Apps Script ของคุณครู
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzPhHz2LWXjtZufSDNISYLBAID8R0hPwZq9_Lum_aAMm_c6PcNOjzKVKDQabNyAXU2/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCtgGVCOHQW8t28rBI5TVhxceRElv3P0USLAxVqPylJv4eCZhllayX5ydyXonAa-7r/exec"; 
+
+        // 🔗 คอนฟิกเชื่อมต่อ Firebase คลาวด์ E-Attendance
+        const firebaseConfig = {
+          apiKey: "AIzaSyBZRq6svRTueE7vm1Nq_1HTc9XoF7md5dA",
+          authDomain: "school-attendance-system-bb6fd.firebaseapp.com",
+          projectId: "school-attendance-system-bb6fd",
+          storageBucket: "school-attendance-system-bb6fd.firebasestorage.app",
+          messagingSenderId: "759416871053",
+          appId: "1:759416871053:web:b35232dbe27a952df12ac4",
+          measurementId: "G-W4QSQND8KJ"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const firebaseDb = firebase.firestore();
 
         let globalSarabanData = [];
         let globalOrdersData = [];
@@ -683,7 +638,14 @@
         let currentUser = null; 
         let calendarObj = null;
 
-        window.onload = function() { checkAuth(); };
+        window.onload = function() { 
+            // ตั้งค่าเริ่มต้นของช่องวันที่ในหน้าบ้านให้สอดคล้องกับปฏิทินของเครื่องผู้ใช้
+            const todayStr = new Date().toISOString().split('T')[0];
+            if(document.getElementById('sync-att-date')) {
+                document.getElementById('sync-att-date').value = todayStr;
+            }
+            checkAuth(); 
+        };
 
         function showLoading(text) {
             document.getElementById('loading-text').innerText = text;
@@ -692,7 +654,7 @@
         function hideLoading() { document.getElementById('loading-spinner').classList.add('hidden'); }
 
         function checkAuth() {
-            const saved = localStorage.getItem("smart_user_session");
+            const saved = sessionStorage.getItem("smart_user_session");
             if (saved) {
                 try {
                     currentUser = JSON.parse(saved);
@@ -702,7 +664,7 @@
                     fetchSystemData();
                     navigateTo('menu-dashboard');
                 } catch(e) {
-                    localStorage.removeItem("smart_user_session");
+                    sessionStorage.removeItem("smart_user_session");
                 }
             } else {
                 document.getElementById("main-app").classList.add("hidden");
@@ -726,48 +688,36 @@
                 
                 if (res.status === "success") {
                     currentUser = res.user;
-                    localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
+                    sessionStorage.setItem("smart_user_session", JSON.stringify(currentUser));
                     errorDiv.classList.add("hidden");
                     document.getElementById("username").value = "";
                     document.getElementById("password").value = "";
                     checkAuth();
-                    hideLoading();
-                    return;
+                } else {
+                    errorDiv.classList.remove("hidden");
                 }
-            } catch (err) { console.log("Bypass checking.", err); }
-
-            if(userInp === "admin" && passInp === "1234") {
-                currentUser = { displayName: "คุณครูผู้ดูแลระบบ", role: "แอดมิน", department: "ฝ่ายบริหารงานทั่วไป" };
-                localStorage.setItem("smart_user_session", JSON.stringify(currentUser));
-                errorDiv.classList.add("hidden");
-                checkAuth();
-            } else {
-                errorDiv.classList.remove("hidden");
+            } catch (err) { 
+                if(userInp === "admin" && passInp === "1234") {
+                    currentUser = { displayName: "คุณครูผู้ดูแลระบบ", role: "แอดมิน", department: "ฝ่ายบริหารงานทั่วไป" };
+                    sessionStorage.setItem("smart_user_session", JSON.stringify(currentUser));
+                    errorDiv.classList.add("hidden");
+                    checkAuth();
+                } else {
+                    errorDiv.classList.remove("hidden");
+                }
+            } finally {
+                hideLoading();
             }
-            hideLoading();
         }
 
-       // 📄 ปรับฟังก์ชันเดิมในเครื่องให้มีคำว่า (isAuto) ด้านหลัง เพื่อเช็กการทำงานอัตโนมัติ
-function handleLogout(isAuto = false) {
-    
-    // ถ้าไม่ใช่การล็อกเอาท์อัตโนมัติ (คุณครูกดปุ่มเองด้วยมือ) ให้ขึ้นถามตามปกติ
-    if (!isAuto) {
-        const confirmLogout = confirm("คุณต้องการออกจากระบบใช่หรือไม่?");
-        if (!confirmLogout) return; // ถ้ากด "ยกเลิก" ให้หยุดทำงาน ไม่ต้องออก
-    }
+        function handleLogout() {
+            const confirmLogout = confirm("คุณต้องการออกจากระบบใช่หรือไม่?");
+            if (!confirmLogout) return;
+            sessionStorage.removeItem("smart_user_session");
+            currentUser = null;
+            checkAuth();
+        }
 
-    // ----------------------------------------------------
-    // บรรทัดด้านล่างนี้ ให้ใช้โค้ดล็อกเอาท์เดิมทั้งหมดของคุณครู 
-    // (เช่น การซ่อนหน้าจอ เคลียร์ค่าตัวแปรสิทธิ์ บังคับเด้งไปหน้าล็อกอิน)
-    // ----------------------------------------------------
-    sessionStorage.clear(); 
-    if (typeof currentUser !== 'undefined') currentUser = null;
-    
-    // ตัวอย่างโค้ดสลับหน้าจอเดิมของคุณครู (ให้คงไว้ตามระบบเดิมในเครื่อง)
-    document.getElementById("main-dashboard").classList.add("hidden");
-    document.getElementById("login-page").classList.remove("hidden");
-    // ----------------------------------------------------
-}
         function initLiveHeader() {
             const clockEl = document.getElementById("clock-display");
             const badgeEl = document.getElementById("user-role-badge");
@@ -779,33 +729,150 @@ function handleLogout(isAuto = false) {
             }, 1000);
         }
 
+        // ===================================================================================
+        // 📡 ฟังก์ชันโหลดฐานข้อมูลระบบหลัก (วิธีแก้ที่ 2: ปลดการดักสิทธิ์ล็อกอินหน้าบ้าน)
+        // ===================================================================================
         async function fetchSystemData() {
-    showLoading("กำลังโหลดฐานข้อมูลรวมทุกกลุ่มงานโรงเรียนบ้านกาหยี...");
-    try {
-        const res = await fetch(GOOGLE_SCRIPT_URL);
-        const out = await res.json();
-        if(out.status === "success") {
-            globalSarabanData = out.sarabanData || [];
-            globalOrdersData = out.ordersData || [];
-            globalMemosData = out.memosData || [];
-            globalGenDocsData = out.genDocsData || [];
-            globalReceiptsData = out.receiptsData || [];
-            globalAttendanceData = out.attendanceData || [];
+            showLoading("กำลังโหลดฐานข้อมูลรวมทุกกลุ่มงานโรงเรียนบ้านกาหยี...");
+            try {
+                // เรียกซิงค์ข้อมูลสถิติจาก Firebase ทันที (ไม่ต้องล็อกอินเบื้องหลังแล้ว)
+                const currentToday = document.getElementById('sync-att-date').value || new Date().toISOString().split('T')[0];
+                fetchFirebaseAttendanceData(currentToday);
 
-            calculateDashboardCounters();
-            renderSarabanTable();
-            renderWorkflowTable();
-            renderOrdersTable();
-            initCalendar();
-            
-            // เรียกคอมโพเนนต์ Render ของเดิมและของใหม่ทั้งหมด
-            if(typeof renderSarabanTable === "function") renderSarabanTable();
-            if(typeof renderOrdersTable === "function") renderOrdersTable();
-            renderNewMenusTables();
+                // ดึงข้อมูลจาก Google Sheets หลักของระบบสารบรรณตามปกติ
+                const res = await fetch(GOOGLE_SCRIPT_URL);
+                const out = await res.json();
+                if(out.status === "success") {
+                    globalSarabanData = out.sarabanData || [];
+                    globalOrdersData = out.ordersData || [];
+                    globalMemosData = out.memosData || [];
+                    globalGenDocsData = out.genDocsData || [];
+                    globalReceiptsData = out.receiptsData || [];
+                    globalAttendanceData = out.attendanceData || [];
+
+                    calculateDashboardCounters();
+                    renderSarabanTable();
+                    renderWorkflowTable();
+                    renderOrdersTable();
+                    initCalendar();
+                    renderNewMenusTables();
+                }
+            } catch(e) { alert("ระบบเครือข่ายเชื่อมฐานข้อมูลหลักขัดข้อง"); }
+            hideLoading();
         }
-    } catch(e) { alert("ระบบเครือข่ายเชื่อมฐานข้อมูลหลักขัดข้อง"); }
-    hideLoading();
-}
+
+        // ===================================================================================
+        // 📡 ฟังก์ชันสำหรับซิงค์ข้อมูลสถิติมาเรียนตรงจากคลาวด์ Firebase + อัปเดตแดชบอร์ดสรุปยอดรวม
+        // ===================================================================================
+        function fetchFirebaseAttendanceData(targetDate) {
+            showLoading("กำลังสร้างท่อเชื่อมสัญญาณข้อมูลแบบเรียลไทม์กับ Firebase คลาวด์...");
+            
+            firebaseDb.collection("attendance").doc(targetDate).get()
+                .then((doc) => {
+                    const tbody = document.getElementById('attendance-table-body');
+                    if (!tbody) return;
+                    tbody.innerHTML = '';
+
+                    // กำหนดตัวแปรสำหรับเก็บค่าตัวเลขรวมสำหรับแสดงบนแดชบอร์ดสรุปผลประจำวัน
+                    let gTotal = 0, gPresent = 0, gAbsent = 0, gLeave = 0, gLate = 0;
+
+                    if (doc.exists) {
+                        const fbData = doc.data();
+                        const classes = fbData.classes || {};
+                        
+                        let hasData = false;
+                        const classOrder = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
+                        
+                        classOrder.forEach(className => {
+                            if (classes[className]) {
+                                hasData = true;
+                                const c = classes[className];
+                                
+                                const tMale = c.male || 0;
+                                const pMale = (c.malePresent !== undefined && c.malePresent !== "") ? c.malePresent : "ว่าง";
+                                const tFemale = c.female || 0;
+                                const pFemale = (c.femalePresent !== undefined && c.femalePresent !== "") ? c.femalePresent : "ว่าง";
+                                
+                                const present = c.present !== undefined ? c.present : 0;
+                                const absent = c.absent !== undefined ? c.absent : 0;
+                                const leave = c.leave !== undefined ? c.leave : 0;
+                                const late = c.late !== undefined ? c.late : 0;
+                                
+                                // สมทบยอดรวมเข้าสู่ตัวแปรแดชบอร์ดภาพรวมโรงเรียน
+                                gTotal += (tMale + tFemale);
+                                gPresent += present;
+                                gAbsent += absent;
+                                gLeave += leave;
+                                gLate += late;
+
+                                const totalStudents = tMale + tFemale;
+                                const classPercent = totalStudents > 0 ? ((present / totalStudents) * 100).toFixed(2) : "0.00";
+
+                                tbody.innerHTML += `
+                                    <tr class="hover:bg-slate-50/50 transition-colors text-center font-medium">
+                                        <td class="p-4 font-bold text-left text-slate-700">${className}</td>
+                                        <td class="p-4 text-slate-500">${tMale}</td>
+                                        <td class="p-4 text-slate-500">${tFemale}</td>
+                                        <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">${pMale}</span></td>
+                                        <td class="p-4"><span class="px-3 py-1 bg-pink-500/10 text-pink-500 border border-pink-500/30 rounded font-bold">${pFemale}</span></td>
+                                        <td class="p-4"><span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 rounded font-bold">${present}</span></td>
+                                        <td class="p-4"><span class="px-3 py-1 bg-rose-500/10 text-rose-500 border border-rose-500/30 rounded font-bold">${absent}</span></td>
+                                        <td class="p-4"><span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded font-bold">${leave}</span></td>
+                                        <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">${late}</span></td>
+                                        <td class="p-4 text-right pr-6 font-black text-emerald-500 text-sm">${classPercent}%</td>
+                                    </tr>
+                                `;
+                            }
+                        });
+                        
+                        if(hasData) {
+                            // อัปเดตตัวเลขแดชบอร์ดภาพรวมเมื่อคำนวณฐานข้อมูล Live สำเร็จ
+                            const gPercentage = gTotal > 0 ? ((gPresent / gTotal) * 100).toFixed(2) : "0.00";
+                            document.getElementById('att-dash-total').innerHTML = `${gTotal} <span class="text-xs font-normal text-slate-400">คน</span>`;
+                            document.getElementById('att-dash-present').innerHTML = `${gPresent} <span class="text-xs font-semibold text-emerald-500">(${gPercentage}%)</span>`;
+                            document.getElementById('att-dash-absent').innerHTML = `${gAbsent} <span class="text-xs font-normal text-slate-400">คน</span>`;
+                            document.getElementById('att-dash-leave').innerHTML = `${gLeave} <span class="text-[10px] font-normal text-slate-400">คน</span>`;
+                            document.getElementById('att-dash-late').innerHTML = `${gLate} <span class="text-[10px] font-normal text-slate-400">คน</span>`;
+                        } else {
+                            renderFallbackAttendanceTable(targetDate);
+                        }
+                    } else {
+                        renderFallbackAttendanceTable(targetDate);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Firebase Sync Error: ", error);
+                    renderFallbackAttendanceTable(targetDate);
+                })
+                .finally(() => { if(typeof hideLoading === 'function') hideLoading(); });
+        }
+
+        // ฟังก์ชันวาดตารางสำรองกรณีดึงไฟล์ผ่าน Google Sheets หลัก (แก้ไข colspan เป็น 10 ช่องสมบูรณ์)
+        function renderFallbackAttendanceTable(targetDate) {
+            const tbody = document.getElementById('attendance-table-body');
+            if (!tbody) return;
+            const localFilter = globalAttendanceData.filter(d => d.date === targetDate);
+            
+            if(localFilter.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-slate-400 text-xs">📭 ไม่พบสถิติการเช็คชื่อในระบบคลาวด์ Firebase และชีตหลักของวันที่ ${formatThaiDate(targetDate)}</td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = localFilter.map(item => `
+                <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
+                    <td class="p-4 font-bold text-left text-slate-800">${item.classLevel}</td>
+                    <td class="p-4 text-slate-500">${item.totalMale}</td>
+                    <td class="p-4 text-slate-500">${item.totalFemale}</td>
+                    <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">${item.presentMale}</span></td>
+                    <td class="p-4"><span class="px-3 py-1 bg-pink-500/10 text-pink-500 border border-pink-500/30 rounded font-bold">${item.presentFemale}</span></td>
+                    <td class="p-4"><span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 rounded font-bold">${Number(item.presentMale) + Number(item.presentFemale)}</span></td>
+                    <td class="p-4"><span class="px-3 py-1 bg-rose-500/10 text-rose-500 border border-rose-500/30 rounded font-bold">0</span></td>
+                    <td class="p-4"><span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded font-bold">0</span></td>
+                    <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">0</span></td>
+                    <td class="p-4 text-right pr-6 font-black text-blue-600">${item.percentage}%</td>
+                </tr>
+            `).join('');
+        }
 
         function navigateTo(targetTabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -907,31 +974,22 @@ function handleLogout(isAuto = false) {
             });
         }
 
-       function openSarabanModal() {
+        function openSarabanModal() {
             sarabanEditIndex = null; document.getElementById("saraban-form").reset();
             document.getElementById("form-file-status").classList.add("hidden");
             const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
             const subList = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
             
             let nextNum = 1;
-            
             if(subList.length > 0) {
-                // 1. ดึงตัวเลขรันของทุกรายการในระบบออกมาเก็บเป็น Array
                 const allNumbers = subList.map(d => {
                     const match = d.internalId.match(new RegExp(`${prefix}\\s+(\\d+)`));
                     return match ? parseInt(match[1]) : 0;
                 });
-                
-                // 2. หาตัวเลขที่มากที่สุดที่เคยบันทึกไว้
                 const maxNum = Math.max(...allNumbers);
-                
-                // 3. เอาเลขที่มากที่สุดมาบวก 1 เป็นเลขถัดไป
-                if (maxNum > 0) {
-                    nextNum = maxNum + 1;
-                }
+                if (maxNum > 0) nextNum = maxNum + 1;
             }
             
-            // นำเลขไปใส่ในฟอร์ม
             document.getElementById("form-internal-id").value = `${prefix} ${nextNum}/2569`;
             document.getElementById("saraban-modal").classList.remove("hidden");
         }
@@ -958,63 +1016,53 @@ function handleLogout(isAuto = false) {
         }
         function closeSarabanModal() { document.getElementById("saraban-modal").classList.add("hidden"); }
 
-       async function handleSarabanSubmit(event) {
-    event.preventDefault();
+        async function handleSarabanSubmit(event) {
+            event.preventDefault();
+            const currentTitle = document.getElementById("form-title").value;
 
-    // 1. ดึงชื่อเรื่องราชการมาตรวจสอบก่อน
-    const currentTitle = document.getElementById("form-title").value;
+            if (sarabanEditIndex === null) { 
+                if (isDuplicateData("saraban-table-body", 4, currentTitle)) {
+                    alert(`⚠️ เรื่อง "${currentTitle}" นี้เคยลงทะเบียนไว้ในระบบสารบรรณแล้วครับ`);
+                    return;
+                }
+            }
 
-    // 2. 🚨 ดักจับข้อมูลซ้ำ (เตือนเฉพาะตอน "เพิ่มข้อมูลใหม่" เท่านั้น ถ้าเป็นการ "แก้ไขข้อมูล" จะปล่อยผ่าน)
-    if (sarabanEditIndex === null) { 
-        // "saraban-table-body" คือ ID ของตารางหนังสือรับ-ส่งที่คุณครูใช้
-        // เลข 4 คือ คอลัมน์ที่ 5 (ช่องชื่อเรื่อง) นับเริ่มจาก 0 จากซ้ายไปขวา
-        if (isDuplicateData("saraban-table-body", 4, currentTitle)) {
-            alert(`⚠️ แจ้งเตือนกันลืมครับคุณครู:\nเรื่อง "${currentTitle}" นี้เคยลงทะเบียนไว้ในระบบสารบรรณแล้วครับ ลองเช็คในตารางอีกครั้งนะครับ`);
-            return; // ⛔ เบรกมือ! สั่งหยุดทำงานทันที ไม่สตรีมไฟล์ ไม่ส่งขึ้นคลาวด์
+            showLoading("กำลังทำการสตรีมมิ่งไฟล์แนบลงคลาวด์ไดรฟ์แยกส่วนฝ่ายงาน...");
+            const fileInput = document.getElementById("form-file");
+            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+
+            if(fileInput.files.length > 0) {
+                const file = fileInput.files[0]; 
+                const base64 = await convertFileToBase64(file);
+                fileDataJson.fileData = base64; 
+                fileDataJson.fileName = file.name; 
+                fileDataJson.mimeType = file.type;
+            }
+
+            const docObj = {
+                action: sarabanEditIndex !== null ? "update" : "insert",
+                internalId: document.getElementById("form-internal-id").value,
+                docId: document.getElementById("form-doc-id").value,
+                date: document.getElementById("form-date").value,
+                department: document.getElementById("form-department").value,
+                source: document.getElementById("form-source").value,
+                destination: document.getElementById("form-destination").value,
+                title: currentTitle,
+                priority: document.getElementById("form-priority").value,
+                deadline: document.getElementById("form-deadline").value,
+                status: document.getElementById("form-status").value,
+                fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
+                ...fileDataJson
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(docObj) });
+                if((await response.json()).status === "success") { 
+                    closeSarabanModal(); 
+                    await fetchSystemData(); 
+                }
+            } catch(e) { alert("Error: " + e.toString()); } finally { hideLoading(); }
         }
-    }
-
-    // --- (ด้านล่างนี้คือโค้ดสตรีมมิ่งและส่งข้อมูลขึ้นคลาวด์ตัวเดิมของคุณครู ทำงานตามปกติ) ---
-    showLoading("กำลังทำการสตรีมมิ่งไฟล์แนบลงคลาวด์ไดรฟ์แยกส่วนฝ่ายงาน...");
-    const fileInput = document.getElementById("form-file");
-    let fileDataJson = { fileData: null, fileName: null, mimeType: null };
-
-    if(fileInput.files.length > 0) {
-        const file = fileInput.files[0]; 
-        const base64 = await convertFileToBase64(file);
-        fileDataJson.fileData = base64; 
-        fileDataJson.fileName = file.name; 
-        fileDataJson.mimeType = file.type;
-    }
-
-    const docObj = {
-        action: sarabanEditIndex !== null ? "update" : "insert",
-        internalId: document.getElementById("form-internal-id").value,
-        docId: document.getElementById("form-doc-id").value,
-        date: document.getElementById("form-date").value,
-        department: document.getElementById("form-department").value,
-        source: document.getElementById("form-source").value,
-        destination: document.getElementById("form-destination").value,
-        title: currentTitle, // ดึงค่าจากตัวแปรด้านบนมาใช้ได้เลย
-        priority: document.getElementById("form-priority").value,
-        deadline: document.getElementById("form-deadline").value,
-        status: document.getElementById("form-status").value,
-        fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
-        ...fileDataJson
-    };
-
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(docObj) });
-        if((await response.json()).status === "success") { 
-            closeSarabanModal(); 
-            await fetchSystemData(); 
-        }
-    } catch(e) { 
-        alert("Error: " + e.toString()); 
-    } finally { 
-        hideLoading(); 
-    }
-}
 
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
@@ -1044,16 +1092,9 @@ function handleLogout(isAuto = false) {
                     : `<span class="text-slate-400 font-bold text-xs">ไม่มีสิทธิ์บันทึกข้อสั่งการ</span>`;
                 
                 const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
-                const statusBtnHtml = isMyDept
-                    ? `<button onclick="toggleWorkflowStatus(${idx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">🔄 สลับสถานะ</button>`
-                    : ``;
-
+                const statusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${idx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">🔄 สลับสถานะ</button>` : ``;
                 const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
-                
-                // ปุ่มดูไฟล์แนบในหน้าระบบเสนอเกษียณเปิดไฟล์ผ่าน Cloud ทันทีตามข้อ 2
-                const fileLinkHtml = doc.fileUrl && doc.fileUrl.startsWith("http") 
-                    ? `<a href="${doc.fileUrl}" target="_blank" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs inline-flex items-center gap-1 border border-indigo-200 transition-colors">📄 เปิดไฟล์แนบ</a>` 
-                    : `<span class="text-slate-300 italic text-xs">ไม่มีไฟล์แนบ</span>`;
+                const fileLinkHtml = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs inline-flex items-center gap-1 border border-indigo-200 transition-colors">📄 เปิดไฟล์แนบ</a>` : `<span class="text-slate-300 italic text-xs">ไม่มีไฟล์แนบ</span>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
@@ -1128,65 +1169,53 @@ function handleLogout(isAuto = false) {
         }
         function closeOrderModal() { document.getElementById("order-modal").classList.add("hidden"); }
 
-     async function handleOrderSubmit(event) {
-    event.preventDefault();
+        async function handleOrderSubmit(event) {
+            event.preventDefault();
+            const currentOrderTitle = document.getElementById("order-form-title").value;
+            const orderUniqueId = document.getElementById("order-unique-id").value;
 
-    const currentOrderTitle = document.getElementById("order-form-title").value;
-    const orderUniqueId = document.getElementById("order-unique-id").value;
+            if (!orderUniqueId) {
+                if (isDuplicateData("orders-table-body", 2, currentOrderTitle)) {
+                    alert(`⚠️ คำสั่งโรงเรียนเรื่อง "${currentOrderTitle}" นี้มีอยู่ในระบบคุมเลขแล้วครับ`);
+                    return;
+                }
+            }
 
-    // ดักจับข้อมูลซ้ำเฉพาะตอนเพิ่มใหม่
-    if (!orderUniqueId) {
-        if (isDuplicateData("orders-table-body", 2, currentOrderTitle)) {
-            alert(`⚠️ แจ้งเตือนข้อมูลซ้ำครับคุณครู:\nคำสั่งโรงเรียนเรื่อง "${currentOrderTitle}" นี้มีอยู่ในระบบตารางคุมเลขแล้วครับ ลองตรวจสอบดูอีกครั้งนะครับ`);
-            return;
+            showLoading("กำลังประมวลผลระบบคำสั่งสารบรรณโรงเรียนบ้านกาหยีและอัพโหลดเอกสารตราครุฑ...");
+            const fileInput = document.getElementById("order-form-file");
+            let fileDataJson = { fileData: null, fileName: null, mimeType: null };
+
+            if(fileInput.files.length > 0) {
+                const file = fileInput.files[0]; 
+                const base64 = await convertFileToBase64(file);
+                fileDataJson.fileData = base64; 
+                fileDataJson.fileName = file.name; 
+                fileDataJson.mimeType = file.type;
+            }
+
+            const id = orderUniqueId || 'ORD-' + Date.now();
+            const action = orderUniqueId ? "updateOrder" : "insertOrder";
+
+            const ordObj = {
+                action: action, id: id,
+                orderId: document.getElementById("order-form-id").value,
+                year: document.getElementById("order-form-year").value,
+                title: currentOrderTitle,
+                signDate: document.getElementById("order-form-date").value,
+                department: document.getElementById("order-form-department").value,
+                status: "เปิดเผย", ...fileDataJson
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
+                if((await response.json()).status === "success") { 
+                    closeOrderModal(); 
+                    await fetchSystemData(); 
+                }
+            } catch(e){ alert(e.toString()); } finally { hideLoading(); }
         }
-    }
-
-    showLoading("กำลังประมวลผลระบบคำสั่งสารบรรณโรงเรียนบ้านกาหยีและอัพโหลดเอกสารตราครุฑ...");
-    const fileInput = document.getElementById("order-form-file");
-    let fileDataJson = { fileData: null, fileName: null, mimeType: null };
-
-    if(fileInput.files.length > 0) {
-        const file = fileInput.files[0]; 
-        const base64 = await convertFileToBase64(file);
-        fileDataJson.fileData = base64; 
-        fileDataJson.fileName = file.name; 
-        fileDataJson.mimeType = file.type;
-    }
-
-    const id = orderUniqueId || 'ORD-' + Date.now();
-    const action = orderUniqueId ? "updateOrder" : "insertOrder";
-
-    const ordObj = {
-        action: action,
-        id: id,
-        orderId: document.getElementById("order-form-id").value,
-        year: document.getElementById("order-form-year").value,
-        title: currentOrderTitle,
-        signDate: document.getElementById("order-form-date").value,
-        department: document.getElementById("order-form-department").value,
-        status: "เปิดเผย", 
-        ...fileDataJson
-    };
-
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
-        const resJson = await response.json();
-        if(resJson.status === "success") { 
-            closeOrderModal(); 
-            await fetchSystemData(); 
-        } else {
-            alert("เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: " + resJson.message);
-        }
-    } catch(e){ 
-        alert(e.toString()); 
-    } finally { 
-        hideLoading(); 
-    }
-}
 
         function editOrder(id) {
-            // หาข้อมูลจาก orderId หรือ id
             const item = globalOrdersData.find(el => (el.id === id || el.orderId === id));
             if(!item) return;
             document.getElementById("order-form").reset();
@@ -1200,7 +1229,7 @@ function handleLogout(isAuto = false) {
             document.getElementById("order-modal").classList.remove("hidden");
         }
 
-       function initCalendar() {
+        function initCalendar() {
             const calendarEl = document.getElementById('calendar-container'); if(!calendarEl) return;
             const eventsList = [];
             globalSarabanData.forEach(doc => {
@@ -1211,17 +1240,11 @@ function handleLogout(isAuto = false) {
                     else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
 
                     const isDone = (doc.status === 'สำเร็จแล้ว' || doc.status === 'ดำเนินการ');
-                    
-                    // 📌 1. ปรับแต่งให้เครื่องหมายถูกอยู่ภายในแท็ก span ที่ขยายขนาดใหญ่ขึ้น (text-base หรือใส่สไตล์ดักไว้)
-                    // ใส่ inline-block และ mr-1 เพื่อให้เว้นระยะห่างจากตัวอักษรอย่างสวยงาม
                     const statusIcon = isDone ? '<span style="font-size: 16px; inline-block; margin-right: 3px;">☑️</span>' : '';
 
                     eventsList.push({
                         title: `${statusIcon}${doc.internalId}: ${doc.title}`, 
-                        start: doc.deadline,
-                        backgroundColor: evColor, 
-                        borderColor: evColor, 
-                        extendedProps: { docData: doc }
+                        start: doc.deadline, backgroundColor: evColor, borderColor: evColor, extendedProps: { docData: doc }
                     });
                 }
             });
@@ -1231,545 +1254,281 @@ function handleLogout(isAuto = false) {
                 initialView: 'dayGridMonth', locale: 'th',
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
                 events: eventsList,
-                
-                // 📌 2. เพิ่มคำสั่งนี้เข้ามาเพื่อให้ FullCalendar ยอมรับและแสดงผลแท็ก HTML ของเครื่องหมายถูกตัวใหญ่ที่เราตั้งค่าไว้
                 eventContent: function(arg) {
                     let italicEl = document.createElement('div');
                     italicEl.className = 'fc-event-title';
                     italicEl.innerHTML = arg.event.title;
-                    let arrayOfDomNodes = [ italicEl ];
-                    return { domNodes: arrayOfDomNodes };
+                    return { domNodes: [ italicEl ] };
                 },
-
                 eventClick: function(info) {
                     const d = info.event.extendedProps.docData;
-                    const currentStatus = d.status || 'รอดำเนินการ';
-                    alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nสถานะ: ${currentStatus}\nกำหนดส่ง: ${d.deadline}`);
+                    alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nกำหนดส่ง: ${formatThaiDateFull(d.deadline)}`);
                 }
             });
             calendarObj.render();
         }
-        function checkAuth() {
-            // เปลี่ยนจาก localStorage เป็น sessionStorage
-            const saved = sessionStorage.getItem("smart_user_session");
-            if (saved) {
-                try {
-                    currentUser = JSON.parse(saved);
-                    document.getElementById("login-screen").classList.add("hidden");
-                    document.getElementById("main-app").classList.remove("hidden");
-                    initLiveHeader();
-                    fetchSystemData();
-                    navigateTo('menu-dashboard');
-                } catch(e) {
-                    sessionStorage.removeItem("smart_user_session");
-                }
-            } else {
-                document.getElementById("main-app").classList.add("hidden");
-                document.getElementById("login-screen").classList.remove("hidden");
-            }
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            showLoading("กำลังตรวจสอบสิทธิ์และดึงข้อมูลโครงสร้างโรงเรียนบ้านกาหยี...");
-            const userInp = document.getElementById("username").value.trim().toLowerCase();
-            const passInp = document.getElementById("password").value.trim();
-            const errorDiv = document.getElementById("login-error");
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "login", username: userInp, password: passInp })
-                });
-                const res = await response.json();
-                
-                if (res.status === "success") {
-                    currentUser = res.user;
-                    // เปลี่ยนจาก localStorage เป็น sessionStorage
-                    sessionStorage.setItem("smart_user_session", JSON.stringify(currentUser));
-                    errorDiv.classList.add("hidden");
-                    checkAuth();
-                } else {
-                    errorDiv.classList.remove("hidden");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("การเชื่อมต่อเซิร์ฟเวอร์คลาวด์ขัดข้อง โปรดเช็คสิทธิ์หรือใช้ระบบด่วนฉุกเฉิน");
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function bypassLoginSystem() {
-            currentUser = { username: "emergency_admin", role: "ผู้ดูแลระบบ (Admin)", name: "ผู้บริหารสถานศึกษาด่วน" };
-            // เปลี่ยนจาก localStorage เป็น sessionStorage
-            sessionStorage.setItem("smart_user_session", JSON.stringify(currentUser));
-            checkAuth();
-        }
-
-        function handleLogout() {
-            // เปลี่ยนจาก localStorage เป็น sessionStorage
-            sessionStorage.removeItem("smart_user_session");
-            currentUser = null;
-            checkAuth();
-        }
 
         function formatThaiDate(dateString) {
-    if (!dateString || dateString === "") return "-";
-    
-    // แยกปี เดือน วัน ออกมาจากรูปแบบ YYYY-MM-DD
-    const parts = dateString.split('-');
-    if (parts.length !== 3) return dateString; // ป้องกันข้อผิดพลาดหากไม่ใช่รูปแบบปกติ
-    
-    const yearCE = parseInt(parts[0]);
-    const monthIndex = parseInt(parts[1]) - 1;
-    const day = parseInt(parts[2]);
-    
-    // อาร์เรย์ชื่อเดือนย่อไทย
-    const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-    
-    // แปลงปี ค.ศ. เป็น พ.ศ. สองหลักท้าย (เช่น 2026 + 543 = 2569 -> ดึงแค่ "69")
-    const yearBE = yearCE + 543;
-    const shortYearBE = yearBE.toString().slice(-2);
-    
-    // ประกอบเป็นรูปแบบ: วัน เดือนย่อ ปีสองหลัก (เช่น 15 ม.ค. 69)
-    return `${day} ${thaiMonths[monthIndex]} ${shortYearBE}`;
-}
-    function formatThaiDateShort(dateString) {
-    if (!dateString || dateString.trim() === "") return "-";
-    
-    // มาตรฐานอินพุต html date จะส่งค่ามาเป็น YYYY-MM-DD (เช่น 2026-01-15)
-    const parts = dateString.split('-');
-    if (parts.length !== 3) return dateString; // ป้องกันกรณีข้อมูลผิดพลาด
-    
-    const yearCE = parseInt(parts[0]);
-    const monthIndex = parseInt(parts[1]) - 1;
-    const day = parseInt(parts[2]);
-    
-    // อาร์เรย์ชื่อเดือนย่อไทย
-    const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-    
-    // แปลงปี ค.ศ. เป็น พ.ศ. สองหลักท้าย (เช่น ค.ศ. 2026 + 543 = พ.ศ. 2569 -> ตัดเหลือแค่ "69")
-    const yearBE = yearCE + 543;
-    const shortYearBE = yearBE.toString().slice(-2);
-    
-    // ส่งค่ากลับเป็นรูปแบบ: วัน เดือนย่อ ปีสองหลักท้าย
-    return `${day} ${thaiMonths[monthIndex]} ${shortYearBE}`;
-}
-    // 📌 1. เพิ่มฟังก์ชันแปลงวันที่ภาษาอังกฤษ (YYYY-MM-DD) ให้เป็น ภาษาไทยตัวเต็ม
-function formatThaiDateFull(dateString) {
-    if (!dateString || dateString.trim() === "") return "ไม่ระบุ";
-    
-    const parts = dateString.split('-');
-    if (parts.length !== 3) return dateString;
-    
-    const yearCE = parseInt(parts[0]);
-    const monthIndex = parseInt(parts[1]) - 1;
-    const day = parseInt(parts[2]);
-    
-    // อาร์เรย์ชื่อเดือนเต็มภาษาไทย
-    const thaiMonthsFull = [
-        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", 
-        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-    ];
-    
-    // แปลงปี ค.ศ. เป็น พ.ศ. (บวก 543)
-    const yearBE = yearCE + 543;
-    
-    // ส่งค่ากลับเป็นรูปแบบเต็ม เช่น 15 มกราคม 2569
-    return `${day} ${thaiMonthsFull[monthIndex]} ${yearBE}`;
-}
-
-// 📌 2. ปรับปรุงฟังก์ชันปฏิทินเดิมของคุณครู
-function initCalendar() {
-    const calendarEl = document.getElementById('calendar-container'); if(!calendarEl) return;
-    const eventsList = [];
-    globalSarabanData.forEach(doc => {
-        if(doc.deadline && doc.deadline !== "") {
-            let evColor = "#10b981"; 
-            if(doc.priority.includes("ที่สุด")) evColor = "#ef4444"; 
-            else if(doc.priority.includes("มาก")) evColor = "#f97316"; 
-            else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
-
-            const isDone = (doc.status === 'สำเร็จแล้ว' || doc.status === 'ดำเนินการ');
-            const statusIcon = isDone ? '<span style="font-size: 20px; inline-block; margin-right: 3px;">☑️</span>' : '';
-
-            eventsList.push({
-                title: `${statusIcon}${doc.internalId}: ${doc.title}`, start: doc.deadline,
-                backgroundColor: evColor, borderColor: evColor, extendedProps: { docData: doc }
-            });
+            if (!dateString || dateString === "") return "-";
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return dateString;
+            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            return `${parseInt(parts[2])} ${thaiMonths[parseInt(parts[1]) - 1]} ${(parseInt(parts[0]) + 543).toString().slice(-2)}`;
         }
-    });
-
-    if(calendarObj) calendarObj.destroy();
-    calendarObj = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth', locale: 'th',
-        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
-        events: eventsList,
         
-        eventContent: function(arg) {
-            let italicEl = document.createElement('div');
-            italicEl.className = 'fc-event-title';
-            italicEl.innerHTML = arg.event.title;
-            let arrayOfDomNodes = [ italicEl ];
-            return { domNodes: arrayOfDomNodes };
-        },
-
-        // 📌 จุดแก้ไขสำคัญ: เมื่อคลิกที่กิจกรรมบนปฏิทิน ให้แปลงวันที่ผ่านฟังก์ชันตัวเต็ม
-        eventClick: function(info) {
-            const d = info.event.extendedProps.docData;
-            
-            // เรียกใช้ฟังก์ชันแปลงวันที่แบบไทยตัวเต็มตรงนี้
-            const thaiDeadline = formatThaiDateFull(d.deadline);
-            
-            // แสดงผลกล่อง Alert เป็นภาษาไทยสวยงาม
-            alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nกำหนดส่ง: ${thaiDeadline}`);
+        function formatThaiDateShort(dateString) { return formatThaiDate(dateString); }
+        
+        function formatThaiDateFull(dateString) {
+            if (!dateString || dateString.trim() === "") return "ไม่ระบุ";
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return dateString;
+            const thaiMonthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            return `${parseInt(parts[2])} ${thaiMonthsFull[parseInt(parts[1]) - 1]} ${parseInt(parts[0]) + 543}`;
         }
-    });
-    calendarObj.render();
-}
       
         function renderNewMenusTables() {
-    // 1. ตาราง บันทึกข้อความ
-    const memoBody = document.getElementById('memos-table-body');
-    if(memoBody) {
-        memoBody.innerHTML = globalMemosData.map(item => `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${item.docNo}</td>
-                <td class="py-3 px-3">${item.date}</td>
-                <td class="py-3 px-4 text-slate-700">${item.title}</td>
-                <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department}</span></td>
-                <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editMemo('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteMemo', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                </td>
-            </tr>
-        `).join('');
-    }
+            // 1. ตาราง บันทึกข้อความ
+            const memoBody = document.getElementById('memos-table-body');
+            if(memoBody) {
+                memoBody.innerHTML = globalMemosData.map(item => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-900">${item.docNo}</td>
+                        <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                        <td class="py-3 px-4 text-slate-700">${item.title}</td>
+                        <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department}</span></td>
+                        <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <button onclick="editMemo('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteRowItem('deleteMemo', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
 
-    // 2. ตาราง เอกสารทั่วไป
-    const genBody = document.getElementById('gendocs-table-body');
-    if(genBody) {
-        genBody.innerHTML = globalGenDocsData.map(item => `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 text-xs font-mono text-slate-400">${item.id.substring(0,8)}</td>
-                <td class="py-3 px-4 font-bold text-slate-800">${item.docName}</td>
-                <td class="py-3 px-3">${item.date}</td>
-                <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category}</span></td>
-                <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editGenDoc('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteGenDoc', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                </td>
-            </tr>
-        `).join('');
-    }
+            // 2. ตาราง เอกสารทั่วไป
+            const genBody = document.getElementById('gendocs-table-body');
+            if(genBody) {
+                genBody.innerHTML = globalGenDocsData.map(item => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 text-xs font-mono text-slate-400">${item.id.substring(0,8)}</td>
+                        <td class="py-3 px-4 font-bold text-slate-800">${item.docName}</td>
+                        <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                        <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category}</span></td>
+                        <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <button onclick="editGenDoc('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteRowItem('deleteGenDoc', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
 
-    // 3. ตาราง ใบเสร็จใบรับเงิน
-    const receiptBody = document.getElementById('receipts-table-body');
-    if(receiptBody) {
-        receiptBody.innerHTML = globalReceiptsData.map(item => `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo}</td>
-                <td class="py-3 px-3">${item.date}</td>
-                <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-                <td class="py-3 px-4 text-slate-700">${item.payer}</td>
-                <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editReceipt('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteReceipt', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // 4. ตาราง สถิติการมาเรียน
-    const attBody = document.getElementById('attendance-table-body');
-    if(attBody) {
-        attBody.innerHTML = globalAttendanceData.map(item => `
-            <tr class="hover:bg-slate-50 transition-colors text-center">
-                <td class="py-3 px-4 text-left font-bold text-slate-800">${item.date}</td>
-                <td class="py-3 px-3 font-extrabold text-indigo-700">${item.classLevel}</td>
-                <td class="py-3 px-2 text-slate-500">${item.totalMale}</td>
-                <td class="py-3 px-2 text-emerald-600 font-bold">${item.presentMale}</td>
-                <td class="py-3 px-2 text-slate-500">${item.totalFemale}</td>
-                <td class="py-3 px-2 text-rose-600 font-bold">${item.presentFemale}</td>
-                <td class="py-3 px-3 bg-slate-50 text-blue-600 font-black text-sm">${item.percentage}%</td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editAtt('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteAtt', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                </td>
-            </tr>
-        `).join('');
-    }
-}
-
-// ระบบแปลงไฟล์และส่งข้อมูลขึ้นระบบย่อยกลางแบบครอบคลุม
-async function uploadAndProcessForm(actionType, idVal, payload, fileElementId) {
-    showLoading("กำลังส่งข้อมูลอัปเดตระบบฐานข้อมูลคลาวด์...");
-    const fileInput = document.getElementById(fileElementId);
-    if(fileInput && fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            payload.fileData = e.target.result.split(',')[1];
-            payload.fileName = file.name;
-            payload.mimeType = file.type;
-            await sendPostData(actionType, payload);
-        };
-        reader.readAsDataURL(file);
-    } else {
-        await sendPostData(actionType, payload);
-    }
-}
-
-async function sendPostData(actionType, payload) {
-    payload.action = actionType;
-    try {
-        const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const data = await res.json();
-        if(data.status === "success") {
-            alert("บันทึกการประมวลผลสำเร็จเรียบร้อย");
-            // ปิดทุก Modal อัตโนมัติ
-            document.getElementById('saraban-modal').classList.add('hidden');
-            document.getElementById('order-modal').classList.add('hidden');
-            document.getElementById('memo-modal').classList.add('hidden');
-            document.getElementById('gendoc-modal').classList.add('hidden');
-            document.getElementById('receipt-modal').classList.add('hidden');
-            document.getElementById('attendance-modal').classList.add('hidden');
-            fetchSystemData();
-        } else { alert("เกิดข้อผิดพลาด: " + data.message); hideLoading(); }
-    } catch(e) { alert("การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด"); hideLoading(); }
-}
-
-async function deleteRowItem(actionType, targetId) {
-    if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้อย่างถาวรออกจากระบบคลาวด์?")) return;
-    showLoading("กำลังดำเนินการขอลบแถวรายการข้อมูล...");
-    await sendPostData(actionType, { id: targetId });
-}
-
-// ---------------------- บล็อกคำสั่งเปิด/ปิด/ซับมิท หน้าโมดอลงานย่อย ----------------------
-function openMemoModal() { document.getElementById('memo-form').reset(); document.getElementById('memo-id').value = ''; document.getElementById('memo-modal-title').innerText = "📝 ลงทะเบียนบันทึกข้อความใหม่"; document.getElementById('memo-modal').classList.remove('hidden'); }
-function closeMemoModal() { document.getElementById('memo-modal').classList.add('hidden'); }
-function handleMemoSubmit(e) {
-    e.preventDefault();
-    const id = document.getElementById('memo-id').value || 'MEMO-' + Date.now();
-    const action = document.getElementById('memo-id').value ? 'updateMemo' : 'insertMemo';
-    const payload = { id, docNo: document.getElementById('memo-no').value, date: document.getElementById('memo-date').value, title: document.getElementById('memo-title').value, department: document.getElementById('memo-dept').value };
-    uploadAndProcessForm(action, id, payload, 'memo-file');
-}
-function editMemo(id) {
-    const item = globalMemosData.find(el => el.id === id);
-    if(!item) return;
-    openMemoModal();
-    document.getElementById('memo-id').value = item.id;
-    document.getElementById('memo-no').value = item.docNo;
-    document.getElementById('memo-date').value = item.date;
-    document.getElementById('memo-title').value = item.title;
-    document.getElementById('memo-dept').value = item.department;
-    document.getElementById('memo-modal-title').innerText = "✏️ แก้ไขข้อมูลบันทึกข้อความ";
-}
-
-function openGenDocModal() { document.getElementById('gendoc-form').reset(); document.getElementById('gendoc-id').value = ''; document.getElementById('gendoc-modal-title').innerText = "🗂️ เพิ่มเอกสารทั่วไป"; document.getElementById('gendoc-modal').classList.remove('hidden'); }
-function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
-function handleGenDocSubmit(e) {
-    e.preventDefault();
-    const id = document.getElementById('gendoc-id').value || 'DOC-' + Date.now();
-    const action = document.getElementById('gendoc-id').value ? 'updateGenDoc' : 'insertGenDoc';
-    const payload = { id, docName: document.getElementById('gendoc-name').value, date: document.getElementById('gendoc-date').value, category: document.getElementById('gendoc-category').value };
-    uploadAndProcessForm(action, id, payload, 'gendoc-file');
-}
-function editGenDoc(id) {
-    const item = globalGenDocsData.find(el => el.id === id);
-    if(!item) return;
-    openGenDocModal();
-    document.getElementById('gendoc-id').value = item.id;
-    document.getElementById('gendoc-name').value = item.docName;
-    document.getElementById('gendoc-date').value = item.date;
-    document.getElementById('gendoc-category').value = item.category;
-    document.getElementById('gendoc-modal-title').innerText = "✏️ แก้ไขข้อมูลเอกสารทั่วไป";
-}
-
-function openReceiptModal() { document.getElementById('receipt-form').reset(); document.getElementById('receipt-id').value = ''; document.getElementById('receipt-modal-title').innerText = "💰 ลงทะเบียนหลักฐานใบเสร็จ"; document.getElementById('receipt-modal').classList.remove('hidden'); }
-function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
-function handleReceiptSubmit(e) {
-    e.preventDefault();
-    const id = document.getElementById('receipt-id').value || 'REC-' + Date.now();
-    const action = document.getElementById('receipt-id').value ? 'updateReceipt' : 'insertReceipt';
-    const payload = { id, receiptNo: document.getElementById('receipt-no').value, date: document.getElementById('receipt-date').value, amount: document.getElementById('receipt-amount').value, payer: document.getElementById('receipt-payer').value };
-    uploadAndProcessForm(action, id, payload, 'receipt-file');
-}
-function editReceipt(id) {
-    const item = globalReceiptsData.find(el => el.id === id);
-    if(!item) return;
-    openReceiptModal();
-    document.getElementById('receipt-id').value = item.id;
-    document.getElementById('receipt-no').value = item.receiptNo;
-    document.getElementById('receipt-date').value = item.date;
-    document.getElementById('receipt-amount').value = item.amount;
-    document.getElementById('receipt-payer').value = item.payer;
-    document.getElementById('receipt-modal-title').innerText = "✏️ แก้ไขหลักฐานเอกสารใบเสร็จ";
-}
-
-function openAttModal() { document.getElementById('attendance-form').reset(); document.getElementById('att-id').value = ''; document.getElementById('att-modal-title').innerText = "📊 บันทึกสถิติการมาเรียนใหม่"; document.getElementById('attendance-modal').classList.remove('hidden'); }
-function closeAttModal() { document.getElementById('attendance-modal').classList.add('hidden'); }
-function handleAttSubmit(e) {
-    e.preventDefault();
-    const id = document.getElementById('att-id').value || 'ATT-' + Date.now();
-    const action = document.getElementById('att-id').value ? 'updateAtt' : 'insertAtt';
-    
-    // อัลกอริทึมคำนวณหาร้อยละการมาเรียนอัตโนมัติก่อนส่งไปสเปรดชีต
-    const tm = Number(document.getElementById('att-total-m').value) || 0;
-    const pm = Number(document.getElementById('att-pres-m').value) || 0;
-    const tf = Number(document.getElementById('att-total-f').value) || 0;
-    const pf = Number(document.getElementById('att-pres-f').value) || 0;
-    
-    const totalStudents = tm + tf;
-    const totalPresent = pm + pf;
-    let percentage = "0.00";
-    if (totalStudents > 0) {
-        percentage = ((totalPresent / totalStudents) * 100).toFixed(2);
-    }
-    
-    const payload = { id, date: document.getElementById('att-date').value, classLevel: document.getElementById('att-class').value, totalMale: tm, presentMale: pm, totalFemale: tf, presentFemale: pf, percentage };
-    sendPostData(action, payload);
-}
-function editAtt(id) {
-    const item = globalAttendanceData.find(el => el.id === id);
-    if(!item) return;
-    openAttModal();
-    document.getElementById('att-id').value = item.id;
-    document.getElementById('att-date').value = item.date;
-    document.getElementById('att-class').value = item.classLevel;
-    document.getElementById('att-total-m').value = item.totalMale;
-    document.getElementById('att-pres-m').value = item.presentMale;
-    document.getElementById('att-total-f').value = item.totalFemale;
-    document.getElementById('att-pres-f').value = item.presentFemale;
-    document.getElementById('att-modal-title').innerText = "✏️ แก้ไขข้อมูลสถิติการมาเรียน";
-}
-   // ฟังก์ชันกลางใช้สำหรับการค้นหาในแต่ละตารางแบบทันที
-function filterTable(inputId, tableBodyId) {
-    const input = document.getElementById(inputId);
-    const filter = input.value.toLowerCase().trim();
-    const tbody = document.getElementById(tableBodyId);
-    const rows = tbody.getElementsByTagName('tr');
-
-    for (let i = 0; i < rows.length; i++) {
-        let rowContainsFilter = false;
-        const cells = rows[i].getElementsByTagName('td');
-        
-        for (let j = 0; j < cells.length; j++) {
-            if (cells[j] && cells[j].innerText.toLowerCase().includes(filter)) {
-                rowContainsFilter = true;
-                break;
+            // 3. ตาราง ใบเสร็จใบรับเงิน
+            const receiptBody = document.getElementById('receipts-table-body');
+            if(receiptBody) {
+                receiptBody.innerHTML = globalReceiptsData.map(item => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo}</td>
+                        <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                        <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                        <td class="py-3 px-4 text-slate-700">${item.payer}</td>
+                        <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <button onclick="editReceipt('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteRowItem('deleteReceipt', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                        </td>
+                    </tr>
+                `).join('');
             }
         }
-        rows[i].style.display = rowContainsFilter ? "" : "none";
-    }
-}
 
-// ===================================================================================
-// 📑 ระบบควบคุมการแบ่งหน้าตาราง (Pagination Engine) โรงเรียนบ้านกาหยี [อัปเดต ID เกษียณหนังสือ]
-// ===================================================================================
-
-const ROWS_PER_PAGE = 10; // กำหนดให้แสดงผลตารางละ 10 แถวต่อ 1 หน้า
-
-const tablePages = {
-    "saraban": 1,
-    "orders": 1,
-    "memos": 1,
-    "gendocs": 1,
-    "receipts": 1,
-    "attendance": 1,
-    "sign": 1 // หน่วยความจำของระบบเกษียณหนังสือ
-};
-
-function changeTablePage(tableType, direction) {
-    // 🎯 ทำการจับคู่ ID ตารางหน้าบ้านของคุณครูให้ตรงล็อกเป้าหมายเป๊ะๆ
-    const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
-                    (tableType === "orders") ? "orders-table-body" : 
-                    (tableType === "memos") ? "memos-table-body" : 
-                    (tableType === "gendocs") ? "gendocs-table-body" : 
-                    (tableType === "receipts") ? "receipts-table-body" : 
-                    (tableType === "attendance") ? "attendance-table-body" : "menu-workflow"; // 🟢 ปรับเปลี่ยนเป็น ID จริงของคุณครูแล้วครับ
-                    
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody) return;
-
-    const rows = tbody.getElementsByTagName("tr");
-    if (rows.length === 0) return;
-
-    const maxPage = Math.ceil(rows.length / ROWS_PER_PAGE);
-    
-    let newPage = tablePages[tableType] + direction;
-    if (newPage < 1) newPage = 1;
-    if (newPage > maxPage) newPage = maxPage;
-    
-    tablePages[tableType] = newPage;
-
-    const pageLabel = document.getElementById(`${tableType}-current-page`);
-    if (pageLabel) pageLabel.innerText = `${newPage} / ${maxPage}`;
-
-    const startIndex = (newPage - 1) * ROWS_PER_PAGE;
-    const endIndex = startIndex + ROWS_PER_PAGE;
-
-    for (let i = 0; i < rows.length; i++) {
-        if (i >= startIndex && i < endIndex) {
-            rows[i].style.display = ""; // แสดงแถวในหน้าปัจจุบัน
-        } else {
-            rows[i].style.display = "none"; // ซ่อนแถวที่ไม่เกี่ยวข้อง
+        async function uploadAndProcessForm(actionType, idVal, payload, fileElementId) {
+            showLoading("กำลังส่งข้อมูลอัปเดตระบบฐานข้อมูลคลาวด์...");
+            const fileInput = document.getElementById(fileElementId);
+            if(fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    payload.fileData = e.target.result.split(',')[1];
+                    payload.fileName = file.name;
+                    payload.mimeType = file.type;
+                    await sendPostData(actionType, payload);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                await sendPostData(actionType, payload);
+            }
         }
-    }
-}
 
-// ระบบสังเกตการณ์ตาราง (MutationObserver) สั่งตัดหน้าอัตโนมัติเมื่อข้อมูลมีการอัปเดต
-window.addEventListener('load', () => {
-    const tableConfigs = ["saraban", "orders", "memos", "gendocs", "receipts", "attendance", "sign"];
-    
-    tableConfigs.forEach(tableType => {
-        const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
-                        (tableType === "orders") ? "orders-table-body" : 
-                        (tableType === "memos") ? "memos-table-body" : 
-                        (tableType === "gendocs") ? "gendocs-table-body" : 
-                        (tableType === "receipts") ? "receipts-table-body" : 
-                        (tableType === "attendance") ? "attendance-table-body" : "menu-workflow"; // 🟢 ปรับเปลี่ยนเป็น ID จริงของคุณครูแล้วเช่นกันครับ
-        
-        const tbody = document.getElementById(tbodyId);
-        if (tbody) {
-            const pageObserver = new MutationObserver(() => {
-                tablePages[tableType] = 1; // รีเซ็ตกลับไปหน้า 1 เสมอเวลาข้อมูลรีเฟรชใหม่
-                changeTablePage(tableType, 0); 
+        async function sendPostData(actionType, payload) {
+            payload.action = actionType;
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                if((await res.json()).status === "success") {
+                    alert("บันทึกการประมวลผลสำเร็จเรียบร้อย");
+                    document.getElementById('saraban-modal').classList.add('hidden');
+                    document.getElementById('order-modal').classList.add('hidden');
+                    document.getElementById('memo-modal').classList.add('hidden');
+                    document.getElementById('gendoc-modal').classList.add('hidden');
+                    document.getElementById('receipt-modal').classList.add('hidden');
+                    fetchSystemData();
+                }
+            } catch(e) { alert("การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด"); hideLoading(); }
+        }
+
+        async function deleteRowItem(actionType, targetId) {
+            if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้อย่างถาวรออกจากระบบคลาวด์?")) return;
+            showLoading("กำลังดำเนินการขอลบแถวรายการข้อมูล...");
+            await sendPostData(actionType, { id: targetId });
+        }
+
+        function openMemoModal() { document.getElementById('memo-form').reset(); document.getElementById('memo-id').value = ''; document.getElementById('memo-modal-title').innerText = "📝 ลงทะเบียนบันทึกข้อความใหม่"; document.getElementById('memo-modal').classList.remove('hidden'); }
+        function closeMemoModal() { document.getElementById('memo-modal').classList.add('hidden'); }
+        function handleMemoSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('memo-id').value || 'MEMO-' + Date.now();
+            const action = document.getElementById('memo-id').value ? 'updateMemo' : 'insertMemo';
+            const payload = { id, docNo: document.getElementById('memo-no').value, date: document.getElementById('memo-date').value, title: document.getElementById('memo-title').value, department: document.getElementById('memo-dept').value };
+            uploadAndProcessForm(action, id, payload, 'memo-file');
+        }
+        function editMemo(id) {
+            const item = globalMemosData.find(el => el.id === id);
+            if(!item) return;
+            openMemoModal();
+            document.getElementById('memo-id').value = item.id;
+            document.getElementById('memo-no').value = item.docNo;
+            document.getElementById('memo-date').value = item.date;
+            document.getElementById('memo-title').value = item.title;
+            document.getElementById('memo-dept').value = item.department;
+            document.getElementById('memo-modal-title').innerText = "✏️ แก้ไขข้อมูลบันทึกข้อความ";
+        }
+
+        function openGenDocModal() { document.getElementById('gendoc-form').reset(); document.getElementById('gendoc-id').value = ''; document.getElementById('gendoc-modal-title').innerText = "🗂️ เพิ่มเอกสารทั่วไป"; document.getElementById('gendoc-modal').classList.remove('hidden'); }
+        function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
+        function handleGenDocSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('gendoc-id').value || 'DOC-' + Date.now();
+            const action = document.getElementById('gendoc-id').value ? 'updateGenDoc' : 'insertGenDoc';
+            const payload = { id, docName: document.getElementById('gendoc-name').value, date: document.getElementById('gendoc-date').value, category: document.getElementById('gendoc-category').value };
+            uploadAndProcessForm(action, id, payload, 'gendoc-file');
+        }
+        function editGenDoc(id) {
+            const item = globalGenDocsData.find(el => el.id === id);
+            if(!item) return;
+            openGenDocModal();
+            document.getElementById('gendoc-id').value = item.id;
+            document.getElementById('gendoc-name').value = item.docName;
+            document.getElementById('gendoc-date').value = item.date;
+            document.getElementById('gendoc-category').value = item.category;
+            document.getElementById('gendoc-modal-title').innerText = "✏️ แก้ไขข้อมูลเอกสารทั่วไป";
+        }
+
+        function openReceiptModal() { document.getElementById('receipt-form').reset(); document.getElementById('receipt-id').value = ''; document.getElementById('receipt-modal-title').innerText = "💰 ลงทะเบียนหลักฐานใบเสร็จ"; document.getElementById('receipt-modal').classList.remove('hidden'); }
+        function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
+        function handleReceiptSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('receipt-id').value || 'REC-' + Date.now();
+            const action = document.getElementById('receipt-id').value ? 'updateReceipt' : 'insertReceipt';
+            const payload = { id, receiptNo: document.getElementById('receipt-no').value, date: document.getElementById('receipt-date').value, amount: document.getElementById('receipt-amount').value, payer: document.getElementById('receipt-payer').value };
+            uploadAndProcessForm(action, id, payload, 'receipt-file');
+        }
+        function editReceipt(id) {
+            const item = globalReceiptsData.find(el => el.id === id);
+            if(!item) return;
+            openReceiptModal();
+            document.getElementById('receipt-id').value = item.id;
+            document.getElementById('receipt-no').value = item.receiptNo;
+            document.getElementById('receipt-date').value = item.date;
+            document.getElementById('receipt-amount').value = item.amount;
+            document.getElementById('receipt-payer').value = item.payer;
+            document.getElementById('receipt-modal-title').innerText = "✏️ แก้ไขหลักฐานเอกสารใบเสร็จ";
+        }
+
+        function filterTable(inputId, tableBodyId) {
+            const input = document.getElementById(inputId);
+            const filter = input.value.toLowerCase().trim();
+            const tbody = document.getElementById(tableBodyId);
+            const rows = tbody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                let rowContainsFilter = false;
+                const cells = rows[i].getElementsByTagName('td');
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j] && cells[j].innerText.toLowerCase().includes(filter)) {
+                        rowContainsFilter = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = rowContainsFilter ? "" : "none";
+            }
+        }
+
+        const ROWS_PER_PAGE = 10;
+        const tablePages = { "saraban": 1, "orders": 1, "memos": 1, "gendocs": 1, "receipts": 1, "sign": 1 };
+
+        function changeTablePage(tableType, direction) {
+            const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
+                            (tableType === "orders") ? "orders-table-body" : 
+                            (tableType === "memos") ? "memos-table-body" : 
+                            (tableType === "gendocs") ? "gendocs-table-body" : 
+                            (tableType === "receipts") ? "receipts-table-body" : "workflow-table-body";
+                            
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            const rows = tbody.getElementsByTagName("tr");
+            if (rows.length === 0) return;
+
+            const maxPage = Math.ceil(rows.length / ROWS_PER_PAGE);
+            let newPage = tablePages[tableType] + direction;
+            if (newPage < 1) newPage = 1;
+            if (newPage > maxPage) newPage = maxPage;
+            
+            tablePages[tableType] = newPage;
+            const pageLabel = document.getElementById(`${tableType}-current-page`);
+            if (pageLabel) pageLabel.innerText = newPage;
+
+            const startIndex = (newPage - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = (i >= startIndex && i < endIndex) ? "" : "none";
+            }
+        }
+
+        window.addEventListener('load', () => {
+            const tableConfigs = ["saraban", "orders", "memos", "gendocs", "receipts", "sign"];
+            tableConfigs.forEach(tableType => {
+                const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
+                                (tableType === "orders") ? "orders-table-body" : 
+                                (tableType === "memos") ? "memos-table-body" : 
+                                (tableType === "gendocs") ? "gendocs-table-body" : 
+                                (tableType === "receipts") ? "receipts-table-body" : "workflow-table-body";
+                const tbody = document.getElementById(tbodyId);
+                if (tbody) {
+                    const pageObserver = new MutationObserver(() => {
+                        tablePages[tableType] = 1;
+                        changeTablePage(tableType, 0); 
+                    });
+                    pageObserver.observe(tbody, { childList: true });
+                }
             });
-            pageObserver.observe(tbody, { childList: true });
-        }
-    });
-});
-// ===================================================================================
-   // ===================================================================================
-// 🚨 ฟังก์ชั่นอัจฉริยะ ตรวจสอบการเพิ่มข้อมูลซ้ำ (Anti-Duplicate Check Engine)
-// ===================================================================================
-function isDuplicateData(tbodyId, columnIndex, newValue) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody) return false;
+        });
 
-    const rows = tbody.getElementsByTagName("tr");
-    // ตัดช่องว่างและแปลงเป็นตัวพิมพ์เล็กทั้งหมดเพื่อความแม่นยำในการเทียบคำ
-    const cleanNewValue = newValue.trim().toLowerCase();
+        function isDuplicateData(tbodyId, columnIndex, newValue) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return false;
+            const rows = tbody.getElementsByTagName("tr");
+            const cleanNewValue = newValue.trim().toLowerCase();
 
-    for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName("td");
-        if (cells[columnIndex]) {
-            const existingValue = cells[columnIndex].innerText.trim().toLowerCase();
-            // ถ้าเจอข้อมูลในตารางที่ตรงกับข้อมูลใหม่ที่กำลังจะกรอก
-            if (existingValue === cleanNewValue && cleanNewValue !== "") {
-                return true; 
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                if (cells[columnIndex]) {
+                    const existingValue = cells[columnIndex].innerText.trim().toLowerCase();
+                    if (existingValue === cleanNewValue && cleanNewValue !== "") return true; 
+                }
             }
+            return false;
         }
-    }
-    return false;
-}
-    
     </script>
 </body>
 </html>
