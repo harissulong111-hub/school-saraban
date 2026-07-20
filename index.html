@@ -407,12 +407,14 @@
                     </div>
                 </section>
 
+               <!-- MENU 9: ATTENDANCE (ซิงค์ตรงจากระบบ Firebase E-Attendance โครงสร้างแบบใหม่) -->
                 <section id="menu-attendance" class="tab-content hidden animate-fade-in space-y-5">
                     
+                    <!-- แถบควบคุมวันที่และปุ่มดึงข้อมูล -->
                     <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800">📊 ระบบสถิติการมาเรียนของนักเรียนประจำวัน (ซิงค์ข้อมูล Cloud Firebase อัตโนมัติ)</h4>
-                            <p class="text-[11px] text-slate-400 mt-0.5">ดึงฐานข้อมูลแบบเรียลไทม์จำแนกแยกรายระดับชั้น อนุบาล 1 ถึง ประถมศึกษาปีที่ 6</p>
+                            <h4 class="text-xs font-bold text-slate-800">📊 ระบบสถิติการมาเรียนของนักเรียนประจำวัน (ซิงค์ข้อมูล Cloud Firebase โครงสร้างใหม่)</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">ดึงข้อมูลแบบเรียลไทม์จำแนกแยกรายระดับชั้น ชาย/หญิง มาเรียน และ ขาดเรียน</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="date" id="sync-att-date" onchange="fetchFirebaseAttendanceData(this.value)" class="p-2 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold">
@@ -420,6 +422,7 @@
                         </div>
                     </div>
 
+                    <!-- 📊 ส่วนการ์ดสรุปแดชบอร์ดสถิติจำแนกละเอียดแบบใหม่ -->
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-blue-500">
                             <div>
@@ -437,44 +440,51 @@
                         </div>
                         <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-rose-500">
                             <div>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase">🔴 ขาดเรียน</p>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase">🔴 รวมขาดเรียนทั้งหมด</p>
                                 <h3 class="text-2xl font-black text-rose-600 mt-1" id="att-dash-absent">0 <span class="text-xs font-normal text-slate-400">คน</span></h3>
                             </div>
                             <div class="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-lg shadow-2xs">👤</div>
                         </div>
-                        <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-amber-500">
+                        <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-pink-500">
                             <div class="grid grid-cols-2 gap-4 w-full">
                                 <div class="border-r border-slate-100 pr-2">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🟡 ลาเรียน</p>
-                                    <h4 class="text-lg font-black text-amber-500 mt-0.5" id="att-dash-leave">0 <span class="text-[10px] font-normal text-slate-400">คน</span></h4>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🚹 ชายขาด</p>
+                                    <h4 class="text-base font-black text-rose-500 mt-0.5" id="att-dash-male-absent">0 <span class="text-[10px] font-normal text-slate-400">(0%)</span></h4>
                                 </div>
                                 <div class="pl-1">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🔵 มาสาย</p>
-                                    <h4 class="text-lg font-black text-blue-500 mt-0.5" id="att-dash-late">0 <span class="text-[10px] font-normal text-slate-400">คน</span></h4>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🚺 หญิงขาด</p>
+                                    <h4 class="text-base font-black text-pink-500 mt-0.5" id="att-dash-female-absent">0 <span class="text-[10px] font-normal text-slate-400">(0%)</span></h4>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- ตารางแจกแจงแยกสถิติตามหัวข้อใหม่แบบ 11 คอลลัมน์ -->
                     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-slate-50/70 text-slate-400 font-bold uppercase text-xs tracking-wider border-b border-slate-100 text-center">
-                                        <th class="p-4 text-center">ระดับชั้น</th>
-                                        <th class="p-4 text-center">ชาย (ทั้งหมด)</th>
-                                        <th class="p-4 text-center">หญิง (ทั้งหมด)</th>
-                                        <th class="p-4 text-center bg-blue-500/5 text-blue-500 font-bold">นักเรียนชายมา</th>
-                                        <th class="p-4 text-center bg-pink-500/5 text-pink-500 font-bold">นักเรียนหญิงมา</th>
-                                        <th class="p-4 text-center bg-emerald-500/5 text-emerald-500 font-bold">รวมนักเรียนมาวันนี้</th>
-                                        <th class="p-4 text-center">ขาดเรียน</th>
-                                        <th class="p-4 text-center">ลาเรียน</th>
-                                        <th class="p-4 text-center">มาสาย</th>
-                                        <th class="p-4 text-right pr-6">ร้อยละการมาเรียน</th>
+                                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200 text-xs font-bold uppercase text-center">
+                                        <th class="p-3 border border-slate-800" rowspan="2">ระดับชั้น</th>
+                                        <th class="p-1 border border-slate-800" colspan="3">จำนวนนักเรียนทั้งหมด</th>
+                                        <th class="p-1 border border-slate-800 bg-emerald-950 text-emerald-300" colspan="3">จำนวนนักเรียนที่มาเรียนวันนี้</th>
+                                        <th class="p-1 border border-slate-800 bg-rose-950 text-rose-300" colspan="3">จำนวนนักเรียนที่ขาดเรียนวันนี้</th>
+                                        <th class="p-3 border border-slate-800 text-right pr-6" rowspan="2">ร้อยละการมาเรียน</th>
+                                    </tr>
+                                    <tr class="bg-slate-800 text-slate-300 text-xs border-b border-slate-700 text-center">
+                                        <th class="p-2 border border-slate-700">ชาย</th>
+                                        <th class="p-2 border border-slate-700">หญิง</th>
+                                        <th class="p-2 border border-slate-700 font-bold text-white">รวม</th>
+                                        <th class="p-2 border border-slate-700 bg-emerald-900/40">ชาย</th>
+                                        <th class="p-2 border border-slate-700 bg-pink-900/40">หญิง</th>
+                                        <th class="p-2 border border-slate-700 font-bold text-emerald-400">รวม</th>
+                                        <th class="p-2 border border-slate-700 bg-rose-900/40">ชาย</th>
+                                        <th class="p-2 border border-slate-700 bg-rose-900/40">หญิง</th>
+                                        <th class="p-2 border border-slate-700 font-bold text-rose-400">รวม</th>
                                     </tr>
                                 </thead>
-                                <tbody id="attendance-table-body" class="text-sm divide-y divide-slate-100 text-center">
-                                    <tr><td colspan="10" class="py-6 text-slate-400 text-xs">📅 กรุณาเลือกวันที่หรือกดรีเฟรชเพื่อซิงค์ข้อมูลสถิติจากระบบ Firebase</td></tr>
+                                <tbody id="attendance-table-body" class="text-sm divide-y divide-slate-100 text-center font-medium text-slate-600">
+                                    <tr><td colspan="11" class="py-6 text-slate-400 text-xs">📅 กรุณาเลือกวันที่หรือกดรีเฟรชเพื่อซิงค์ข้อมูลสถิติจากระบบ Firebase</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -609,7 +619,7 @@
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyw9fJpBakY-J_3vG2sbTDhjo6B5HZKhvWy1ttGC4IvnRUYi6-QhjFrPox4FbqnKx5W/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCtgGVCOHQW8t28rBI5TVhxceRElv3P0USLAxVqPylJv4eCZhllayX5ydyXonAa-7r/exec"; 
 
         // 🔗 คอนฟิกเชื่อมต่อ Firebase คลาวด์ E-Attendance
         const firebaseConfig = {
@@ -761,11 +771,17 @@
             hideLoading();
         }
 
+     // ===================================================================================
+        // 📡 ฟังก์ชันสำหรับซิงค์ข้อมูลสถิติมาเรียนตรงจากคลาวด์ Firebase โครงสร้างตารางใหม่เอี่ยม[cite: 4, 5]
         // ===================================================================================
-        // 📡 ฟังก์ชันสำหรับซิงค์ข้อมูลสถิติมาเรียนตรงจากคลาวด์ Firebase + อัปเดตแดชบอร์ดสรุปยอดรวม
-        // ===================================================================================
+        function syncAttendanceWithFirebase() {
+            const dateVal = document.getElementById('sync-att-date').value;
+            if(!dateVal) return alert("กรุณาระบุวันที่ต้องการซิงค์สถิติการมาเรียน");
+            fetchFirebaseAttendanceData(dateVal);
+        }
+
         function fetchFirebaseAttendanceData(targetDate) {
-            showLoading("กำลังสร้างท่อเชื่อมสัญญาณข้อมูลแบบเรียลไทม์กับ Firebase คลาวด์...");
+            showLoading("กำลังดึงสัญญาณโครงสร้างข้อมูลสถิติล่าสุดจากระบบคลาวด์ Firebase...");
             
             firebaseDb.collection("attendance").doc(targetDate).get()
                 .then((doc) => {
@@ -773,14 +789,17 @@
                     if (!tbody) return;
                     tbody.innerHTML = '';
 
-                    // กำหนดตัวแปรสำหรับเก็บค่าตัวเลขรวมสำหรับแสดงบนแดชบอร์ดสรุปผลประจำวัน
-                    let gTotal = 0, gPresent = 0, gAbsent = 0, gLeave = 0, gLate = 0;
+                    // ตั้งค่าตัวแปรสะสมค่าเพื่อส่งออกแดชบอร์ดภาพรวมของหน้าหลัก[cite: 4]
+                    let grandTotalStudents = 0, grandTotalMale = 0, grandTotalFemale = 0;
+                    let grandPresent = 0, grandAbsent = 0;
+                    let grandMaleAbsent = 0, grandFemaleAbsent = 0;
+                    let grandMalePresent = 0, grandFemalePresent = 0;
 
                     if (doc.exists) {
                         const fbData = doc.data();
                         const classes = fbData.classes || {};
-                        
                         let hasData = false;
+                        
                         const classOrder = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
                         
                         classOrder.forEach(className => {
@@ -788,51 +807,79 @@
                                 hasData = true;
                                 const c = classes[className];
                                 
-                                const tMale = c.male || 0;
-                                const pMale = (c.malePresent !== undefined && c.malePresent !== "") ? c.malePresent : "ว่าง";
-                                const tFemale = c.female || 0;
-                                const pFemale = (c.femalePresent !== undefined && c.femalePresent !== "") ? c.femalePresent : "ว่าง";
+                                // แกะค่าข้อมูล ชาย/หญิง/รวม ทั้งหมด, มาเรียน และ ขาดเรียน ให้ตรงสูตรล่าสุด[cite: 4]
+                                const tMale = parseInt(c.male) || 0;
+                                const tFemale = parseInt(c.female) || 0;
+                                const totalClass = tMale + tFemale;
                                 
-                                const present = c.present !== undefined ? c.present : 0;
-                                const absent = c.absent !== undefined ? c.absent : 0;
-                                const leave = c.leave !== undefined ? c.leave : 0;
-                                const late = c.late !== undefined ? c.late : 0;
+                                const pMale = (c.malePresent !== undefined && c.malePresent !== "") ? parseInt(c.malePresent) : 0;
+                                const pFemale = (c.femalePresent !== undefined && c.femalePresent !== "") ? parseInt(c.femalePresent) : 0;
+                                const present = parseInt(c.present) || 0;
                                 
-                                // สมทบยอดรวมเข้าสู่ตัวแปรแดชบอร์ดภาพรวมโรงเรียน
-                                gTotal += (tMale + tFemale);
-                                gPresent += present;
-                                gAbsent += absent;
-                                gLeave += leave;
-                                gLate += late;
+                                const abMale = (tMale - pMale) < 0 ? 0 : (tMale - pMale);
+                                const abFemale = (tFemale - pFemale) < 0 ? 0 : (tFemale - pFemale);
+                                const absent = parseInt(c.absent) || 0;
+                                
+                                const classPercent = totalClass > 0 ? ((present / totalClass) * 100).toFixed(2) : "0.00";
 
-                                const totalStudents = tMale + tFemale;
-                                const classPercent = totalStudents > 0 ? ((present / totalStudents) * 100).toFixed(2) : "0.00";
+                                // รวมสถิติเข้าสู่ส่วนกลางเพื่อการประมวลผลการ์ดแดชบอร์ด[cite: 4]
+                                grandTotalStudents += totalClass;
+                                grandTotalMale += tMale;
+                                grandTotalFemale += tFemale;
+                                grandPresent += present;
+                                grandAbsent += absent;
+                                grandMaleAbsent += abMale;
+                                grandFemaleAbsent += abFemale;
+                                grandMalePresent += pMale;
+                                grandFemalePresent += pFemale;
 
+                                // เรนเดอร์ช่องสลับสีสัน ข้อมูลมาเรียน/ข้อมูลขาดเรียน แยกชายหญิงสวยงาม[cite: 4, 5]
                                 tbody.innerHTML += `
-                                    <tr class="hover:bg-slate-50/50 transition-colors text-center font-medium">
-                                        <td class="p-4 font-bold text-left text-slate-700">${className}</td>
-                                        <td class="p-4 text-slate-500">${tMale}</td>
-                                        <td class="p-4 text-slate-500">${tFemale}</td>
-                                        <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">${pMale}</span></td>
-                                        <td class="p-4"><span class="px-3 py-1 bg-pink-500/10 text-pink-500 border border-pink-500/30 rounded font-bold">${pFemale}</span></td>
-                                        <td class="p-4"><span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 rounded font-bold">${present}</span></td>
-                                        <td class="p-4"><span class="px-3 py-1 bg-rose-500/10 text-rose-500 border border-rose-500/30 rounded font-bold">${absent}</span></td>
-                                        <td class="p-4"><span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded font-bold">${leave}</span></td>
-                                        <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">${late}</span></td>
-                                        <td class="p-4 text-right pr-6 font-black text-emerald-500 text-sm">${classPercent}%</td>
+                                    <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
+                                        <td class="p-3 font-bold text-left text-slate-800 bg-slate-50/50">${className}</td>
+                                        <td class="p-2 text-slate-500">${tMale}</td>
+                                        <td class="p-2 text-slate-500">${tFemale}</td>
+                                        <td class="p-2 font-bold text-slate-900 bg-slate-50">${totalClass}</td>
+                                        <td class="p-2"><span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded font-bold">${pMale}</span></td>
+                                        <td class="p-2"><span class="px-2 py-0.5 bg-pink-500/10 text-pink-600 border border-pink-500/20 rounded font-bold">${pFemale}</span></td>
+                                        <td class="p-2"><span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded font-bold">${present}</span></td>
+                                        <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${abMale}</span></td>
+                                        <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded font-bold">${abFemale}</span></td>
+                                        <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded font-bold">${absent}</span></td>
+                                        <td class="p-3 text-right pr-6 font-black text-emerald-500 text-sm bg-slate-50/30">${classPercent}%</td>
                                     </tr>
                                 `;
                             }
                         });
                         
                         if(hasData) {
-                            // อัปเดตตัวเลขแดชบอร์ดภาพรวมเมื่อคำนวณฐานข้อมูล Live สำเร็จ
-                            const gPercentage = gTotal > 0 ? ((gPresent / gTotal) * 100).toFixed(2) : "0.00";
-                            document.getElementById('att-dash-total').innerHTML = `${gTotal} <span class="text-xs font-normal text-slate-400">คน</span>`;
-                            document.getElementById('att-dash-present').innerHTML = `${gPresent} <span class="text-xs font-semibold text-emerald-500">(${gPercentage}%)</span>`;
-                            document.getElementById('att-dash-absent').innerHTML = `${gAbsent} <span class="text-xs font-normal text-slate-400">คน</span>`;
-                            document.getElementById('att-dash-leave').innerHTML = `${gLeave} <span class="text-[10px] font-normal text-slate-400">คน</span>`;
-                            document.getElementById('att-dash-late').innerHTML = `${gLate} <span class="text-[10px] font-normal text-slate-400">คน</span>`;
+                            // คำนวณสรุปผลเปอร์เซ็นต์และเติมแถวสรุปรวมท้ายตาราง[cite: 4]
+                            const grandPercentage = grandTotalStudents > 0 ? ((grandPresent / grandTotalStudents) * 100).toFixed(2) : "0.00";
+                            const mAbsentPercent = grandTotalMale > 0 ? ((grandMaleAbsent / grandTotalMale) * 100).toFixed(2) : "0.00";
+                            const fAbsentPercent = grandTotalFemale > 0 ? ((grandFemaleAbsent / grandTotalFemale) * 100).toFixed(2) : "0.00";
+
+                            tbody.innerHTML += `
+                                <tr class="bg-slate-100 font-bold text-center text-slate-900 border-t border-slate-300">
+                                    <td class="p-3 text-left font-black">รวม</td>
+                                    <td class="p-2">${grandTotalMale}</td>
+                                    <td class="p-2">${grandTotalFemale}</td>
+                                    <td class="p-2 font-black">${grandTotalStudents}</td>
+                                    <td class="p-2 text-blue-600">${grandMalePresent}</td>
+                                    <td class="p-2 text-pink-600">${grandFemalePresent}</td>
+                                    <td class="p-2 text-emerald-600">${grandPresent}</td>
+                                    <td class="p-2 text-rose-500">${grandMaleAbsent}</td>
+                                    <td class="p-2 text-rose-500">${grandFemaleAbsent}</td>
+                                    <td class="p-2 text-rose-600">${grandAbsent}</td>
+                                    <td class="p-3 text-right pr-6 text-emerald-600 font-black text-sm">${grandPercentage}%</td>
+                                </tr>
+                            `;
+
+                            // อัปเดตชุดข้อมูลสรุปบนการ์ดแดชบอร์ดสรุปด้านบน[cite: 4]
+                            document.getElementById('att-dash-total').innerHTML = `${grandTotalStudents} <span class="text-xs font-normal text-slate-400">คน</span>`;
+                            document.getElementById('att-dash-present').innerHTML = `${grandPresent} <span class="text-xs font-semibold text-emerald-500">(${grandPercentage}%)</span>`;
+                            document.getElementById('att-dash-absent').innerHTML = `${grandAbsent} <span class="text-xs font-normal text-slate-400">คน</span>`;
+                            document.getElementById('att-dash-male-absent').innerHTML = `${grandMaleAbsent} <span class="text-[10px] font-normal text-rose-400">(${mAbsentPercent}%)</span>`;
+                            document.getElementById('att-dash-female-absent').innerHTML = `${grandFemaleAbsent} <span class="text-[10px] font-normal text-pink-400">(${fAbsentPercent}%)</span>`;
                         } else {
                             renderFallbackAttendanceTable(targetDate);
                         }
@@ -847,31 +894,38 @@
                 .finally(() => { if(typeof hideLoading === 'function') hideLoading(); });
         }
 
-        // ฟังก์ชันวาดตารางสำรองกรณีดึงไฟล์ผ่าน Google Sheets หลัก (แก้ไข colspan เป็น 10 ช่องสมบูรณ์)
+        // ฟังก์ชันดึงชุดข้อมูลสำรองกรณีฉุกเฉิน (คุมโครงสร้างตาราง 11 ช่องเท่ากันอย่างสมบูรณ์)
         function renderFallbackAttendanceTable(targetDate) {
             const tbody = document.getElementById('attendance-table-body');
             if (!tbody) return;
             const localFilter = globalAttendanceData.filter(d => d.date === targetDate);
             
             if(localFilter.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-slate-400 text-xs">📭 ไม่พบสถิติการเช็คชื่อในระบบคลาวด์ Firebase และชีตหลักของวันที่ ${formatThaiDate(targetDate)}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="py-10 text-center text-slate-400 text-xs">📭 ไม่พบสถิติการเช็คชื่อในระบบคลาวด์ Firebase และชีตหลักของวันที่ ${formatThaiDate(targetDate)}</td></tr>`;
                 return;
             }
             
-            tbody.innerHTML = localFilter.map(item => `
-                <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
-                    <td class="p-4 font-bold text-left text-slate-800">${item.classLevel}</td>
-                    <td class="p-4 text-slate-500">${item.totalMale}</td>
-                    <td class="p-4 text-slate-500">${item.totalFemale}</td>
-                    <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">${item.presentMale}</span></td>
-                    <td class="p-4"><span class="px-3 py-1 bg-pink-500/10 text-pink-500 border border-pink-500/30 rounded font-bold">${item.presentFemale}</span></td>
-                    <td class="p-4"><span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 rounded font-bold">${Number(item.presentMale) + Number(item.presentFemale)}</span></td>
-                    <td class="p-4"><span class="px-3 py-1 bg-rose-500/10 text-rose-500 border border-rose-500/30 rounded font-bold">0</span></td>
-                    <td class="p-4"><span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded font-bold">0</span></td>
-                    <td class="p-4"><span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold">0</span></td>
-                    <td class="p-4 text-right pr-6 font-black text-blue-600">${item.percentage}%</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = localFilter.map(item => {
+                const tM = parseInt(item.totalMale) || 0;
+                const tF = parseInt(item.totalFemale) || 0;
+                const pM = parseInt(item.presentMale) || 0;
+                const pF = parseInt(item.presentFemale) || 0;
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
+                        <td class="p-3 font-bold text-left text-slate-800 bg-slate-50/50">${item.classLevel}</td>
+                        <td class="p-2 text-slate-500">${tM}</td>
+                        <td class="p-2 text-slate-500">${tF}</td>
+                        <td class="p-2 font-bold text-slate-900 bg-slate-50">${tM + tF}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded font-bold">${pM}</span></td>
+                        <td class="p-2"><span class="px-2 py-0.5 bg-pink-500/10 text-pink-500 border border-pink-500/20 rounded font-bold">${pF}</span></td>
+                        <td class="p-2"><span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded font-bold">${pM + pF}</span></td>
+                        <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${tM - pM < 0 ? 0 : tM - pM}</span></td>
+                        <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${tF - pF < 0 ? 0 : tF - pF}</span></td>
+                        <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded font-bold">${(tM + tF) - (pM + pF)}</span></td>
+                        <td class="p-3 text-right pr-6 font-black text-blue-600 bg-slate-50/30">${item.percentage}%</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function navigateTo(targetTabId) {
