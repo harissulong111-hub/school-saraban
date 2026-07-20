@@ -119,12 +119,12 @@ function initLiveHeader() {
 }
 
 // ===================================================================================
-// 📡 ฟังก์ชันโหลดฐานข้อมูลระบบหลัก (วิธีแก้ที่ 2: ปลดการดักสิทธิ์ล็อกอินหน้าบ้าน)
+// 📡 ฟังก์ชันโหลดฐานข้อมูลระบบหลัก (ปรับปรุงให้เปิดมาอยู่หน้าสุดท้ายของทุกตารางเสมอ)
 // ===================================================================================
 async function fetchSystemData() {
     showLoading("กำลังโหลดฐานข้อมูลรวมทุกกลุ่มงานโรงเรียนบ้านกาหยี...");
     try {
-        // เรียกซิงค์ข้อมูลสถิติจาก Firebase ทันที (ไม่ต้องล็อกอินเบื้องหลังแล้ว)
+        // เรียกซิงค์ข้อมูลสถิติจาก Firebase ทันที
         const currentToday = document.getElementById('sync-att-date').value || new Date().toISOString().split('T')[0];
         fetchFirebaseAttendanceData(currentToday);
 
@@ -145,6 +145,14 @@ async function fetchSystemData() {
             renderOrdersTable();
             initCalendar();
             renderNewMenusTables();
+
+            // ⚡ ส่วนที่เพิ่มเข้ามา: สั่งให้ทุกเมนูกระโดดไปหน้าสุดท้ายทันทีหลังโหลดข้อมูลเสร็จสิ้น
+            setTimeout(() => {
+                const tablesToLastPage = ["saraban", "sign", "orders", "memos", "gendocs", "receipts"];
+                tablesToLastPage.forEach(tableType => {
+                    jumpToLastPage(tableType);
+                });
+            }, 300); // หน่วงเวลาเล็กน้อยเพื่อให้เบราว์เซอร์เรนเดอร์แถวตารางเสร็จสมบูรณ์
         }
     } catch(e) { alert("ระบบเครือข่ายเชื่อมฐานข้อมูลหลักขัดข้อง"); }
     hideLoading();
@@ -365,6 +373,11 @@ function switchSarabanTab(tab) {
     document.getElementById('subtab-outbound').className = tab === 'outbound' ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer" : "px-5 py-2 rounded-lg text-xs font-bold text-slate-600 cursor-pointer";
     document.getElementById('th-saraban-id').innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
     renderSarabanTable();
+    
+    // ⚡ ส่วนที่เพิ่มเข้ามา: เมื่อสลับแท็บเสร็จ ให้สั่งกระโดดไปหน้าสุดท้ายของตารางสารบรรณทันที
+    setTimeout(() => {
+        jumpToLastPage('saraban');
+    }, 50);
 }
 
 function renderSarabanTable() {
