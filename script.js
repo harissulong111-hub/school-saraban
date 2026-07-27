@@ -1041,62 +1041,27 @@ function isDuplicateData(tbodyId, columnIndex, newValue) {
 }
 
 // ==========================================
-// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - Fix Inbound Docs Fetch
+// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - High Speed 300 DPI & Auto-Wrap
 // ==========================================
 let currentDocImage = null;
 
-// 🎯 ฟังก์ชันดึงทะเบียนหนังสือรับล่าสุดให้ครบถ้วน 100%
 function populateStampSarabanDropdown() {
     const select = document.getElementById('stamp-saraban-select');
     if (!select) return;
 
-    select.innerHTML = '<option value="">-- ดึงเอกสารจากทะเบียนหนังสือรับ (รายการล่าสุด) --</option>';
-    
-    // ดึงข้อมูลสารบรรณหลัก (ถ้ามีฟังก์ชันดึงข้อมูลสด ให้เรียกใช้งานเพื่ออัปเดตข้อมูลล่าสุด)
-    if (typeof getSarabanData === 'function') {
-        const freshData = getSarabanData();
-        if (freshData && freshData.length > 0) {
-            globalSarabanData = freshData;
-        }
-    }
+    select.innerHTML = '<option value="">-- ดึงเอกสารจากทะเบียนหนังสือรับ --</option>';
+    if (!globalSarabanData || globalSarabanData.length === 0) return;
 
-    if (!globalSarabanData || globalSarabanData.length === 0) {
-        select.innerHTML = '<option value="">-- ไม่พบรายการในทะเบียนหนังสือรับ --</option>';
-        return;
-    }
-
-    // 🎯 กรองเฉพาะหนังสือรับอย่างครอบคลุม และต้องมีไฟล์แนบ
-    const inboundDocs = globalSarabanData.filter(doc => {
-        if (!doc) return false;
-        
-        // เช็คว่าเป็นหนังสือรับหรือไม่ (รองรับทั้ง internalId, type, หรือ category)
-        const isReceipt = (doc.internalId && doc.internalId.trim().startsWith("รับ")) ||
-                          (doc.type && doc.type.includes("รับ")) ||
-                          (doc.category && doc.category.includes("รับ"));
-                          
-        // เช็คว่ามี URL ไฟล์แนบหรือไม่
-        const hasFile = doc.fileUrl && doc.fileUrl.trim().length > 0;
-        
-        return isReceipt && hasFile;
-    });
-
-    if (inboundDocs.length === 0) {
-        select.innerHTML = '<option value="">-- ไม่พบหนังสือรับที่มีไฟล์แนบ --</option>';
-        return;
-    }
-
-    // 🎯 เรียงลำดับเอาหนังสือรับรายการล่าสุดขึ้นก่อนเสมอ
+    const inboundDocs = globalSarabanData.filter(doc => doc.internalId && doc.internalId.startsWith("รับ"));
     const sortedDocs = [...inboundDocs].reverse();
 
     sortedDocs.forEach(doc => {
-        const fileUrl = doc.fileUrl.trim();
-        const docId = doc.internalId || doc.id || 'หนังสือรับ';
-        const docTitle = doc.title || doc.subject || 'ไม่มีชื่อเรื่อง';
-
-        const opt = document.createElement('option');
-        opt.value = fileUrl;
-        opt.textContent = `[${docId}] 📄 ${docTitle.substring(0, 40)}${docTitle.length > 40 ? '...' : ''}`;
-        select.appendChild(opt);
+        if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
+            const opt = document.createElement('option');
+            opt.value = doc.fileUrl;
+            opt.textContent = `[${doc.internalId}] 📄 ${doc.title.substring(0, 35)}...`;
+            select.appendChild(opt);
+        }
     });
 }
 
@@ -1159,6 +1124,7 @@ function loadDocToCanvas(e) {
                     const wrapper = document.getElementById('canvas-wrapper');
                     const container = document.getElementById('canvas-container');
 
+                    // 🎯 1. Render บนหน้าจอความละเอียดสูงกำลังดี 300 DPI (Scale 3.0) เพื่อความรวดเร็ว
                     const hdRenderScale = 3.0;
                     const viewport = page.getViewport({ scale: hdRenderScale });
 
@@ -1379,6 +1345,7 @@ function resizeStamp(type, val) {
     }
 }
 
+// 🎯 ฟังก์ชันช่วยคำนวณการตัดคำขึ้นบรรทัดใหม่อัตโนมัติ (Auto Word Wrap for Canvas)
 function wrapCanvasText(ctx, text, maxWidth) {
     const rawLines = text.split('\n');
     let finalLines = [];
@@ -1403,6 +1370,7 @@ function wrapCanvasText(ctx, text, maxWidth) {
     return finalLines;
 }
 
+// 🎯 ฟังก์ชันสร้างและดาวน์โหลดไฟล์ PDF ขนาดมาตรฐาน A4 แบบดาวน์โหลดไว คมชัด 100%
 async function downloadStampedPDF() {
     if (!currentDocImage) {
         alert('กรุณาเลือกเอกสารหนังสือราชการก่อนดาวน์โหลดครับ');
@@ -1466,6 +1434,7 @@ async function downloadStampedPDF() {
                 ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
                 ctx.fillRect(hdX, hdY, boxW, boxH);
 
+                // 🎯 ปรับเส้นกรอบให้เรียวเล็กลง (กำลังสวยงาม)
                 ctx.lineWidth = Math.max(1.5, 2.0 * scaleX * scaleVal);
                 ctx.strokeStyle = "#1e40af";
                 ctx.strokeRect(hdX, hdY, boxW, boxH);
@@ -1490,24 +1459,30 @@ async function downloadStampedPDF() {
                 const paddingX = 12 * scaleX * scaleVal;
                 const maxTextW = (baseW * scaleX) - (paddingX * 2);
 
+                // ตั้งค่าฟอนต์ข้อความบันทึก
                 const fontSize = Math.round(11.5 * scaleY * scaleVal);
                 const lineHeight = fontSize * 1.35;
                 ctx.font = `${fontSize}px Sarabun, "TH Sarabun PSK", sans-serif`;
 
+                // คำนวณตัดคำขึ้นบรรทัดใหม่อัตโนมัติ
                 const wrappedLines = wrapCanvasText(ctx, note, maxTextW);
 
-                const headerH = 55 * scaleY * scaleVal;
+                // 🎯 คำนวณความสูงกรอบแบบ Dynamic ขยายลงล่างอัตโนมัติ ไม่ให้ข้อความหลุดกรอบ
+                const headerH = 55 * scaleY * scaleVal; // พื้นที่ส่วนหัว
                 const contentH = Math.max(35 * scaleY * scaleVal, wrappedLines.length * lineHeight + (10 * scaleY * scaleVal));
                 const boxW = baseW * scaleX;
                 const boxH = headerH + contentH;
 
+                // วาดพื้นหลังตรายาง
                 ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
                 ctx.fillRect(hdX, hdY, boxW, boxH);
 
+                // 🎯 ปรับเส้นกรอบให้เรียวเล็กลง
                 ctx.lineWidth = Math.max(1.5, 2.0 * scaleX * scaleVal);
                 ctx.strokeStyle = "#1e40af";
                 ctx.strokeRect(hdX, hdY, boxW, boxH);
 
+                // ข้อความส่วนหัว
                 ctx.fillStyle = "#1e40af";
                 ctx.font = `bold ${Math.round(14 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
                 ctx.textAlign = "left";
@@ -1516,6 +1491,7 @@ async function downloadStampedPDF() {
                 ctx.font = `${Math.round(11.5 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
                 ctx.fillText(`( ${isInform} ) เพื่อโปรดทราบ   ( ${isConsider} ) เพื่อโปรดพิจารณา`, hdX + paddingX, hdY + (44 * scaleY * scaleVal));
 
+                // เส้นประคั่นกลาง
                 ctx.beginPath();
                 ctx.setLineDash([4 * scaleX * scaleVal, 4 * scaleX * scaleVal]);
                 ctx.moveTo(hdX + paddingX, hdY + (50 * scaleY * scaleVal));
@@ -1524,6 +1500,7 @@ async function downloadStampedPDF() {
                 ctx.stroke();
                 ctx.setLineDash([]);
 
+                // วาดบรรทัดข้อความบันทึกที่ถูกตัดคำเรียบร้อยแล้ว
                 ctx.fillStyle = "#1e3a8a";
                 ctx.font = `${fontSize}px Sarabun, "TH Sarabun PSK", sans-serif`;
                 
@@ -1537,6 +1514,7 @@ async function downloadStampedPDF() {
             ctx.restore();
         });
 
+        // 🎯 ส่งออกเป็น PDF A4 ด้วย JPEG Compression 0.92 (ประมวลผลเร็วมาก ไฟล์เบา ภาพคมกริบ)
         const imgData = hdCanvas.toDataURL('image/jpeg', 0.92);
         const { jsPDF } = window.jspdf;
         
@@ -1557,12 +1535,3 @@ async function downloadStampedPDF() {
         alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF กรุณาลองใหม่อีกครั้งครับ");
     }
 }
-
-// 🎯 เพิ่ม Event Listener สั่ง Refresh รายการอัตโนมัติเมื่อกดคลิกที่ Dropdown
-document.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById('stamp-saraban-select');
-    if (select) {
-        select.addEventListener('focus', populateStampSarabanDropdown);
-        select.addEventListener('click', populateStampSarabanDropdown);
-    }
-});
