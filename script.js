@@ -1,4 +1,4 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCtgGVCOHQW8t28rBI5TVhxceRElv3P0USLAxVqPylJv4eCZhllayX5ydyXonAa-7r/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyd119R-3GTmEk982cMYOOlltIhVrKEGskY75rsyGNuMWv68WAg2d2qommajmvqNXAP/exec"; 
 
 // 🔗 คอนฟิกเชื่อมต่อ Firebase คลาวด์ E-Attendance
 const firebaseConfig = {
