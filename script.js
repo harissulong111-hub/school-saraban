@@ -1041,7 +1041,7 @@ function isDuplicateData(tbodyId, columnIndex, newValue) {
 }
 
 // ==========================================
-// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - High Speed 300 DPI & Auto-Wrap
+// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - High Speed 500 DPI & Auto-Wrap
 // ==========================================
 let currentDocImage = null;
 
@@ -1111,7 +1111,7 @@ function loadDocToCanvas(e) {
     if (!file) return;
 
     document.getElementById('stamp-saraban-select').value = "";
-    showLoading("กำลังสร้างความละเอียดระดับ HD...");
+    showLoading("กำลังสร้างความละเอียดระดับ Ultra-HD (500 DPI)...");
 
     if (file.type === "application/pdf") {
         const fileReader = new FileReader();
@@ -1124,8 +1124,8 @@ function loadDocToCanvas(e) {
                     const wrapper = document.getElementById('canvas-wrapper');
                     const container = document.getElementById('canvas-container');
 
-                    // 🎯 1. Render บนหน้าจอความละเอียดสูงกำลังดี 300 DPI (Scale 3.0) เพื่อความรวดเร็ว
-                    const hdRenderScale = 3.0;
+                    // 🎯 Render บนหน้าจอความละเอียดสูง 500 DPI (Scale 5.0)
+                    const hdRenderScale = 5.0;
                     const viewport = page.getViewport({ scale: hdRenderScale });
 
                     const offscreenCanvas = document.createElement('canvas');
@@ -1178,7 +1178,8 @@ function renderPdfToCanvas(pdfUrl) {
                 const wrapper = document.getElementById('canvas-wrapper');
                 const container = document.getElementById('canvas-container');
 
-                const hdRenderScale = 3.0;
+                // 🎯 Render PDF ความละเอียดสูง 500 DPI (Scale 5.0)
+                const hdRenderScale = 5.0;
                 const viewport = page.getViewport({ scale: hdRenderScale });
 
                 const offscreenCanvas = document.createElement('canvas');
@@ -1370,14 +1371,14 @@ function wrapCanvasText(ctx, text, maxWidth) {
     return finalLines;
 }
 
-// 🎯 ฟังก์ชันสร้างและดาวน์โหลดไฟล์ PDF ขนาดมาตรฐาน A4 แบบดาวน์โหลดไว คมชัด 100%
+// 🎯 ฟังก์ชันสร้างและดาวน์โหลดไฟล์ PDF ขนาดมาตรฐาน A4 แบบดาวน์โหลดไว คมชัดสูง (500 DPI)
 async function downloadStampedPDF() {
     if (!currentDocImage) {
         alert('กรุณาเลือกเอกสารหนังสือราชการก่อนดาวน์โหลดครับ');
         return;
     }
 
-    showLoading("กำลังสร้างเอกสาร A4 คมชัดสูงอย่างรวดเร็ว...");
+    showLoading("กำลังสร้างเอกสาร A4 คมชัดสูง 500 DPI...");
 
     try {
         const displayCanvas = document.getElementById('doc-canvas');
@@ -1514,7 +1515,7 @@ async function downloadStampedPDF() {
             ctx.restore();
         });
 
-        // 🎯 ส่งออกเป็น PDF A4 ด้วย JPEG Compression 0.92 (ประมวลผลเร็วมาก ไฟล์เบา ภาพคมกริบ)
+        // 🎯 ส่งออกเป็น PDF A4 ด้วย JPEG Compression 0.92 (ประมวลผลเร็ว ไฟล์เบา คมชัด 500 DPI)
         const imgData = hdCanvas.toDataURL('image/jpeg', 0.92);
         const { jsPDF } = window.jspdf;
         
