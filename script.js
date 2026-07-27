@@ -403,7 +403,7 @@ function renderSarabanTable() {
         
         // ลิงก์หลักจากไฟล์อัปโหลด
         if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
-            linksArray.push(`<a href="${doc.fileUrl}" target="_blank" title="เปิดไฟล์คลาวด์" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📄 เปิดคลาวด์</a>`);
+            linksArray.push(`<a href="${doc.fileUrl}" target="_blank" title="เปิดไฟล์คลาวด์" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📄 หนังสือ</a>`);
         }
         
         // ลิงก์แนบเพิ่มเติม 1 - 6
