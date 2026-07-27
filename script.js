@@ -28,7 +28,6 @@ let currentUser = null;
 let calendarObj = null;
 
 window.onload = function() { 
-    // ตั้งค่าเริ่มต้นของช่องวันที่ในหน้าบ้านให้สอดคล้องกับปฏิทินของเครื่องผู้ใช้
     const todayStr = new Date().toISOString().split('T')[0];
     if(document.getElementById('sync-att-date')) {
         document.getElementById('sync-att-date').value = todayStr;
@@ -119,16 +118,14 @@ function initLiveHeader() {
 }
 
 // ===================================================================================
-// 📡 ฟังก์ชันโหลดฐานข้อมูลระบบหลัก (ปรับปรุงให้เปิดมาอยู่หน้าสุดท้ายของทุกตารางเสมอ)
+// 📡 ฟังก์ชันโหลดฐานข้อมูลระบบหลัก
 // ===================================================================================
 async function fetchSystemData() {
     showLoading("กำลังโหลดฐานข้อมูลรวมทุกกลุ่มงานโรงเรียนบ้านกาหยี...");
     try {
-        // เรียกซิงค์ข้อมูลสถิติจาก Firebase ทันที
         const currentToday = document.getElementById('sync-att-date').value || new Date().toISOString().split('T')[0];
         fetchFirebaseAttendanceData(currentToday);
 
-        // ดึงข้อมูลจาก Google Sheets หลักของระบบสารบรรณตามปกติ
         const res = await fetch(GOOGLE_SCRIPT_URL);
         const out = await res.json();
         if(out.status === "success") {
@@ -145,22 +142,19 @@ async function fetchSystemData() {
             renderOrdersTable();
             initCalendar();
             renderNewMenusTables();
+            populateStampSarabanDropdown();
 
-            // ⚡ ส่วนที่เพิ่มเข้ามา: สั่งให้ทุกเมนูกระโดดไปหน้าสุดท้ายทันทีหลังโหลดข้อมูลเสร็จสิ้น
             setTimeout(() => {
                 const tablesToLastPage = ["saraban", "sign", "orders", "memos", "gendocs", "receipts"];
                 tablesToLastPage.forEach(tableType => {
                     jumpToLastPage(tableType);
                 });
-            }, 300); // หน่วงเวลาเล็กน้อยเพื่อให้เบราว์เซอร์เรนเดอร์แถวตารางเสร็จสมบูรณ์
+            }, 300);
         }
     } catch(e) { alert("ระบบเครือข่ายเชื่อมฐานข้อมูลหลักขัดข้อง"); }
     hideLoading();
 }
 
-// ===================================================================================
-// 📡 ฟังก์ชันสำหรับซิงค์ข้อมูลสถิติมาเรียนตรงจากคลาวด์ Firebase โครงสร้างตารางใหม่เอี่ยม
-// ===================================================================================
 function syncAttendanceWithFirebase() {
     const dateVal = document.getElementById('sync-att-date').value;
     if(!dateVal) return alert("กรุณาระบุวันที่ต้องการซิงค์สถิติการมาเรียน");
@@ -176,7 +170,6 @@ function fetchFirebaseAttendanceData(targetDate) {
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            // ตั้งค่าตัวแปรสะสมค่าเพื่อส่งออกแดชบอร์ดภาพรวมของหน้าหลัก
             let grandTotalStudents = 0, grandTotalMale = 0, grandTotalFemale = 0;
             let grandPresent = 0, grandAbsent = 0;
             let grandMaleAbsent = 0, grandFemaleAbsent = 0;
@@ -194,7 +187,6 @@ function fetchFirebaseAttendanceData(targetDate) {
                         hasData = true;
                         const c = classes[className];
                         
-                        // แกะค่าข้อมูล ชาย/หญิง/รวม ทั้งหมด, มาเรียน และ ขาดเรียน ให้ตรงสูตรล่าสุด
                         const tMale = parseInt(c.male) || 0;
                         const tFemale = parseInt(c.female) || 0;
                         const totalClass = tMale + tFemale;
@@ -209,7 +201,6 @@ function fetchFirebaseAttendanceData(targetDate) {
                         
                         const classPercent = totalClass > 0 ? ((present / totalClass) * 100).toFixed(2) : "0.00";
 
-                        // รวมสถิติเข้าสู่ส่วนกลางเพื่อการประมวลผลการ์ดแดชบอร์ด
                         grandTotalStudents += totalClass;
                         grandTotalMale += tMale;
                         grandTotalFemale += tFemale;
@@ -220,7 +211,6 @@ function fetchFirebaseAttendanceData(targetDate) {
                         grandMalePresent += pMale;
                         grandFemalePresent += pFemale;
 
-                        // เรนเดอร์ช่องสลับสีสัน ข้อมูลมาเรียน/ข้อมูลขาดเรียน แยกชายหญิงสวยงาม
                         tbody.innerHTML += `
                             <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
                                 <td class="p-3 font-bold text-left text-slate-800 bg-slate-50/50">${className}</td>
@@ -240,7 +230,6 @@ function fetchFirebaseAttendanceData(targetDate) {
                 });
                 
                 if(hasData) {
-                    // คำนวณสรุปผลเปอร์เซ็นต์และเติมแถวสรุปรวมท้ายตาราง
                     const grandPercentage = grandTotalStudents > 0 ? ((grandPresent / grandTotalStudents) * 100).toFixed(2) : "0.00";
                     const mAbsentPercent = grandTotalMale > 0 ? ((grandMaleAbsent / grandTotalMale) * 100).toFixed(2) : "0.00";
                     const fAbsentPercent = grandTotalFemale > 0 ? ((grandFemaleAbsent / grandTotalFemale) * 100).toFixed(2) : "0.00";
@@ -261,7 +250,6 @@ function fetchFirebaseAttendanceData(targetDate) {
                         </tr>
                     `;
 
-                    // อัปเดตชุดข้อมูลสรุปบนการ์ดแดชบอร์ดสรุปด้านบน
                     document.getElementById('att-dash-total').innerHTML = `${grandTotalStudents} <span class="text-xs font-normal text-slate-400">คน</span>`;
                     document.getElementById('att-dash-present').innerHTML = `${grandPresent} <span class="text-xs font-semibold text-emerald-500">(${grandPercentage}%)</span>`;
                     document.getElementById('att-dash-absent').innerHTML = `${grandAbsent} <span class="text-xs font-normal text-slate-400">คน</span>`;
@@ -374,7 +362,6 @@ function switchSarabanTab(tab) {
     document.getElementById('th-saraban-id').innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
     renderSarabanTable();
     
-    // ⚡ ส่วนที่เพิ่มเข้ามา: เมื่อสลับแท็บเสร็จ ให้สั่งกระโดดไปหน้าสุดท้ายของตารางสารบรรณทันที
     setTimeout(() => {
         jumpToLastPage('saraban');
     }, 50);
@@ -398,15 +385,12 @@ function renderSarabanTable() {
         const pColor = doc.priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : doc.priority.includes("มาก") ? "text-orange-600 bg-orange-50" : doc.priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
         
-        // --- 🔗 การสร้างรายการไฟล์แนบและลิงก์ทั้ง 6 ลิงก์ ---
         let linksArray = [];
         
-        // ลิงก์หลักจากไฟล์อัปโหลด
         if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
             linksArray.push(`<a href="${doc.fileUrl}" target="_blank" title="เปิดไฟล์คลาวด์" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📄 หนังสือ</a>`);
         }
         
-        // ลิงก์แนบเพิ่มเติม 1 - 6
         for (let i = 1; i <= 6; i++) {
             const extraUrl = doc[`link${i}`];
             if (extraUrl && extraUrl.trim().startsWith("http")) {
@@ -442,7 +426,6 @@ function openSarabanModal() {
     sarabanEditIndex = null; document.getElementById("saraban-form").reset();
     document.getElementById("form-file-status").classList.add("hidden");
     
-    // เคลียร์ช่องลิงก์เพิ่มเติม 1-6
     for (let i = 1; i <= 6; i++) {
         if (document.getElementById(`form-link${i}`)) document.getElementById(`form-link${i}`).value = "";
     }
@@ -477,7 +460,6 @@ function editSaraban(index) {
     document.getElementById("form-deadline").value = data.deadline;
     document.getElementById("form-status").value = data.status;
 
-    // เติมข้อมูลลิงก์แนบ 1-6
     for (let i = 1; i <= 6; i++) {
         const el = document.getElementById(`form-link${i}`);
         if (el) el.value = data[`link${i}`] || "";
@@ -528,7 +510,6 @@ async function handleSarabanSubmit(event) {
         deadline: document.getElementById("form-deadline").value,
         status: document.getElementById("form-status").value,
         fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
-        // เพิ่มการส่งฟิลด์ลิงก์ 1 - 6
         link1: document.getElementById("form-link1") ? document.getElementById("form-link1").value.trim() : "",
         link2: document.getElementById("form-link2") ? document.getElementById("form-link2").value.trim() : "",
         link3: document.getElementById("form-link3") ? document.getElementById("form-link3").value.trim() : "",
@@ -594,7 +575,7 @@ function renderWorkflowTable() {
 }
 
 async function submitWorkflowComment(idx) {
-    const commentVal = document.getElementById(`work-comment(`+idx+`)`).value;
+    const commentVal = document.getElementById(`work-comment-`+idx).value;
     showLoading("กำลังลงนามบันทึกข้อสั่งการระดับผู้บริหารลงชีตหลัก...");
     const target = globalSarabanData[idx]; target.action = "update"; target.managercomment = commentVal;
     try {
@@ -770,7 +751,6 @@ function formatThaiDateFull(dateString) {
 }
 
 function renderNewMenusTables() {
-    // 1. ตาราง บันทึกข้อความ
     const memoBody = document.getElementById('memos-table-body');
     if(memoBody) {
         memoBody.innerHTML = globalMemosData.map(item => `
@@ -788,7 +768,6 @@ function renderNewMenusTables() {
         `).join('');
     }
 
-    // 2. ตาราง เอกสารทั่วไป
     const genBody = document.getElementById('gendocs-table-body');
     if(genBody) {
         genBody.innerHTML = globalGenDocsData.map(item => `
@@ -806,7 +785,6 @@ function renderNewMenusTables() {
         `).join('');
     }
 
-    // 3. ตาราง ใบเสร็จใบรับเงิน
     const receiptBody = document.getElementById('receipts-table-body');
     if(receiptBody) {
         receiptBody.innerHTML = globalReceiptsData.map(item => `
@@ -949,7 +927,6 @@ function filterTable(inputId, tableBodyId) {
 const ROWS_PER_PAGE = 10;
 const tablePages = { "saraban": 1, "orders": 1, "memos": 1, "gendocs": 1, "receipts": 1, "sign": 1 };
 
-// ฟังก์ชันควบคุม Pagination แบบตัวเลขแถวยาวตามรูปแบบใหม่
 function changeTablePage(tableType, direction) {
     const tbodyId = (tableType === "saraban") ? "saraban-table-body" : 
                     (tableType === "orders") ? "orders-table-body" : 
@@ -1061,4 +1038,500 @@ function isDuplicateData(tbodyId, columnIndex, newValue) {
         }
     }
     return false;
+}
+
+// ==========================================
+// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - High Speed 300 DPI & Auto-Wrap
+// ==========================================
+let currentDocImage = null;
+
+function populateStampSarabanDropdown() {
+    const select = document.getElementById('stamp-saraban-select');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">-- ดึงเอกสารจากทะเบียนหนังสือรับ --</option>';
+    if (!globalSarabanData || globalSarabanData.length === 0) return;
+
+    const inboundDocs = globalSarabanData.filter(doc => doc.internalId && doc.internalId.startsWith("รับ"));
+    const sortedDocs = [...inboundDocs].reverse();
+
+    sortedDocs.forEach(doc => {
+        if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
+            const opt = document.createElement('option');
+            opt.value = doc.fileUrl;
+            opt.textContent = `[${doc.internalId}] 📄 ${doc.title.substring(0, 35)}...`;
+            select.appendChild(opt);
+        }
+    });
+}
+
+function formatGoogleDriveUrl(rawUrl) {
+    if (!rawUrl) return rawUrl;
+    let fileId = "";
+    if (rawUrl.includes("drive.google.com")) {
+        const match = rawUrl.match(/\/d\/([^\/]+)/) || rawUrl.match(/id=([^&]+)/);
+        if (match && match[1]) fileId = match[1];
+    } else if (rawUrl.includes("docs.google.com")) {
+        const match = rawUrl.match(/\/d\/([^\/]+)/);
+        if (match && match[1]) fileId = match[1];
+    }
+
+    if (fileId) {
+        return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+    return rawUrl;
+}
+
+async function loadDocFromSaraban(url) {
+    if (!url) return;
+    const inputLocal = document.getElementById('stamp-doc-input');
+    if (inputLocal) inputLocal.value = "";
+    
+    showLoading("กำลังประมวลผลเอกสารความละเอียดสูง...");
+    const directUrl = formatGoogleDriveUrl(url);
+
+    try {
+        if (url.toLowerCase().includes('.pdf')) {
+            await renderPdfToCanvas(directUrl);
+        } else {
+            await renderImageToCanvas(directUrl);
+        }
+    } catch (err) {
+        try {
+            await renderPdfToCanvas(directUrl);
+        } catch (e2) {
+            hideLoading();
+            alert("ไม่สามารถดึงไฟล์นี้ได้ กรุณาตรวจสอบว่าไฟล์ใน Google Drive ได้เปิดสิทธิ์ 'ทุกคนที่มีลิงก์' แล้วหรือยังครับ");
+        }
+    }
+}
+
+function loadDocToCanvas(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    document.getElementById('stamp-saraban-select').value = "";
+    showLoading("กำลังสร้างความละเอียดระดับ HD...");
+
+    if (file.type === "application/pdf") {
+        const fileReader = new FileReader();
+        fileReader.onload = function() {
+            const typedarray = new Uint8Array(this.result);
+            pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+                pdf.getPage(1).then(page => {
+                    const canvas = document.getElementById('doc-canvas');
+                    const ctx = canvas.getContext('2d');
+                    const wrapper = document.getElementById('canvas-wrapper');
+                    const container = document.getElementById('canvas-container');
+
+                    // 🎯 1. Render บนหน้าจอความละเอียดสูงกำลังดี 300 DPI (Scale 3.0) เพื่อความรวดเร็ว
+                    const hdRenderScale = 3.0;
+                    const viewport = page.getViewport({ scale: hdRenderScale });
+
+                    const offscreenCanvas = document.createElement('canvas');
+                    const offscreenCtx = offscreenCanvas.getContext('2d');
+                    offscreenCanvas.width = viewport.width;
+                    offscreenCanvas.height = viewport.height;
+
+                    page.render({ canvasContext: offscreenCtx, viewport: viewport }).promise.then(() => {
+                        const img = new Image();
+                        img.onload = () => {
+                            currentDocImage = img;
+
+                            const containerWidth = (container ? container.clientWidth : 750) - 32;
+                            const displayScale = containerWidth / viewport.width;
+                            const displayW = viewport.width * displayScale;
+                            const displayH = viewport.height * displayScale;
+
+                            canvas.width = displayW;
+                            canvas.height = displayH;
+                            wrapper.style.width = displayW + 'px';
+                            wrapper.style.height = displayH + 'px';
+
+                            ctx.drawImage(img, 0, 0, displayW, displayH);
+                            hideLoading();
+                        };
+                        img.src = offscreenCanvas.toDataURL('image/jpeg', 0.92);
+                    });
+                });
+            }).catch(err => {
+                hideLoading();
+                alert("เกิดข้อผิดพลาดในการอ่านไฟล์ PDF");
+            });
+        };
+        fileReader.readAsArrayBuffer(file);
+    } else {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            renderImageToCanvas(event.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function renderPdfToCanvas(pdfUrl) {
+    return new Promise((resolve, reject) => {
+        pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+            pdf.getPage(1).then(page => {
+                const canvas = document.getElementById('doc-canvas');
+                const ctx = canvas.getContext('2d');
+                const wrapper = document.getElementById('canvas-wrapper');
+                const container = document.getElementById('canvas-container');
+
+                const hdRenderScale = 3.0;
+                const viewport = page.getViewport({ scale: hdRenderScale });
+
+                const offscreenCanvas = document.createElement('canvas');
+                const offscreenCtx = offscreenCanvas.getContext('2d');
+                offscreenCanvas.width = viewport.width;
+                offscreenCanvas.height = viewport.height;
+
+                page.render({ canvasContext: offscreenCtx, viewport: viewport }).promise.then(() => {
+                    const img = new Image();
+                    img.onload = () => {
+                        currentDocImage = img;
+
+                        const containerWidth = (container ? container.clientWidth : 750) - 32;
+                        const displayScale = containerWidth / viewport.width;
+                        const displayW = viewport.width * displayScale;
+                        const displayH = viewport.height * displayScale;
+
+                        canvas.width = displayW;
+                        canvas.height = displayH;
+                        wrapper.style.width = displayW + 'px';
+                        wrapper.style.height = displayH + 'px';
+
+                        ctx.drawImage(img, 0, 0, displayW, displayH);
+                        hideLoading();
+                        resolve();
+                    };
+                    img.src = offscreenCanvas.toDataURL('image/jpeg', 0.92);
+                });
+            }).catch(reject);
+        }).catch(reject);
+    });
+}
+
+function renderImageToCanvas(imgUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function() {
+            const canvas = document.getElementById('doc-canvas');
+            const ctx = canvas.getContext('2d');
+            const wrapper = document.getElementById('canvas-wrapper');
+            const container = document.getElementById('canvas-container');
+
+            currentDocImage = img;
+
+            const containerWidth = (container ? container.clientWidth : 750) - 32;
+            let displayWidth = img.width;
+            let displayHeight = img.height;
+
+            if (displayWidth > containerWidth) {
+                const ratio = containerWidth / displayWidth;
+                displayWidth = containerWidth;
+                displayHeight = displayHeight * ratio;
+            }
+
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+            wrapper.style.width = displayWidth + 'px';
+            wrapper.style.height = displayHeight + 'px';
+
+            ctx.drawImage(img, 0, 0, displayWidth, displayHeight);
+            hideLoading();
+            resolve();
+        };
+        img.onerror = function(err) {
+            hideLoading();
+            reject(err);
+        };
+        img.src = imgUrl;
+    });
+}
+
+function toggleStampLayer(type) {
+    const chk = document.getElementById(type === 'receipt' ? 'chk-use-receipt' : 'chk-use-propose');
+    const inputs = document.getElementById(type === 'receipt' ? 'receipt-inputs' : 'propose-inputs');
+    const box = document.getElementById(type === 'receipt' ? 'stamp-receipt-box' : 'stamp-propose-box');
+
+    if (chk.checked) {
+        inputs.classList.remove('hidden');
+        box.classList.remove('hidden');
+        updateStampText(type);
+        makeElementDraggable(box);
+    } else {
+        inputs.classList.add('hidden');
+        box.classList.add('hidden');
+    }
+}
+
+function updateStampText(type) {
+    if (type === 'receipt') {
+        const no = document.getElementById('stamp-receipt-no').value || '..............';
+        const date = document.getElementById('stamp-receipt-date').value || '..............';
+        const dept = document.getElementById('stamp-receipt-dept').value || '..............';
+
+        document.getElementById('stamp-receipt-content').innerHTML = `
+            <div class="border-1.5 border-blue-800 p-2 text-blue-800 font-bold bg-white/95 w-[240px] text-xs leading-relaxed font-sarabun shadow-xs">
+                <div class="text-center font-extrabold text-sm mb-1">โรงเรียนบ้านกาหยี</div>
+                <div>เลขที่รับ: <span class="text-blue-900 font-extrabold">${no}</span></div>
+                <div>วัน/เดือน/ปี: <span class="text-blue-900 font-extrabold">${date}</span></div>
+                <div>ฝ่ายงาน: <span class="text-blue-900 font-extrabold">${dept}</span></div>
+            </div>
+        `;
+    } else if (type === 'propose') {
+        const isInform = document.getElementById('stamp-chk-inform').checked ? '✓' : '  ';
+        const isConsider = document.getElementById('stamp-chk-consider').checked ? '✓' : '  ';
+        const note = document.getElementById('stamp-propose-note').value || '';
+
+        document.getElementById('stamp-propose-content').innerHTML = `
+            <div class="border-1.5 border-blue-800 p-2 text-blue-800 font-bold bg-white/95 w-[280px] text-xs leading-relaxed font-sarabun shadow-xs">
+                <div class="text-sm font-extrabold">เรียนเสนอ ผู้บริหาร</div>
+                <div class="flex gap-3 my-0.5">
+                    <span>( ${isInform} ) เพื่อโปรดทราบ</span>
+                    <span>( ${isConsider} ) เพื่อโปรดพิจารณา</span>
+                </div>
+                <div class="border-t border-dashed border-blue-400 pt-1 text-[11px] font-normal min-h-[35px] whitespace-pre-line break-words">${note}</div>
+            </div>
+        `;
+    }
+}
+
+function makeElementDraggable(elmnt) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    elmnt.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        const wrapper = document.getElementById('canvas-wrapper');
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+
+        newTop = Math.max(0, Math.min(newTop, wrapper.clientHeight - elmnt.clientHeight));
+        newLeft = Math.max(0, Math.min(newLeft, wrapper.clientWidth - elmnt.clientWidth));
+
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
+function resizeStamp(type, val) {
+    const content = document.getElementById(type === 'receipt' ? 'stamp-receipt-content' : 'stamp-propose-content');
+    if (content) {
+        content.style.transform = `scale(${val})`;
+        content.style.transformOrigin = 'top left';
+    }
+}
+
+// 🎯 ฟังก์ชันช่วยคำนวณการตัดคำขึ้นบรรทัดใหม่อัตโนมัติ (Auto Word Wrap for Canvas)
+function wrapCanvasText(ctx, text, maxWidth) {
+    const rawLines = text.split('\n');
+    let finalLines = [];
+
+    rawLines.forEach(line => {
+        let words = line.split('');
+        let currentLine = '';
+
+        for (let n = 0; n < words.length; n++) {
+            let testLine = currentLine + words[n];
+            let metrics = ctx.measureText(testLine);
+            let testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                finalLines.push(currentLine);
+                currentLine = words[n];
+            } else {
+                currentLine = testLine;
+            }
+        }
+        finalLines.push(currentLine);
+    });
+    return finalLines;
+}
+
+// 🎯 ฟังก์ชันสร้างและดาวน์โหลดไฟล์ PDF ขนาดมาตรฐาน A4 แบบดาวน์โหลดไว คมชัด 100%
+async function downloadStampedPDF() {
+    if (!currentDocImage) {
+        alert('กรุณาเลือกเอกสารหนังสือราชการก่อนดาวน์โหลดครับ');
+        return;
+    }
+
+    showLoading("กำลังสร้างเอกสาร A4 คมชัดสูงอย่างรวดเร็ว...");
+
+    try {
+        const displayCanvas = document.getElementById('doc-canvas');
+        
+        const hdWidth = currentDocImage.naturalWidth || currentDocImage.width;
+        const hdHeight = currentDocImage.naturalHeight || currentDocImage.height;
+
+        const scaleX = hdWidth / displayCanvas.width;
+        const scaleY = hdHeight / displayCanvas.height;
+
+        const hdCanvas = document.createElement('canvas');
+        const ctx = hdCanvas.getContext('2d');
+        hdCanvas.width = hdWidth;
+        hdCanvas.height = hdHeight;
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, hdWidth, hdHeight);
+        ctx.drawImage(currentDocImage, 0, 0, hdWidth, hdHeight);
+
+        const stampsToDraw = [];
+        const chkReceipt = document.getElementById('chk-use-receipt');
+        const boxReceipt = document.getElementById('stamp-receipt-box');
+        if (chkReceipt && chkReceipt.checked && !boxReceipt.classList.contains('hidden')) {
+            stampsToDraw.push(boxReceipt);
+        }
+
+        const chkPropose = document.getElementById('chk-use-propose');
+        const boxPropose = document.getElementById('stamp-propose-box');
+        if (chkPropose && chkPropose.checked && !boxPropose.classList.contains('hidden')) {
+            stampsToDraw.push(boxPropose);
+        }
+
+        stampsToDraw.forEach(box => {
+            const displayX = parseInt(box.style.left) || 0;
+            const displayY = parseInt(box.style.top) || 0;
+
+            const hdX = displayX * scaleX;
+            const hdY = displayY * scaleY;
+            const isReceipt = (box.id === 'stamp-receipt-box');
+
+            ctx.save();
+
+            if (isReceipt) {
+                const no = document.getElementById('stamp-receipt-no').value || '..............';
+                const date = document.getElementById('stamp-receipt-date').value || '..............';
+                const dept = document.getElementById('stamp-receipt-dept').value || '..............';
+                const scaleVal = parseFloat(document.getElementById('scale-receipt').value) || 1.0;
+
+                const baseW = 240 * scaleVal;
+                const baseH = 105 * scaleVal;
+                const boxW = baseW * scaleX;
+                const boxH = baseH * scaleY;
+
+                ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+                ctx.fillRect(hdX, hdY, boxW, boxH);
+
+                // 🎯 ปรับเส้นกรอบให้เรียวเล็กลง (กำลังสวยงาม)
+                ctx.lineWidth = Math.max(1.5, 2.0 * scaleX * scaleVal);
+                ctx.strokeStyle = "#1e40af";
+                ctx.strokeRect(hdX, hdY, boxW, boxH);
+
+                ctx.fillStyle = "#1e40af";
+                ctx.font = `bold ${Math.round(15 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
+                ctx.textAlign = "center";
+                ctx.fillText("โรงเรียนบ้านกาหยี", hdX + (boxW / 2), hdY + (24 * scaleY * scaleVal));
+
+                ctx.font = `bold ${Math.round(12.5 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
+                ctx.textAlign = "left";
+                ctx.fillText(`เลขที่รับ: ${no}`, hdX + (12 * scaleX * scaleVal), hdY + (48 * scaleY * scaleVal));
+                ctx.fillText(`วัน/เดือน/ปี: ${date}`, hdX + (12 * scaleX * scaleVal), hdY + (70 * scaleY * scaleVal));
+                ctx.fillText(`ฝ่ายงาน: ${dept}`, hdX + (12 * scaleX * scaleVal), hdY + (92 * scaleY * scaleVal));
+            } else {
+                const isInform = document.getElementById('stamp-chk-inform').checked ? '✓' : '  ';
+                const isConsider = document.getElementById('stamp-chk-consider').checked ? '✓' : '  ';
+                const note = document.getElementById('stamp-propose-note').value || '';
+                const scaleVal = parseFloat(document.getElementById('scale-propose').value) || 1.0;
+
+                const baseW = 280 * scaleVal;
+                const paddingX = 12 * scaleX * scaleVal;
+                const maxTextW = (baseW * scaleX) - (paddingX * 2);
+
+                // ตั้งค่าฟอนต์ข้อความบันทึก
+                const fontSize = Math.round(11.5 * scaleY * scaleVal);
+                const lineHeight = fontSize * 1.35;
+                ctx.font = `${fontSize}px Sarabun, "TH Sarabun PSK", sans-serif`;
+
+                // คำนวณตัดคำขึ้นบรรทัดใหม่อัตโนมัติ
+                const wrappedLines = wrapCanvasText(ctx, note, maxTextW);
+
+                // 🎯 คำนวณความสูงกรอบแบบ Dynamic ขยายลงล่างอัตโนมัติ ไม่ให้ข้อความหลุดกรอบ
+                const headerH = 55 * scaleY * scaleVal; // พื้นที่ส่วนหัว
+                const contentH = Math.max(35 * scaleY * scaleVal, wrappedLines.length * lineHeight + (10 * scaleY * scaleVal));
+                const boxW = baseW * scaleX;
+                const boxH = headerH + contentH;
+
+                // วาดพื้นหลังตรายาง
+                ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+                ctx.fillRect(hdX, hdY, boxW, boxH);
+
+                // 🎯 ปรับเส้นกรอบให้เรียวเล็กลง
+                ctx.lineWidth = Math.max(1.5, 2.0 * scaleX * scaleVal);
+                ctx.strokeStyle = "#1e40af";
+                ctx.strokeRect(hdX, hdY, boxW, boxH);
+
+                // ข้อความส่วนหัว
+                ctx.fillStyle = "#1e40af";
+                ctx.font = `bold ${Math.round(14 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
+                ctx.textAlign = "left";
+                ctx.fillText("เรียนเสนอ ผู้บริหาร", hdX + paddingX, hdY + (22 * scaleY * scaleVal));
+
+                ctx.font = `${Math.round(11.5 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
+                ctx.fillText(`( ${isInform} ) เพื่อโปรดทราบ   ( ${isConsider} ) เพื่อโปรดพิจารณา`, hdX + paddingX, hdY + (44 * scaleY * scaleVal));
+
+                // เส้นประคั่นกลาง
+                ctx.beginPath();
+                ctx.setLineDash([4 * scaleX * scaleVal, 4 * scaleX * scaleVal]);
+                ctx.moveTo(hdX + paddingX, hdY + (50 * scaleY * scaleVal));
+                ctx.lineTo(hdX + boxW - paddingX, hdY + (50 * scaleY * scaleVal));
+                ctx.strokeStyle = "#60a5fa";
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // วาดบรรทัดข้อความบันทึกที่ถูกตัดคำเรียบร้อยแล้ว
+                ctx.fillStyle = "#1e3a8a";
+                ctx.font = `${fontSize}px Sarabun, "TH Sarabun PSK", sans-serif`;
+                
+                let startY = hdY + (68 * scaleY * scaleVal);
+                wrappedLines.forEach((lineText) => {
+                    ctx.fillText(lineText, hdX + paddingX, startY);
+                    startY += lineHeight;
+                });
+            }
+
+            ctx.restore();
+        });
+
+        // 🎯 ส่งออกเป็น PDF A4 ด้วย JPEG Compression 0.92 (ประมวลผลเร็วมาก ไฟล์เบา ภาพคมกริบ)
+        const imgData = hdCanvas.toDataURL('image/jpeg', 0.92);
+        const { jsPDF } = window.jspdf;
+        
+        const isLandscape = hdWidth > hdHeight;
+        const orientation = isLandscape ? 'l' : 'p';
+        
+        const pdf = new jsPDF(orientation, 'mm', 'a4');
+        const a4Width = isLandscape ? 297 : 210;
+        const a4Height = isLandscape ? 210 : 297;
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, a4Width, a4Height, '', 'FAST');
+        pdf.save('เอกสารประทับตรายาง_โรงเรียนบ้านกาหยี_A4.pdf');
+
+        hideLoading();
+    } catch (err) {
+        console.error(err);
+        hideLoading();
+        alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF กรุณาลองใหม่อีกครั้งครับ");
+    }
 }

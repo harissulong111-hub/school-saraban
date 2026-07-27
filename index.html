@@ -11,6 +11,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     
+    <!-- เพิ่ม PDF.js และ jsPDF สำหรับอ่านและส่งออกไฟล์ PDF บน Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -68,6 +73,7 @@
                 <button onclick="navigateTo('menu-gendocs')" id="nav-gendocs" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">🗂️ จัดเก็บเอกสารทั่วไป</button>
                 <button onclick="navigateTo('menu-receipts')" id="nav-receipts" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">💰 จัดเก็บใบเสร็จใบรับเงิน</button>
                 <button onclick="navigateTo('menu-attendance')" id="nav-attendance" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">📊 สถิติการมาเรียนของนักเรียน</button>
+                <button onclick="navigateTo('menu-stamp')" id="nav-stamp" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer hover:bg-slate-800 text-slate-200">🔏 ระบบปั๊มตรายางดิจิทัล</button>
             </nav>
             <div class="p-3 border-t border-slate-800 bg-slate-950/40 text-center">
                 <button onclick="handleLogout()" class="text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer">🚪 ออกจากระบบ</button>
@@ -79,7 +85,7 @@
                 <div class="flex items-center gap-3">
                     <img src="https://img2.pic.in.th/logo-School-1.png" alt="logo School.jpg" class="w-9 h-9 object-contain rounded-full shadow-xs bg-white">
                     <div>
-                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">ยินดีต้อนรับ</span>
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">ระบบงานโรงเรียนคลาวด์อัจฉริยะ</span>
                         <span class="text-sm font-black text-blue-700">โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1</span>
                     </div>
                 </div>
@@ -435,6 +441,106 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- MENU 10: DIGITAL STAMP ENGINE -->
+                <section id="menu-stamp" class="tab-content hidden animate-fade-in space-y-4">
+                    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">🔏 ระบบประทับตรายางดิจิทัล (Digital Stamp Tool)</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">เลือกเอกสาร ประทับตรายางทั้ง 2 รูปแบบ ลากวาง และดาวน์โหลดเอกสาร PDF ได้ทันที</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="downloadStampedPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5">💾 ดาวน์โหลดเอกสารประทับตรายาง (PDF)</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        <!-- แผงเครื่องมือฝั่งซ้าย (Control Panel) -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-4 lg:col-span-1 overflow-y-auto max-h-[750px]">
+                            <h5 class="text-xs font-extrabold text-slate-700 border-b pb-2">🛠️ เครื่องมือปั๊มเอกสาร</h5>
+                            
+                            <!-- 1. เลือกเอกสารจากหนังสือรับ / อัปโหลดไฟล์ภายนอก -->
+                            <div class="space-y-2">
+                                <label class="block font-bold text-slate-600 text-xs">1. เลือกเอกสารหนังสือราชการ</label>
+                                
+                                <!-- ดึงเฉพาะหนังสือรับ เรียงล่าสุดขึ้นก่อน -->
+                                <div>
+                                    <span class="text-[11px] font-semibold text-blue-700 block mb-1">📥 เลือกจากทะเบียนหนังสือรับ:</span>
+                                    <select id="stamp-saraban-select" onchange="loadDocFromSaraban(this.value)" class="w-full p-2 border border-blue-200 rounded-xl bg-blue-50/50 text-xs font-semibold focus:outline-none focus:border-blue-500">
+                                        <option value="">-- ดึงเอกสารจากทะเบียนหนังสือรับ --</option>
+                                    </select>
+                                </div>
+
+                                <div class="text-center text-[10px] text-slate-400 font-bold my-1">- หรือ -</div>
+
+                                <!-- นำเข้าไฟล์ภายนอก (PDF/รูปภาพ) -->
+                                <div>
+                                    <span class="text-[11px] font-semibold text-slate-500 block mb-1">📁 เลือกไฟล์ภายนอกจากเครื่อง (PDF/รูปภาพ):</span>
+                                    <input type="file" id="stamp-doc-input" accept="image/*,.pdf" onchange="loadDocToCanvas(event)" class="w-full border border-slate-300 rounded-xl p-1.5 bg-slate-50 text-xs">
+                                </div>
+                            </div>
+
+                            <hr class="border-slate-100">
+
+                            <!-- 2. ตราปั๊มเลขรับโรงเรียน -->
+                            <div class="space-y-2 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                                <label class="flex items-center gap-2 font-extrabold text-blue-900 text-xs cursor-pointer">
+                                    <input type="checkbox" id="chk-use-receipt" onchange="toggleStampLayer('receipt')" class="w-4 h-4 rounded text-blue-600">
+                                    🟦 1. ตราปั๊มเลขรับโรงเรียน
+                                </label>
+
+                                <div id="receipt-inputs" class="space-y-2 hidden pt-2">
+                                    <input type="text" id="stamp-receipt-no" placeholder="เลขที่รับ (เช่น 251/2569)" oninput="updateStampText('receipt')" class="w-full p-2 text-xs border border-slate-300 rounded-lg bg-white">
+                                    <input type="text" id="stamp-receipt-date" placeholder="วัน/เดือน/ปี (เช่น 27/07/2569)" oninput="updateStampText('receipt')" class="w-full p-2 text-xs border border-slate-300 rounded-lg bg-white">
+                                    <input type="text" id="stamp-receipt-dept" placeholder="ฝ่ายงาน (เช่น บริหารงานทั่วไป)" oninput="updateStampText('receipt')" class="w-full p-2 text-xs border border-slate-300 rounded-lg bg-white">
+                                    
+                                    <div class="pt-1">
+                                        <span class="text-[10px] font-bold text-slate-500">🔍 ปรับขนาด:</span>
+                                        <input type="range" id="scale-receipt" min="0.4" max="1.6" step="0.05" value="1" oninput="resizeStamp('receipt', this.value)" class="w-full cursor-pointer">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. ตราปั๊มเสนอ ผอ. -->
+                            <div class="space-y-2 p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                                <label class="flex items-center gap-2 font-extrabold text-indigo-900 text-xs cursor-pointer">
+                                    <input type="checkbox" id="chk-use-propose" onchange="toggleStampLayer('propose')" class="w-4 h-4 rounded text-indigo-600">
+                                    🟦 2. ตราปั๊มเรียนเสนอ ผอ.
+                                </label>
+
+                                <div id="propose-inputs" class="space-y-2 hidden pt-2">
+                                    <div class="flex items-center gap-3 text-xs font-bold text-slate-700">
+                                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="stamp-chk-inform" onchange="updateStampText('propose')"> เพื่อทราบ</label>
+                                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="stamp-chk-consider" onchange="updateStampText('propose')"> เพื่อพิจารณา</label>
+                                    </div>
+                                    <textarea id="stamp-propose-note" rows="3" placeholder="ข้อความเพิ่มเติม..." oninput="updateStampText('propose')" class="w-full p-2 text-xs border border-slate-300 rounded-lg bg-white"></textarea>
+                                    
+                                    <div class="pt-1">
+                                        <span class="text-[10px] font-bold text-slate-500">🔍 ปรับขนาด:</span>
+                                        <input type="range" id="scale-propose" min="0.4" max="1.6" step="0.05" value="1" oninput="resizeStamp('propose', this.value)" class="w-full cursor-pointer">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- พื้นที่แสดงเอกสารและลากวางตรายาง (Canvas Workarea) -->
+                        <div id="canvas-container" class="bg-slate-200/80 p-4 rounded-xl border border-slate-300 lg:col-span-3 flex justify-center items-start overflow-auto min-h-[600px] max-h-[800px]">
+                            <div id="canvas-wrapper" class="relative bg-white shadow-lg rounded-sm overflow-hidden flex justify-center items-center">
+                                <canvas id="doc-canvas" class="block max-w-full h-auto"></canvas>
+                                
+                                <!-- เลเยอร์ที่ 1: ตราปั๊มเลขรับโรงเรียน -->
+                                <div id="stamp-receipt-box" class="absolute hidden border-2 border-dashed border-blue-500 cursor-move bg-blue-500/5 select-none" style="top: 20px; left: 20px; padding: 2px;">
+                                    <div id="stamp-receipt-content" class="relative pointer-events-none"></div>
+                                </div>
+
+                                <!-- เลเยอร์ที่ 2: ตราปั๊มเสนอ ผอ. -->
+                                <div id="stamp-propose-box" class="absolute hidden border-2 border-dashed border-indigo-500 cursor-move bg-indigo-500/5 select-none" style="top: 160px; left: 20px; padding: 2px;">
+                                    <div id="stamp-propose-content" class="relative pointer-events-none"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 
                 <footer class="mt-8 text-center text-xs font-medium text-slate-400 pt-4 border-t border-slate-200/60">
                     @ Copyright ฮาริส สุหลง  ติดต่อ 0924291775 
@@ -443,16 +549,14 @@
         </div>
     </div>
 
-    <!-- Modals Structure (ปรับแก้ไขการ Scroll และล็อคปุ่มล่างให้อยู่ในมุมมองเสมอ) -->
+    <!-- Modals Structure -->
     <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
-            <!-- Header Modal (ตรึงด้านบน) -->
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
                 <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
                 <button type="button" onclick="closeSarabanModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
             
-            <!-- Form Body (ตั้งให้เลื่อน Scrollbar เฉพาะส่วนนี้ได้) -->
             <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="flex flex-col min-h-0 flex-1">
                 <div class="p-5 space-y-3.5 overflow-y-auto flex-1">
                     <div class="grid grid-cols-2 gap-4">
@@ -494,7 +598,6 @@
                     <div><label class="block font-bold text-slate-600 mb-1 text-xs">สถานะ</label><select id="form-status" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="สำเร็จแล้ว">✔️ AM-สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
                 </div>
 
-                <!-- Footer Modal Buttons (ตรึงอยู่ด้านล่างเสมอ เห็นปุ่มบันทึก/ยกเลิกแน่นอน) -->
                 <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 px-5 py-3.5 shrink-0">
                     <button type="button" onclick="closeSarabanModal()" class="px-4 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer text-xs">ยกเลิก</button>
                     <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer text-xs">บันทึกข้อมูล</button>
