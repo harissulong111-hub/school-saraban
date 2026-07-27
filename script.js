@@ -1041,7 +1041,7 @@ function isDuplicateData(tbodyId, columnIndex, newValue) {
 }
 
 // ==========================================
-// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - High Speed 500 DPI & Auto-Wrap
+// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - Smart Dictionary-Based Thai Word Wrap
 // ==========================================
 let currentDocImage = null;
 
@@ -1124,7 +1124,6 @@ function loadDocToCanvas(e) {
                     const wrapper = document.getElementById('canvas-wrapper');
                     const container = document.getElementById('canvas-container');
 
-                    // 🎯 Render บนหน้าจอความละเอียดสูง 500 DPI (Scale 5.0)
                     const hdRenderScale = 5.0;
                     const viewport = page.getViewport({ scale: hdRenderScale });
 
@@ -1178,7 +1177,6 @@ function renderPdfToCanvas(pdfUrl) {
                 const wrapper = document.getElementById('canvas-wrapper');
                 const container = document.getElementById('canvas-container');
 
-                // 🎯 Render PDF ความละเอียดสูง 500 DPI (Scale 5.0)
                 const hdRenderScale = 5.0;
                 const viewport = page.getViewport({ scale: hdRenderScale });
 
@@ -1346,28 +1344,51 @@ function resizeStamp(type, val) {
     }
 }
 
-// 🎯 ฟังก์ชันช่วยคำนวณการตัดคำขึ้นบรรทัดใหม่อัตโนมัติ (Auto Word Wrap for Canvas)
+// 🎯 ฟังก์ชันแบ่งกลุ่มคำภาษาไทยด้วย Intl.Segmenter ตัดคำสมบูรณ์ ไม่แยกพยัญชนะสะกด
+function getThaiWords(text) {
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+        const segmenter = new Intl.Segmenter('th-TH', { granularity: 'word' });
+        return Array.from(segmenter.segment(text)).map(s => s.segment);
+    }
+    // สำรอง: แบ่งด้วยช่องว่าง
+    return text.split(' ');
+}
+
+// 🎯 ฟังก์ชันช่วยคำนวณการตัดขึ้นบรรทัดใหม่ตามพจนานุกรมคำภาษาไทย (Smart Dictionary Word Wrap)
 function wrapCanvasText(ctx, text, maxWidth) {
     const rawLines = text.split('\n');
     let finalLines = [];
 
     rawLines.forEach(line => {
-        let words = line.split('');
+        if (!line.trim()) {
+            finalLines.push('');
+            return;
+        }
+
+        const words = getThaiWords(line);
         let currentLine = '';
 
-        for (let n = 0; n < words.length; n++) {
-            let testLine = currentLine + words[n];
-            let metrics = ctx.measureText(testLine);
-            let testWidth = metrics.width;
-            if (testWidth > maxWidth && n > 0) {
-                finalLines.push(currentLine);
-                currentLine = words[n];
-            } else {
+        words.forEach((word) => {
+            let testLine = currentLine + word;
+            if (ctx.measureText(testLine).width <= maxWidth) {
                 currentLine = testLine;
+            } else {
+                if (currentLine !== '') {
+                    finalLines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    // ในกรณีคำเดียวยาวกว่าความกว้างกรอบจริงๆ
+                    finalLines.push(word);
+                    currentLine = '';
+                }
             }
+        });
+
+        if (currentLine) {
+            finalLines.push(currentLine);
         }
-        finalLines.push(currentLine);
     });
+
     return finalLines;
 }
 
@@ -1435,7 +1456,6 @@ async function downloadStampedPDF() {
                 ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
                 ctx.fillRect(hdX, hdY, boxW, boxH);
 
-                // 🎯 ปรับเส้นกรอบให้เรียวเล็กลง (กำลังสวยงาม)
                 ctx.lineWidth = Math.max(1.5, 2.0 * scaleX * scaleVal);
                 ctx.strokeStyle = "#1e40af";
                 ctx.strokeRect(hdX, hdY, boxW, boxH);
@@ -1460,30 +1480,25 @@ async function downloadStampedPDF() {
                 const paddingX = 12 * scaleX * scaleVal;
                 const maxTextW = (baseW * scaleX) - (paddingX * 2);
 
-                // ตั้งค่าฟอนต์ข้อความบันทึก
                 const fontSize = Math.round(11.5 * scaleY * scaleVal);
                 const lineHeight = fontSize * 1.35;
                 ctx.font = `${fontSize}px Sarabun, "TH Sarabun PSK", sans-serif`;
 
-                // คำนวณตัดคำขึ้นบรรทัดใหม่อัตโนมัติ
+                // ตัดคำด้วยระบบตัดคำภาษาไทยตามพจนานุกรม
                 const wrappedLines = wrapCanvasText(ctx, note, maxTextW);
 
-                // 🎯 คำนวณความสูงกรอบแบบ Dynamic ขยายลงล่างอัตโนมัติ ไม่ให้ข้อความหลุดกรอบ
-                const headerH = 55 * scaleY * scaleVal; // พื้นที่ส่วนหัว
+                const headerH = 55 * scaleY * scaleVal;
                 const contentH = Math.max(35 * scaleY * scaleVal, wrappedLines.length * lineHeight + (10 * scaleY * scaleVal));
                 const boxW = baseW * scaleX;
                 const boxH = headerH + contentH;
 
-                // วาดพื้นหลังตรายาง
                 ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
                 ctx.fillRect(hdX, hdY, boxW, boxH);
 
-                // 🎯 ปรับเส้นกรอบให้เรียวเล็กลง
                 ctx.lineWidth = Math.max(1.5, 2.0 * scaleX * scaleVal);
                 ctx.strokeStyle = "#1e40af";
                 ctx.strokeRect(hdX, hdY, boxW, boxH);
 
-                // ข้อความส่วนหัว
                 ctx.fillStyle = "#1e40af";
                 ctx.font = `bold ${Math.round(14 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
                 ctx.textAlign = "left";
@@ -1492,7 +1507,6 @@ async function downloadStampedPDF() {
                 ctx.font = `${Math.round(11.5 * scaleY * scaleVal)}px Sarabun, "TH Sarabun PSK", sans-serif`;
                 ctx.fillText(`( ${isInform} ) เพื่อโปรดทราบ   ( ${isConsider} ) เพื่อโปรดพิจารณา`, hdX + paddingX, hdY + (44 * scaleY * scaleVal));
 
-                // เส้นประคั่นกลาง
                 ctx.beginPath();
                 ctx.setLineDash([4 * scaleX * scaleVal, 4 * scaleX * scaleVal]);
                 ctx.moveTo(hdX + paddingX, hdY + (50 * scaleY * scaleVal));
@@ -1501,7 +1515,6 @@ async function downloadStampedPDF() {
                 ctx.stroke();
                 ctx.setLineDash([]);
 
-                // วาดบรรทัดข้อความบันทึกที่ถูกตัดคำเรียบร้อยแล้ว
                 ctx.fillStyle = "#1e3a8a";
                 ctx.font = `${fontSize}px Sarabun, "TH Sarabun PSK", sans-serif`;
                 
@@ -1515,7 +1528,6 @@ async function downloadStampedPDF() {
             ctx.restore();
         });
 
-        // 🎯 ส่งออกเป็น PDF A4 ด้วย JPEG Compression 0.92 (ประมวลผลเร็ว ไฟล์เบา คมชัด 500 DPI)
         const imgData = hdCanvas.toDataURL('image/jpeg', 0.92);
         const { jsPDF } = window.jspdf;
         
