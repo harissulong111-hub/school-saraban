@@ -397,7 +397,26 @@ function renderSarabanTable() {
         const realIndex = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
         const pColor = doc.priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : doc.priority.includes("มาก") ? "text-orange-600 bg-orange-50" : doc.priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
-        const fileLink = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md">📄 เปิดคลาวด์</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
+        
+        // --- 🔗 การสร้างรายการไฟล์แนบและลิงก์ทั้ง 6 ลิงก์ ---
+        let linksArray = [];
+        
+        // ลิงก์หลักจากไฟล์อัปโหลด
+        if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
+            linksArray.push(`<a href="${doc.fileUrl}" target="_blank" title="เปิดไฟล์คลาวด์" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📄 เปิดคลาวด์</a>`);
+        }
+        
+        // ลิงก์แนบเพิ่มเติม 1 - 6
+        for (let i = 1; i <= 6; i++) {
+            const extraUrl = doc[`link${i}`];
+            if (extraUrl && extraUrl.trim().startsWith("http")) {
+                linksArray.push(`<a href="${extraUrl.trim()}" target="_blank" title="เปิดลิงก์แนบที่ ${i}" class="text-indigo-600 font-bold hover:underline bg-indigo-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">🔗 ลิงก์ ${i}</a>`);
+            }
+        }
+        
+        const fileLinkHtml = linksArray.length > 0 
+            ? `<div class="flex flex-col gap-1 items-center justify-center">${linksArray.join('')}</div>` 
+            : `<span class="text-slate-300 text-xs">ไม่มีไฟล์</span>`;
         
         tbody.innerHTML += `
             <tr class="hover:bg-slate-50/80 transition-colors">
@@ -409,7 +428,7 @@ function renderSarabanTable() {
                 <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${doc.priority}</span></td>
                 <td class="py-3 px-3 text-center font-bold text-rose-500">${formatThaiDateShort(doc.date) || '-'}</td>
                 <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status}</span></td>
-                <td class="py-3 px-3 text-center">${fileLink}</td>
+                <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
                 <td class="py-3 px-4 text-right space-x-2 font-bold">
                     <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
                     <button onclick="deleteSaraban(${realIndex})" class="text-rose-500 hover:text-rose-700 cursor-pointer">ลบ</button>
@@ -422,6 +441,12 @@ function renderSarabanTable() {
 function openSarabanModal() {
     sarabanEditIndex = null; document.getElementById("saraban-form").reset();
     document.getElementById("form-file-status").classList.add("hidden");
+    
+    // เคลียร์ช่องลิงก์เพิ่มเติม 1-6
+    for (let i = 1; i <= 6; i++) {
+        if (document.getElementById(`form-link${i}`)) document.getElementById(`form-link${i}`).value = "";
+    }
+
     const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
     const subList = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
     
@@ -451,6 +476,12 @@ function editSaraban(index) {
     document.getElementById("form-priority").value = data.priority;
     document.getElementById("form-deadline").value = data.deadline;
     document.getElementById("form-status").value = data.status;
+
+    // เติมข้อมูลลิงก์แนบ 1-6
+    for (let i = 1; i <= 6; i++) {
+        const el = document.getElementById(`form-link${i}`);
+        if (el) el.value = data[`link${i}`] || "";
+    }
 
     if(data.fileUrl && data.fileUrl.startsWith("http")) {
         const el = document.getElementById("form-file-status");
@@ -497,6 +528,13 @@ async function handleSarabanSubmit(event) {
         deadline: document.getElementById("form-deadline").value,
         status: document.getElementById("form-status").value,
         fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
+        // เพิ่มการส่งฟิลด์ลิงก์ 1 - 6
+        link1: document.getElementById("form-link1") ? document.getElementById("form-link1").value.trim() : "",
+        link2: document.getElementById("form-link2") ? document.getElementById("form-link2").value.trim() : "",
+        link3: document.getElementById("form-link3") ? document.getElementById("form-link3").value.trim() : "",
+        link4: document.getElementById("form-link4") ? document.getElementById("form-link4").value.trim() : "",
+        link5: document.getElementById("form-link5") ? document.getElementById("form-link5").value.trim() : "",
+        link6: document.getElementById("form-link6") ? document.getElementById("form-link6").value.trim() : "",
         ...fileDataJson
     };
 

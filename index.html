@@ -443,38 +443,59 @@
         </div>
     </div>
 
-    <!-- Modals Structure -->
+    <!-- Modals Structure (ปรับแก้ไขการ Scroll และล็อคปุ่มล่างให้อยู่ในมุมมองเสมอ) -->
     <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header Modal (ตรึงด้านบน) -->
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
                 <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
                 <button type="button" onclick="closeSarabanModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
-            <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="p-5 space-y-3.5">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขทะเบียนระบบ</label><input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-bold text-blue-600" readonly></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ที่ (เลขที่เอกสารต้นฉบับ)</label><input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+            
+            <!-- Form Body (ตั้งให้เลื่อน Scrollbar เฉพาะส่วนนี้ได้) -->
+            <form id="saraban-form" onsubmit="handleSarabanSubmit(event)" class="flex flex-col min-h-0 flex-1">
+                <div class="p-5 space-y-3.5 overflow-y-auto flex-1">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">เลขทะเบียนระบบ</label><input type="text" id="form-internal-id" required class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-bold text-blue-600" readonly></div>
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ที่ (เลขที่เอกสารต้นฉบับ)</label><input type="text" id="form-doc-id" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ถึง</label><input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    </div>
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1 text-xs">อัพโหลดไฟล์แนบ</label>
+                        <input type="file" id="form-file" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 font-bold text-xs">
+                        <p id="form-file-status" class="mt-1 text-xs text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
+                    </div>
+
+                    <!-- 🔗 ช่องแนบลิงก์เพิ่มเติม 6 ลิงก์ -->
+                    <div class="space-y-2 pt-1">
+                        <label class="block font-bold text-slate-600 text-xs">🔗 ลิงก์แนบเพิ่มเติม (สูงสุด 6 ลิงก์)</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <input type="url" id="form-link1" placeholder="ลิงก์ที่ 1 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="url" id="form-link2" placeholder="ลิงก์ที่ 2 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="url" id="form-link3" placeholder="ลิงก์ที่ 3 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="url" id="form-link4" placeholder="ลิงก์ที่ 4 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="url" id="form-link5" placeholder="ลิงก์ที่ 5 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="url" id="form-link6" placeholder="ลิงก์ที่ 6 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">สถานะ</label><select id="form-status" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="สำเร็จแล้ว">✔️ AM-สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ถึง</label><input type="text" id="form-destination" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                </div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
-                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-600 mb-1 text-xs">อัพโหลดไฟล์แนบ</label>
-                    <input type="file" id="form-file" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 font-bold text-xs">
-                    <p id="form-file-status" class="mt-1 text-xs text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
-                </div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">สถานะ</label><select id="form-status" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="สำเร็จแล้ว">✔️ AM-สำเร็จแล้ว</option><option value="รอดำเนินการ">⏳ รอดำเนินการ</option></select></div>
-                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 -mx-5 -mb-5 p-3.5">
+
+                <!-- Footer Modal Buttons (ตรึงอยู่ด้านล่างเสมอ เห็นปุ่มบันทึก/ยกเลิกแน่นอน) -->
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 px-5 py-3.5 shrink-0">
                     <button type="button" onclick="closeSarabanModal()" class="px-4 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-100 cursor-pointer text-xs">ยกเลิก</button>
                     <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer text-xs">บันทึกข้อมูล</button>
                 </div>
