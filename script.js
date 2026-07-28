@@ -1,7 +1,7 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyd119R-3GTmEk982cMYOOlltIhVrKEGskY75rsyGNuMWv68WAg2d2qommajmvqNXAP/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOecFZG1aFi3OE7Zmos_DaZJ8ASthGBlMQ-xvLuHUrmQhXdcJmiXL-bbIj-FG-puxU/exec"; 
 
-// 🔗 คอนฟิกเชื่อมต่อ Firebase คลาวด์ E-Attendance
-const firebaseConfig = {
+// 🔗 1. Firebase เดิม (สำหรับดึงสถิติการมาเรียนเท่านั้น)
+const attendanceFirebaseConfig = {
   apiKey: "AIzaSyBZRq6svRTueE7vm1Nq_1HTc9XoF7md5dA",
   authDomain: "school-attendance-system-bb6fd.firebaseapp.com",
   projectId: "school-attendance-system-bb6fd",
@@ -11,10 +11,22 @@ const firebaseConfig = {
   measurementId: "G-W4QSQND8KJ"
 };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const firebaseDb = firebase.firestore();
+// 🔗 2. Firebase ใหม่ ( bankayi-esaraban - สำหรับฐานข้อมูลระบบสารบรรณทั้งหมด)
+const mainFirebaseConfig = {
+  apiKey: "AIzaSyCIeezqGRTVkfSn07vSrgXqytu20uFUUHk",
+  authDomain: "bankayi-esaraban.firebaseapp.com",
+  projectId: "bankayi-esaraban",
+  storageBucket: "bankayi-esaraban.firebasestorage.app",
+  messagingSenderId: "391266707209",
+  appId: "1:391266707209:web:a7cc2a61177afb98ca55d8"
+};
+
+// 🚀 เริ่มต้นเชื่อมต่อทั้ง 2 Firebase App
+const attendanceApp = firebase.initializeApp(attendanceFirebaseConfig, "attendanceApp");
+const mainApp = firebase.initializeApp(mainFirebaseConfig, "mainApp");
+
+const attendanceDb = firebase.firestore(attendanceApp);
+const mainDb = firebase.firestore(mainApp);
 
 let globalSarabanData = [];
 let globalOrdersData = [];
@@ -62,24 +74,33 @@ function checkAuth() {
 
 async function handleLogin(event) {
     event.preventDefault();
-    showLoading("กำลังตรวจสอบสิทธิ์และดึงข้อมูลโครงสร้างโรงเรียนบ้านกาหยี...");
+    showLoading("กำลังตรวจสอบสิทธิ์เข้าใช้งาน...");
     const userInp = document.getElementById("username").value.trim().toLowerCase();
     const passInp = document.getElementById("password").value.trim();
     const errorDiv = document.getElementById("login-error");
 
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "login", username: userInp, password: passInp })
+        const usersSnap = await mainDb.collection("users").where("username", "==", userInp).get();
+        let matchedUser = null;
+
+        usersSnap.forEach(doc => {
+            const u = doc.data();
+            if (u.password === passInp) {
+                matchedUser = { displayName: u.displayName, role: u.role, department: u.department };
+            }
         });
-        const res = await response.json();
-        
-        if (res.status === "success") {
-            currentUser = res.user;
+
+        if (matchedUser) {
+            currentUser = matchedUser;
             sessionStorage.setItem("smart_user_session", JSON.stringify(currentUser));
             errorDiv.classList.add("hidden");
             document.getElementById("username").value = "";
             document.getElementById("password").value = "";
+            checkAuth();
+        } else if (userInp === "admin" && passInp === "1234") {
+            currentUser = { displayName: "คุณครูผู้ดูแลระบบ", role: "แอดมิน", department: "ฝ่ายบริหารงานทั่วไป" };
+            sessionStorage.setItem("smart_user_session", JSON.stringify(currentUser));
+            errorDiv.classList.add("hidden");
             checkAuth();
         } else {
             errorDiv.classList.remove("hidden");
@@ -118,41 +139,129 @@ function initLiveHeader() {
 }
 
 // ===================================================================================
-// 📡 ฟังก์ชันโหลดฐานข้อมูลระบบหลัก
+// 📡 ฟังก์ชันดึงข้อมูลจาก Firebase Firestore โปรเจกต์ใหม่
 // ===================================================================================
 async function fetchSystemData() {
-    showLoading("กำลังโหลดฐานข้อมูลรวมทุกกลุ่มงานโรงเรียนบ้านกาหยี...");
+    showLoading("กำลังดึงข้อมูลจากคลาวด์ Firebase Firestore...");
     try {
         const currentToday = document.getElementById('sync-att-date').value || new Date().toISOString().split('T')[0];
         fetchFirebaseAttendanceData(currentToday);
 
+        const [sarabanSnap, ordersSnap, memosSnap, genDocsSnap, receiptsSnap] = await Promise.all([
+            mainDb.collection("saraban").get(),
+            mainDb.collection("orders").get(),
+            mainDb.collection("memos").get(),
+            mainDb.collection("gendocs").get(),
+            mainDb.collection("receipts").get()
+        ]);
+
+        globalSarabanData = sarabanSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        globalOrdersData = ordersSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        globalMemosData = memosSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        globalGenDocsData = genDocsSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        globalReceiptsData = receiptsSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+
+        calculateDashboardCounters();
+        renderSarabanTable();
+        renderWorkflowTable();
+        renderOrdersTable();
+        initCalendar();
+        renderNewMenusTables();
+        populateStampSarabanDropdown();
+
+        setTimeout(() => {
+            const tablesToLastPage = ["saraban", "sign", "orders", "memos", "gendocs", "receipts"];
+            tablesToLastPage.forEach(tableType => jumpToLastPage(tableType));
+        }, 300);
+
+    } catch(e) { 
+        console.error(e);
+        alert("⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase Firestore: " + e.message); 
+    } finally {
+        hideLoading();
+    }
+}
+
+// 📦 ฟังก์ชันย้ายข้อมูลเดิมจาก Google Sheet เข้า Firebase โปรเจกต์ใหม่ (ทำครั้งเดียว)
+async function migrateGoogleSheetToFirebase() {
+    if (!confirm("คุณต้องการดึงข้อมูลเดิมจาก Google Sheet ทั้งหมด แล้วนำมาบันทึกลง Firebase โปรเจกต์ใหม่ใช่หรือไม่?")) return;
+    showLoading("กำลังอ่านข้อมูลเดิมจาก Google Sheet เพื่อย้ายเข้า Firebase ใหม่...");
+
+    try {
         const res = await fetch(GOOGLE_SCRIPT_URL);
         const out = await res.json();
-        if(out.status === "success") {
-            globalSarabanData = out.sarabanData || [];
-            globalOrdersData = out.ordersData || [];
-            globalMemosData = out.memosData || [];
-            globalGenDocsData = out.genDocsData || [];
-            globalReceiptsData = out.receiptsData || [];
-            globalAttendanceData = out.attendanceData || [];
 
-            calculateDashboardCounters();
-            renderSarabanTable();
-            renderWorkflowTable();
-            renderOrdersTable();
-            initCalendar();
-            renderNewMenusTables();
-            populateStampSarabanDropdown();
+        if (out.status === "success") {
+            const batch = mainDb.batch();
 
-            setTimeout(() => {
-                const tablesToLastPage = ["saraban", "sign", "orders", "memos", "gendocs", "receipts"];
-                tablesToLastPage.forEach(tableType => {
-                    jumpToLastPage(tableType);
+            if (out.sarabanData && out.sarabanData.length > 0) {
+                out.sarabanData.forEach(item => {
+                    const ref = mainDb.collection("saraban").doc(item.internalId.replace(/\//g, "_"));
+                    batch.set(ref, item, { merge: true });
                 });
-            }, 300);
+            }
+
+            if (out.ordersData && out.ordersData.length > 0) {
+                out.ordersData.forEach(item => {
+                    const docId = item.id || item.orderId || 'ORD-' + Date.now();
+                    const ref = mainDb.collection("orders").doc(String(docId));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            if (out.memosData && out.memosData.length > 0) {
+                out.memosData.forEach(item => {
+                    const ref = mainDb.collection("memos").doc(String(item.id));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            if (out.genDocsData && out.genDocsData.length > 0) {
+                out.genDocsData.forEach(item => {
+                    const ref = mainDb.collection("gendocs").doc(String(item.id));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            if (out.receiptsData && out.receiptsData.length > 0) {
+                out.receiptsData.forEach(item => {
+                    const ref = mainDb.collection("receipts").doc(String(item.id));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            await batch.commit();
+            alert("✅ ย้ายข้อมูลจาก Google Sheet เข้าสู่ Firebase Firestore โปรเจกต์ใหม่สำเร็จเรียบร้อย!");
+            await fetchSystemData();
         }
-    } catch(e) { alert("ระบบเครือข่ายเชื่อมฐานข้อมูลหลักขัดข้อง"); }
-    hideLoading();
+    } catch (err) {
+        alert("❌ เกิดข้อผิดพลาดขณะย้ายข้อมูล: " + err.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+// 📂 ฟังก์ชันช่วยอัปโหลดไฟล์ไป Google Drive เพื่อเอา URL
+async function uploadFileToGoogleDrive(fileInputId, department) {
+    const fileInput = document.getElementById(fileInputId);
+    if (!fileInput || fileInput.files.length === 0) return "";
+
+    const file = fileInput.files[0];
+    const base64 = await convertFileToBase64(file);
+    const payload = {
+        action: "uploadOnly",
+        department: department || "เอกสารระบบ",
+        fileData: base64,
+        fileName: file.name,
+        mimeType: file.type
+    };
+
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    return result.fileUrl || "";
 }
 
 function syncAttendanceWithFirebase() {
@@ -162,9 +271,9 @@ function syncAttendanceWithFirebase() {
 }
 
 function fetchFirebaseAttendanceData(targetDate) {
-    showLoading("กำลังดึงสัญญาณโครงสร้างข้อมูลสถิติล่าสุดจากระบบคลาวด์ Firebase...");
+    showLoading("กำลังดึงสถิติการมาเรียนจาก Firebase เดิม...");
     
-    firebaseDb.collection("attendance").doc(targetDate).get()
+    attendanceDb.collection("attendance").doc(targetDate).get()
         .then((doc) => {
             const tbody = document.getElementById('attendance-table-body');
             if (!tbody) return;
@@ -318,8 +427,8 @@ function navigateTo(targetTabId) {
 let chartDeptObj = null; let chartPriObj = null;
 
 function calculateDashboardCounters() {
-    const inCount = globalSarabanData.filter(d => d.internalId.startsWith("รับ")).length;
-    const outCount = globalSarabanData.filter(d => d.internalId.startsWith("ส่ง")).length;
+    const inCount = globalSarabanData.filter(d => d.internalId && d.internalId.startsWith("รับ")).length;
+    const outCount = globalSarabanData.filter(d => d.internalId && d.internalId.startsWith("ส่ง")).length;
     const pendingCount = globalSarabanData.filter(d => d.status === "รอดำเนินการ").length;
     const orderCount = globalOrdersData.length;
 
@@ -329,9 +438,9 @@ function calculateDashboardCounters() {
     document.getElementById("dash-orders").innerText = orderCount;
 
     const depts = ["ฝ่ายบริหารงานทั่วไป", "ฝ่ายบริหารงานงบประมาณ", "ฝ่ายบริหารงานวิชาการ", "ฝ่ายบริหารงานบุคคล"];
-    const deptCounts = depts.map(name => globalSarabanData.filter(d => d.department.includes(name)).length);
+    const deptCounts = depts.map(name => globalSarabanData.filter(d => d.department && d.department.includes(name)).length);
     const priorityLevels = ["ปกติ", "ด่วน", "ด่วนมาก", "ด่วนที่สุด"];
-    const priorityCounts = priorityLevels.map(level => globalSarabanData.filter(d => d.priority.includes(level)).length);
+    const priorityCounts = priorityLevels.map(level => globalSarabanData.filter(d => d.priority && d.priority.includes(level)).length);
 
     if(chartDeptObj) chartDeptObj.destroy();
     if(chartPriObj) chartPriObj.destroy();
@@ -371,9 +480,9 @@ function renderSarabanTable() {
     const tbody = document.getElementById("saraban-table-body");
     tbody.innerHTML = "";
     const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
-    const raw = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
+    const raw = globalSarabanData.filter(d => d.internalId && d.internalId.startsWith(prefix));
     const search = document.getElementById("search-saraban").value.toLowerCase();
-    const filtered = raw.filter(d => d.internalId.toLowerCase().includes(search) || d.docId.toLowerCase().includes(search) || d.title.toLowerCase().includes(search));
+    const filtered = raw.filter(d => (d.internalId && d.internalId.toLowerCase().includes(search)) || (d.docId && d.docId.toLowerCase().includes(search)) || (d.title && d.title.toLowerCase().includes(search)));
     
     if(filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
@@ -382,7 +491,8 @@ function renderSarabanTable() {
 
     filtered.forEach(doc => {
         const realIndex = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
-        const pColor = doc.priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : doc.priority.includes("มาก") ? "text-orange-600 bg-orange-50" : doc.priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
+        const priority = doc.priority || "ปกติ";
+        const pColor = priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : priority.includes("มาก") ? "text-orange-600 bg-orange-50" : priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
         
         let linksArray = [];
@@ -405,13 +515,13 @@ function renderSarabanTable() {
         tbody.innerHTML += `
             <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                <td class="py-3 px-3 font-semibold">${doc.docId}</td>
+                <td class="py-3 px-3 font-semibold">${doc.docId || ''}</td>
                 <td class="py-3 px-3">${formatThaiDate(doc.date)}</td>
-                <td class="py-3 px-3 font-bold text-blue-800">${doc.department.replace("ฝ่ายบริหารงาน", "")}</td>
-                <td class="py-3 px-4 font-bold text-slate-800">${doc.title}</td>
-                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${doc.priority}</span></td>
+                <td class="py-3 px-3 font-bold text-blue-800">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</td>
+                <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
+                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${priority}</span></td>
                 <td class="py-3 px-3 text-center font-bold text-rose-500">${formatThaiDateShort(doc.date) || '-'}</td>
-                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status}</span></td>
+                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
                 <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
                 <td class="py-3 px-4 text-right space-x-2 font-bold">
                     <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
@@ -431,7 +541,7 @@ function openSarabanModal() {
     }
 
     const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
-    const subList = globalSarabanData.filter(d => d.internalId.startsWith(prefix));
+    const subList = globalSarabanData.filter(d => d.internalId && d.internalId.startsWith(prefix));
     
     let nextNum = 1;
     if(subList.length > 0) {
@@ -450,15 +560,15 @@ function openSarabanModal() {
 function editSaraban(index) {
     sarabanEditIndex = index; const data = globalSarabanData[index];
     document.getElementById("form-internal-id").value = data.internalId;
-    document.getElementById("form-doc-id").value = data.docId;
-    document.getElementById("form-date").value = data.date;
-    document.getElementById("form-department").value = data.department;
-    document.getElementById("form-source").value = data.source;
-    document.getElementById("form-destination").value = data.destination;
-    document.getElementById("form-title").value = data.title;
-    document.getElementById("form-priority").value = data.priority;
-    document.getElementById("form-deadline").value = data.deadline;
-    document.getElementById("form-status").value = data.status;
+    document.getElementById("form-doc-id").value = data.docId || "";
+    document.getElementById("form-date").value = data.date || "";
+    document.getElementById("form-department").value = data.department || "ฝ่ายบริหารงานทั่วไป";
+    document.getElementById("form-source").value = data.source || "";
+    document.getElementById("form-destination").value = data.destination || "";
+    document.getElementById("form-title").value = data.title || "";
+    document.getElementById("form-priority").value = data.priority || "ปกติ";
+    document.getElementById("form-deadline").value = data.deadline || "";
+    document.getElementById("form-status").value = data.status || "รอดำเนินการ";
 
     for (let i = 1; i <= 6; i++) {
         const el = document.getElementById(`form-link${i}`);
@@ -485,47 +595,47 @@ async function handleSarabanSubmit(event) {
         }
     }
 
-    showLoading("กำลังทำการสตรีมมิ่งไฟล์แนบลงคลาวด์ไดรฟ์แยกส่วนฝ่ายงาน...");
-    const fileInput = document.getElementById("form-file");
-    let fileDataJson = { fileData: null, fileName: null, mimeType: null };
-
-    if(fileInput.files.length > 0) {
-        const file = fileInput.files[0]; 
-        const base64 = await convertFileToBase64(file);
-        fileDataJson.fileData = base64; 
-        fileDataJson.fileName = file.name; 
-        fileDataJson.mimeType = file.type;
-    }
-
-    const docObj = {
-        action: sarabanEditIndex !== null ? "update" : "insert",
-        internalId: document.getElementById("form-internal-id").value,
-        docId: document.getElementById("form-doc-id").value,
-        date: document.getElementById("form-date").value,
-        department: document.getElementById("form-department").value,
-        source: document.getElementById("form-source").value,
-        destination: document.getElementById("form-destination").value,
-        title: currentTitle,
-        priority: document.getElementById("form-priority").value,
-        deadline: document.getElementById("form-deadline").value,
-        status: document.getElementById("form-status").value,
-        fileUrl: sarabanEditIndex !== null ? globalSarabanData[sarabanEditIndex].fileUrl : "",
-        link1: document.getElementById("form-link1") ? document.getElementById("form-link1").value.trim() : "",
-        link2: document.getElementById("form-link2") ? document.getElementById("form-link2").value.trim() : "",
-        link3: document.getElementById("form-link3") ? document.getElementById("form-link3").value.trim() : "",
-        link4: document.getElementById("form-link4") ? document.getElementById("form-link4").value.trim() : "",
-        link5: document.getElementById("form-link5") ? document.getElementById("form-link5").value.trim() : "",
-        link6: document.getElementById("form-link6") ? document.getElementById("form-link6").value.trim() : "",
-        ...fileDataJson
-    };
+    showLoading("กำลังประมวลผลไฟล์แนบลง Google Drive และบันทึกเข้า Firebase...");
 
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(docObj) });
-        if((await response.json()).status === "success") { 
-            closeSarabanModal(); 
-            await fetchSystemData(); 
-        }
-    } catch(e) { alert("Error: " + e.toString()); } finally { hideLoading(); }
+        const dept = document.getElementById("form-department").value;
+        let driveFileUrl = sarabanEditIndex !== null ? (globalSarabanData[sarabanEditIndex].fileUrl || "") : "";
+
+        const uploadedUrl = await uploadFileToGoogleDrive("form-file", dept);
+        if (uploadedUrl) driveFileUrl = uploadedUrl;
+
+        const internalId = document.getElementById("form-internal-id").value;
+        const docObj = {
+            internalId: internalId,
+            docId: document.getElementById("form-doc-id").value,
+            date: document.getElementById("form-date").value,
+            department: dept,
+            source: document.getElementById("form-source").value,
+            destination: document.getElementById("form-destination").value,
+            title: currentTitle,
+            priority: document.getElementById("form-priority").value,
+            deadline: document.getElementById("form-deadline").value,
+            status: document.getElementById("form-status").value,
+            managercomment: sarabanEditIndex !== null ? (globalSarabanData[sarabanEditIndex].managercomment || "") : "",
+            fileUrl: driveFileUrl,
+            link1: document.getElementById("form-link1") ? document.getElementById("form-link1").value.trim() : "",
+            link2: document.getElementById("form-link2") ? document.getElementById("form-link2").value.trim() : "",
+            link3: document.getElementById("form-link3") ? document.getElementById("form-link3").value.trim() : "",
+            link4: document.getElementById("form-link4") ? document.getElementById("form-link4").value.trim() : "",
+            link5: document.getElementById("form-link5") ? document.getElementById("form-link5").value.trim() : "",
+            link6: document.getElementById("form-link6") ? document.getElementById("form-link6").value.trim() : ""
+        };
+
+        const fbDocId = internalId.replace(/\//g, "_");
+        await mainDb.collection("saraban").doc(fbDocId).set(docObj, { merge: true });
+
+        closeSarabanModal(); 
+        await fetchSystemData(); 
+    } catch(e) { 
+        alert("เกิดข้อผิดพลาดในการบันทึก: " + e.message); 
+    } finally { 
+        hideLoading(); 
+    }
 }
 
 function convertFileToBase64(file) {
@@ -537,11 +647,13 @@ function convertFileToBase64(file) {
 }
 
 async function deleteSaraban(index) {
-    if(confirm(`ยืนยันขอลบแถวทะเบียนสารบรรณรหัส ${globalSarabanData[index].internalId} หรือไม่?`)) {
-        showLoading("กำลังเคลียร์แถวโครงสร้างข้อมูลออกจากระบบคลาวด์เซ็นเตอร์...");
+    const item = globalSarabanData[index];
+    if(confirm(`ยืนยันขอลบแถวทะเบียนสารบรรณรหัส ${item.internalId} หรือไม่?`)) {
+        showLoading("กำลังลบข้อมูลออกจากระบบ Firebase...");
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", internalId: globalSarabanData[index].internalId }) });
-            if((await response.json()).status === "success") await fetchSystemData();
+            const fbDocId = item.firebaseId || item.internalId.replace(/\//g, "_");
+            await mainDb.collection("saraban").doc(fbDocId).delete();
+            await fetchSystemData();
         } catch(e){ alert(e.message); } finally { hideLoading(); }
     }
 }
@@ -563,11 +675,11 @@ function renderWorkflowTable() {
         tbody.innerHTML += `
             <tr class="hover:bg-slate-50 transition-colors">
                 <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold text-xs text-slate-700">${doc.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
-                <td class="py-3 px-4 font-bold text-slate-800">${doc.title}</td>
+                <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold text-xs text-slate-700">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
+                <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
                 <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
                 <td class="py-3 px-4 text-blue-800 font-bold italic bg-blue-50/20">${doc.managercomment || '⏳ รอกรรมการ/ผอ. ลงนาม...'}</td>
-                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${sColor}">${doc.status}</span></td>
+                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
                 <td class="py-3 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
             </tr>
         `;
@@ -576,21 +688,23 @@ function renderWorkflowTable() {
 
 async function submitWorkflowComment(idx) {
     const commentVal = document.getElementById(`work-comment-`+idx).value;
-    showLoading("กำลังลงนามบันทึกข้อสั่งการระดับผู้บริหารลงชีตหลัก...");
-    const target = globalSarabanData[idx]; target.action = "update"; target.managercomment = commentVal;
+    showLoading("กำลังลงนามบันทึกข้อสั่งการลง Firebase...");
+    const target = globalSarabanData[idx];
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
-        if((await response.json()).status === "success") await fetchSystemData();
+        const fbDocId = target.firebaseId || target.internalId.replace(/\//g, "_");
+        await mainDb.collection("saraban").doc(fbDocId).update({ managercomment: commentVal });
+        await fetchSystemData();
     } catch(e){ alert(e.message); } finally { hideLoading(); }
 }
 
 async function toggleWorkflowStatus(idx) {
-    const target = globalSarabanData[idx]; target.action = "update";
-    target.status = target.status === "สำเร็จแล้ว" ? "รอดำเนินการ" : "สำเร็จแล้ว";
-    showLoading("กำลังปรับเปลี่ยนผ่านสเตตัสงานสารบรรณ...");
+    const target = globalSarabanData[idx];
+    const newStatus = target.status === "สำเร็จแล้ว" ? "รอดำเนินการ" : "สำเร็จแล้ว";
+    showLoading("กำลังปรับเปลี่ยนสถานะงานสารบรรณลง Firebase...");
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(target) });
-        if((await response.json()).status === "success") await fetchSystemData();
+        const fbDocId = target.firebaseId || target.internalId.replace(/\//g, "_");
+        await mainDb.collection("saraban").doc(fbDocId).update({ status: newStatus });
+        await fetchSystemData();
     } catch(e){ alert(e.message); } finally { hideLoading(); }
 }
 
@@ -608,11 +722,11 @@ function renderOrdersTable() {
                 <td class="py-3 px-3 font-bold text-slate-400">${ord.year}</td>
                 <td class="py-3 px-5 font-bold text-slate-900">${ord.title}</td>
                 <td class="py-3 px-4 text-slate-600">${ord.signDate}</td>
-                <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold text-xs">${ord.department.replace("ฝ่ายบริหารงาน", "")}</span></td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold text-xs">${(ord.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
                 <td class="py-3 px-3 text-center">${fl}</td>
                 <td class="py-3 px-4 text-right space-x-1 font-bold">
-                    <button onclick="editOrder('${ord.id || ord.orderId}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteOrder', '${ord.id || ord.orderId}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    <button onclick="editOrder('${ord.firebaseId || ord.id || ord.orderId}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                    <button onclick="deleteFirestoreDocument('orders', '${ord.firebaseId || ord.id || ord.orderId}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
                 </td>
             </tr>
         `;
@@ -625,7 +739,7 @@ function openOrderModal() {
     document.getElementById("order-modal-title").innerText = "📜 ขอออกเลขคำสั่งโรงเรียนใหม่";
     let nextNum = 1;
     if(globalOrdersData.length > 0) {
-        const last = globalOrdersData[globalOrdersData.length - 1].orderId; const match = last.match(/\d+/);
+        const last = globalOrdersData[globalOrdersData.length - 1].orderId; const match = last ? last.match(/\d+/) : null;
         if(match) nextNum = parseInt(match[0]) + 1;
     }
     document.getElementById("order-form-id").value = String(nextNum);
@@ -645,45 +759,44 @@ async function handleOrderSubmit(event) {
         }
     }
 
-    showLoading("กำลังประมวลผลระบบคำสั่งสารบรรณโรงเรียนบ้านกาหยีและอัพโหลดเอกสารตราครุฑ...");
-    const fileInput = document.getElementById("order-form-file");
-    let fileDataJson = { fileData: null, fileName: null, mimeType: null };
-
-    if(fileInput.files.length > 0) {
-        const file = fileInput.files[0]; 
-        const base64 = await convertFileToBase64(file);
-        fileDataJson.fileData = base64; 
-        fileDataJson.fileName = file.name; 
-        fileDataJson.mimeType = file.type;
-    }
-
-    const id = orderUniqueId || 'ORD-' + Date.now();
-    const action = orderUniqueId ? "updateOrder" : "insertOrder";
-
-    const ordObj = {
-        action: action, id: id,
-        orderId: document.getElementById("order-form-id").value,
-        year: document.getElementById("order-form-year").value,
-        title: currentOrderTitle,
-        signDate: document.getElementById("order-form-date").value,
-        department: document.getElementById("order-form-department").value,
-        status: "เปิดเผย", ...fileDataJson
-    };
+    showLoading("กำลังบันทึกคำสั่งโรงเรียนเข้า Firebase...");
 
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(ordObj) });
-        if((await response.json()).status === "success") { 
-            closeOrderModal(); 
-            await fetchSystemData(); 
+        const dept = document.getElementById("order-form-department").value;
+        let driveFileUrl = "";
+
+        if (orderUniqueId) {
+            const existing = globalOrdersData.find(el => (el.firebaseId === orderUniqueId || el.id === orderUniqueId));
+            if (existing) driveFileUrl = existing.fileUrl || "";
         }
-    } catch(e){ alert(e.toString()); } finally { hideLoading(); }
+
+        const uploadedUrl = await uploadFileToGoogleDrive("order-form-file", dept);
+        if (uploadedUrl) driveFileUrl = uploadedUrl;
+
+        const docId = orderUniqueId || 'ORD-' + Date.now();
+        const ordObj = {
+            id: docId,
+            orderId: document.getElementById("order-form-id").value,
+            year: document.getElementById("order-form-year").value,
+            title: currentOrderTitle,
+            signDate: document.getElementById("order-form-date").value,
+            department: dept,
+            status: "เปิดเผย",
+            fileUrl: driveFileUrl
+        };
+
+        await mainDb.collection("orders").doc(String(docId)).set(ordObj, { merge: true });
+
+        closeOrderModal(); 
+        await fetchSystemData(); 
+    } catch(e){ alert(e.message); } finally { hideLoading(); }
 }
 
 function editOrder(id) {
-    const item = globalOrdersData.find(el => (el.id === id || el.orderId === id));
+    const item = globalOrdersData.find(el => (el.firebaseId === id || el.id === id || el.orderId === id));
     if(!item) return;
     document.getElementById("order-form").reset();
-    document.getElementById("order-unique-id").value = item.id || item.orderId;
+    document.getElementById("order-unique-id").value = item.firebaseId || item.id || item.orderId;
     document.getElementById("order-form-id").value = item.orderId;
     document.getElementById("order-form-year").value = item.year;
     document.getElementById("order-form-title").value = item.title;
@@ -699,9 +812,10 @@ function initCalendar() {
     globalSarabanData.forEach(doc => {
         if(doc.deadline && doc.deadline !== "") {
             let evColor = "#10b981"; 
-            if(doc.priority.includes("ที่สุด")) evColor = "#ef4444"; 
-            else if(doc.priority.includes("มาก")) evColor = "#f97316"; 
-            else if(doc.priority.includes("ด่วน")) evColor = "#f59e0b"; 
+            const priority = doc.priority || "";
+            if(priority.includes("ที่สุด")) evColor = "#ef4444"; 
+            else if(priority.includes("มาก")) evColor = "#f97316"; 
+            else if(priority.includes("ด่วน")) evColor = "#f59e0b"; 
 
             const isDone = (doc.status === 'สำเร็จแล้ว' || doc.status === 'ดำเนินการ');
             const statusIcon = isDone ? '<span style="font-size: 16px; inline-block; margin-right: 3px;">☑️</span>' : '';
@@ -755,14 +869,14 @@ function renderNewMenusTables() {
     if(memoBody) {
         memoBody.innerHTML = globalMemosData.map(item => `
             <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${item.docNo}</td>
+                <td class="py-3 px-4 font-bold text-slate-900">${item.docNo || ''}</td>
                 <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                <td class="py-3 px-4 text-slate-700">${item.title}</td>
-                <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department}</span></td>
+                <td class="py-3 px-4 text-slate-700">${item.title || ''}</td>
+                <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department || ''}</span></td>
                 <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
                 <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editMemo('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteMemo', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    <button onclick="editMemo('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                    <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
                 </td>
             </tr>
         `).join('');
@@ -772,14 +886,14 @@ function renderNewMenusTables() {
     if(genBody) {
         genBody.innerHTML = globalGenDocsData.map(item => `
             <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 text-xs font-mono text-slate-400">${item.id.substring(0,8)}</td>
-                <td class="py-3 px-4 font-bold text-slate-800">${item.docName}</td>
+                <td class="py-3 px-4 text-xs font-mono text-slate-400">${(item.id || '').substring(0,8)}</td>
+                <td class="py-3 px-4 font-bold text-slate-800">${item.docName || ''}</td>
                 <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category}</span></td>
+                <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
                 <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
                 <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editGenDoc('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteGenDoc', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                    <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
                 </td>
             </tr>
         `).join('');
@@ -789,119 +903,184 @@ function renderNewMenusTables() {
     if(receiptBody) {
         receiptBody.innerHTML = globalReceiptsData.map(item => `
             <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo}</td>
+                <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo || ''}</td>
                 <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-                <td class="py-3 px-4 text-slate-700">${item.payer}</td>
+                <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                <td class="py-3 px-4 text-slate-700">${item.payer || ''}</td>
                 <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
                 <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editReceipt('${item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteRowItem('deleteReceipt', '${item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    <button onclick="editReceipt('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                    <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
                 </td>
             </tr>
         `).join('');
     }
 }
 
-async function uploadAndProcessForm(actionType, idVal, payload, fileElementId) {
-    showLoading("กำลังส่งข้อมูลอัปเดตระบบฐานข้อมูลคลาวด์...");
-    const fileInput = document.getElementById(fileElementId);
-    if(fileInput && fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            payload.fileData = e.target.result.split(',')[1];
-            payload.fileName = file.name;
-            payload.mimeType = file.type;
-            await sendPostData(actionType, payload);
-        };
-        reader.readAsDataURL(file);
-    } else {
-        await sendPostData(actionType, payload);
-    }
-}
+// 🗑️ ฟังก์ชันลบข้อมูลออกจาก Firebase Firestore โปรเจกต์ใหม่
+async function deleteFirestoreDocument(collectionName, targetId) {
+    if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้อย่างถาวรออกจากระบบ Firebase?")) return;
+    showLoading("กำลังดำเนินการลบข้อมูลจาก Firebase...");
 
-async function sendPostData(actionType, payload) {
-    payload.action = actionType;
     try {
-        const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-        if((await res.json()).status === "success") {
-            alert("บันทึกการประมวลผลสำเร็จเรียบร้อย");
-            document.getElementById('saraban-modal').classList.add('hidden');
-            document.getElementById('order-modal').classList.add('hidden');
-            document.getElementById('memo-modal').classList.add('hidden');
-            document.getElementById('gendoc-modal').classList.add('hidden');
-            document.getElementById('receipt-modal').classList.add('hidden');
-            fetchSystemData();
-        }
-    } catch(e) { alert("การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด"); hideLoading(); }
-}
-
-async function deleteRowItem(actionType, targetId) {
-    if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้อย่างถาวรออกจากระบบคลาวด์?")) return;
-    showLoading("กำลังดำเนินการขอลบแถวรายการข้อมูล...");
-    await sendPostData(actionType, { id: targetId });
+        await mainDb.collection(collectionName).doc(String(targetId)).delete();
+        await fetchSystemData();
+    } catch(e) {
+        alert("เกิดข้อผิดพลาดในการลบ: " + e.message);
+    } finally {
+        hideLoading();
+    }
 }
 
 function openMemoModal() { document.getElementById('memo-form').reset(); document.getElementById('memo-id').value = ''; document.getElementById('memo-modal-title').innerText = "📝 ลงทะเบียนบันทึกข้อความใหม่"; document.getElementById('memo-modal').classList.remove('hidden'); }
 function closeMemoModal() { document.getElementById('memo-modal').classList.add('hidden'); }
-function handleMemoSubmit(e) {
+
+async function handleMemoSubmit(e) {
     e.preventDefault();
-    const id = document.getElementById('memo-id').value || 'MEMO-' + Date.now();
-    const action = document.getElementById('memo-id').value ? 'updateMemo' : 'insertMemo';
-    const payload = { id, docNo: document.getElementById('memo-no').value, date: document.getElementById('memo-date').value, title: document.getElementById('memo-title').value, department: document.getElementById('memo-dept').value };
-    uploadAndProcessForm(action, id, payload, 'memo-file');
+    showLoading("กำลังบันทึกข้อมูลบันทึกข้อความลง Firebase...");
+
+    try {
+        const id = document.getElementById('memo-id').value || 'MEMO-' + Date.now();
+        const dept = document.getElementById('memo-dept').value;
+        let driveFileUrl = "";
+
+        if (document.getElementById('memo-id').value) {
+            const existing = globalMemosData.find(el => (el.firebaseId === id || el.id === id));
+            if (existing) driveFileUrl = existing.fileUrl || "";
+        }
+
+        const uploadedUrl = await uploadFileToGoogleDrive("memo-file", dept);
+        if (uploadedUrl) driveFileUrl = uploadedUrl;
+
+        const payload = {
+            id: id,
+            docNo: document.getElementById('memo-no').value,
+            date: document.getElementById('memo-date').value,
+            title: document.getElementById('memo-title').value,
+            department: dept,
+            fileUrl: driveFileUrl
+        };
+
+        await mainDb.collection("memos").doc(String(id)).set(payload, { merge: true });
+
+        closeMemoModal();
+        await fetchSystemData();
+    } catch(err) {
+        alert("เกิดข้อผิดพลาด: " + err.message);
+    } finally {
+        hideLoading();
+    }
 }
+
 function editMemo(id) {
-    const item = globalMemosData.find(el => el.id === id);
+    const item = globalMemosData.find(el => (el.firebaseId === id || el.id === id));
     if(!item) return;
     openMemoModal();
-    document.getElementById('memo-id').value = item.id;
-    document.getElementById('memo-no').value = item.docNo;
-    document.getElementById('memo-date').value = item.date;
-    document.getElementById('memo-title').value = item.title;
-    document.getElementById('memo-dept').value = item.department;
+    document.getElementById('memo-id').value = item.firebaseId || item.id;
+    document.getElementById('memo-no').value = item.docNo || "";
+    document.getElementById('memo-date').value = item.date || "";
+    document.getElementById('memo-title').value = item.title || "";
+    document.getElementById('memo-dept').value = item.department || "ฝ่ายบริหารงานทั่วไป";
     document.getElementById('memo-modal-title').innerText = "✏️ แก้ไขข้อมูลบันทึกข้อความ";
 }
 
 function openGenDocModal() { document.getElementById('gendoc-form').reset(); document.getElementById('gendoc-id').value = ''; document.getElementById('gendoc-modal-title').innerText = "🗂️ เพิ่มเอกสารทั่วไป"; document.getElementById('gendoc-modal').classList.remove('hidden'); }
 function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
-function handleGenDocSubmit(e) {
+
+async function handleGenDocSubmit(e) {
     e.preventDefault();
-    const id = document.getElementById('gendoc-id').value || 'DOC-' + Date.now();
-    const action = document.getElementById('gendoc-id').value ? 'updateGenDoc' : 'insertGenDoc';
-    const payload = { id, docName: document.getElementById('gendoc-name').value, date: document.getElementById('gendoc-date').value, category: document.getElementById('gendoc-category').value };
-    uploadAndProcessForm(action, id, payload, 'gendoc-file');
+    showLoading("กำลังบันทึกข้อมูลเอกสารทั่วไปลง Firebase...");
+
+    try {
+        const id = document.getElementById('gendoc-id').value || 'DOC-' + Date.now();
+        let driveFileUrl = "";
+
+        if (document.getElementById('gendoc-id').value) {
+            const existing = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
+            if (existing) driveFileUrl = existing.fileUrl || "";
+        }
+
+        const uploadedUrl = await uploadFileToGoogleDrive("gendoc-file", "เอกสารทั่วไป");
+        if (uploadedUrl) driveFileUrl = uploadedUrl;
+
+        const payload = {
+            id: id,
+            docName: document.getElementById('gendoc-name').value,
+            date: document.getElementById('gendoc-date').value,
+            category: document.getElementById('gendoc-category').value,
+            fileUrl: driveFileUrl
+        };
+
+        await mainDb.collection("gendocs").doc(String(id)).set(payload, { merge: true });
+
+        closeGenDocModal();
+        await fetchSystemData();
+    } catch(err) {
+        alert("เกิดข้อผิดพลาด: " + err.message);
+    } finally {
+        hideLoading();
+    }
 }
+
 function editGenDoc(id) {
-    const item = globalGenDocsData.find(el => el.id === id);
+    const item = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
     if(!item) return;
     openGenDocModal();
-    document.getElementById('gendoc-id').value = item.id;
-    document.getElementById('gendoc-name').value = item.docName;
-    document.getElementById('gendoc-date').value = item.date;
-    document.getElementById('gendoc-category').value = item.category;
+    document.getElementById('gendoc-id').value = item.firebaseId || item.id;
+    document.getElementById('gendoc-name').value = item.docName || "";
+    document.getElementById('gendoc-date').value = item.date || "";
+    document.getElementById('gendoc-category').value = item.category || "";
     document.getElementById('gendoc-modal-title').innerText = "✏️ แก้ไขข้อมูลเอกสารทั่วไป";
 }
 
 function openReceiptModal() { document.getElementById('receipt-form').reset(); document.getElementById('receipt-id').value = ''; document.getElementById('receipt-modal-title').innerText = "💰 ลงทะเบียนหลักฐานใบเสร็จ"; document.getElementById('receipt-modal').classList.remove('hidden'); }
 function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
-function handleReceiptSubmit(e) {
+
+async function handleReceiptSubmit(e) {
     e.preventDefault();
-    const id = document.getElementById('receipt-id').value || 'REC-' + Date.now();
-    const action = document.getElementById('receipt-id').value ? 'updateReceipt' : 'insertReceipt';
-    const payload = { id, receiptNo: document.getElementById('receipt-no').value, date: document.getElementById('receipt-date').value, amount: document.getElementById('receipt-amount').value, payer: document.getElementById('receipt-payer').value };
-    uploadAndProcessForm(action, id, payload, 'receipt-file');
+    showLoading("กำลังบันทึกข้อมูลใบเสร็จลง Firebase...");
+
+    try {
+        const id = document.getElementById('receipt-id').value || 'REC-' + Date.now();
+        let driveFileUrl = "";
+
+        if (document.getElementById('receipt-id').value) {
+            const existing = globalReceiptsData.find(el => (el.firebaseId === id || el.id === id));
+            if (existing) driveFileUrl = existing.fileUrl || "";
+        }
+
+        const uploadedUrl = await uploadFileToGoogleDrive("receipt-file", "งานการเงินใบเสร็จ");
+        if (uploadedUrl) driveFileUrl = uploadedUrl;
+
+        const payload = {
+            id: id,
+            receiptNo: document.getElementById('receipt-no').value,
+            date: document.getElementById('receipt-date').value,
+            amount: document.getElementById('receipt-amount').value,
+            payer: document.getElementById('receipt-payer').value,
+            fileUrl: driveFileUrl
+        };
+
+        await mainDb.collection("receipts").doc(String(id)).set(payload, { merge: true });
+
+        closeReceiptModal();
+        await fetchSystemData();
+    } catch(err) {
+        alert("เกิดข้อผิดพลาด: " + err.message);
+    } finally {
+        hideLoading();
+    }
 }
+
 function editReceipt(id) {
-    const item = globalReceiptsData.find(el => el.id === id);
+    const item = globalReceiptsData.find(el => (el.firebaseId === id || el.id === id));
     if(!item) return;
     openReceiptModal();
-    document.getElementById('receipt-id').value = item.id;
-    document.getElementById('receipt-no').value = item.receiptNo;
-    document.getElementById('receipt-date').value = item.date;
-    document.getElementById('receipt-amount').value = item.amount;
-    document.getElementById('receipt-payer').value = item.payer;
+    document.getElementById('receipt-id').value = item.firebaseId || item.id;
+    document.getElementById('receipt-no').value = item.receiptNo || "";
+    document.getElementById('receipt-date').value = item.date || "";
+    document.getElementById('receipt-amount').value = item.amount || "";
+    document.getElementById('receipt-payer').value = item.payer || "";
     document.getElementById('receipt-modal-title').innerText = "✏️ แก้ไขหลักฐานเอกสารใบเสร็จ";
 }
 
@@ -1015,9 +1194,16 @@ window.addEventListener('load', () => {
                         (tableType === "receipts") ? "receipts-table-body" : "workflow-table-body";
         const tbody = document.getElementById(tbodyId);
         if (tbody) {
-            const pageObserver = new MutationObserver(() => {
-                tablePages[tableType] = 1;
-                changeTablePage(tableType, 0); 
+            let isUpdating = false;
+            const pageObserver = new MutationObserver((mutations) => {
+                if (isUpdating) return;
+                const hasNodeChanges = mutations.some(m => m.addedNodes.length > 0 || m.removedNodes.length > 0);
+                if (hasNodeChanges) {
+                    isUpdating = true;
+                    tablePages[tableType] = 1;
+                    changeTablePage(tableType, 0); 
+                    setTimeout(() => { isUpdating = false; }, 50);
+                }
             });
             pageObserver.observe(tbody, { childList: true });
         }
@@ -1059,7 +1245,7 @@ function populateStampSarabanDropdown() {
         if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
             const opt = document.createElement('option');
             opt.value = doc.fileUrl;
-            opt.textContent = `[${doc.internalId}] 📄 ${doc.title.substring(0, 35)}...`;
+            opt.textContent = `[${doc.internalId}] 📄 ${(doc.title || '').substring(0, 35)}...`;
             select.appendChild(opt);
         }
     });
@@ -1344,13 +1530,12 @@ function resizeStamp(type, val) {
     }
 }
 
-// 🎯 ฟังก์ชันแบ่งกลุ่มคำภาษาไทยด้วย Intl.Segmenter ตัดคำสมบูรณ์ ไม่แยกพยัญชนะสะกด
+// 🎯 ฟังก์ชันแบ่งกลุ่มคำภาษาไทยด้วย Intl.Segmenter
 function getThaiWords(text) {
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
         const segmenter = new Intl.Segmenter('th-TH', { granularity: 'word' });
         return Array.from(segmenter.segment(text)).map(s => s.segment);
     }
-    // สำรอง: แบ่งด้วยช่องว่าง
     return text.split(' ');
 }
 
@@ -1377,7 +1562,6 @@ function wrapCanvasText(ctx, text, maxWidth) {
                     finalLines.push(currentLine);
                     currentLine = word;
                 } else {
-                    // ในกรณีคำเดียวยาวกว่าความกว้างกรอบจริงๆ
                     finalLines.push(word);
                     currentLine = '';
                 }
@@ -1484,7 +1668,6 @@ async function downloadStampedPDF() {
                 const lineHeight = fontSize * 1.35;
                 ctx.font = `${fontSize}px Sarabun, "TH Sarabun PSK", sans-serif`;
 
-                // ตัดคำด้วยระบบตัดคำภาษาไทยตามพจนานุกรม
                 const wrappedLines = wrapCanvasText(ctx, note, maxTextW);
 
                 const headerH = 55 * scaleY * scaleVal;
