@@ -1,4 +1,4 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOecFZG1aFi3OE7Zmos_DaZJ8ASthGBlMQ-xvLuHUrmQhXdcJmiXL-bbIj-FG-puxU/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_syN7jarKh33mDKB4JMFHpZT90Ghxouw3-G9WOfUUdCtE_INhroawsTPKBlxtTZvM/exec"; 
 
 // 🔗 1. Firebase เดิม (สำหรับดึงสถิติการมาเรียนเท่านั้น)
 const attendanceFirebaseConfig = {
