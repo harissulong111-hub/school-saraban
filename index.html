@@ -442,21 +442,21 @@
                     </div>
                 </section>
 
-                <!-- MENU 10: DIGITAL STAMP ENGINE -->
+                <!-- MENU 10: DIGITAL STAMP ENGINE (รองรับ Responsive มือถือ & Touch Drag) -->
                 <section id="menu-stamp" class="tab-content hidden animate-fade-in space-y-4">
                     <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-slate-800">🔏 ระบบประทับตรายางดิจิทัล (Digital Stamp Tool)</h4>
                             <p class="text-[11px] text-slate-400 mt-0.5">เลือกเอกสาร ประทับตรายางทั้ง 2 รูปแบบ ลากวาง และดาวน์โหลดเอกสาร PDF ได้ทันที</p>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="downloadStampedPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5">💾 ดาวน์โหลดเอกสารประทับตรายาง (PDF)</button>
+                        <div class="flex gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="downloadStampedPDF()" class="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 active:scale-95 transition-transform">💾 ดาวน์โหลดเอกสารประทับตรายาง (PDF)</button>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
                         <!-- แผงเครื่องมือฝั่งซ้าย (Control Panel) -->
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-4 lg:col-span-1 overflow-y-auto max-h-[750px]">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-4 lg:col-span-1 overflow-y-auto max-h-[500px] lg:max-h-[750px]">
                             <h5 class="text-xs font-extrabold text-slate-700 border-b pb-2">🛠️ เครื่องมือปั๊มเอกสาร</h5>
                             
                             <!-- 1. เลือกเอกสารจากหนังสือรับ / อัปโหลดไฟล์ภายนอก -->
@@ -523,18 +523,18 @@
                             </div>
                         </div>
 
-                        <!-- พื้นที่แสดงเอกสารและลากวางตรายาง (Canvas Workarea) -->
-                        <div id="canvas-container" class="bg-slate-200/80 p-4 rounded-xl border border-slate-300 lg:col-span-3 flex justify-center items-start overflow-auto min-h-[600px] max-h-[800px]">
-                            <div id="canvas-wrapper" class="relative bg-white shadow-lg rounded-sm overflow-hidden flex justify-center items-center">
+                        <!-- พื้นที่แสดงเอกสารและลากวางตรายาง (Canvas Workarea รองรับ Touch ในมือถือ) -->
+                        <div id="canvas-container" class="bg-slate-200/80 p-2 sm:p-4 rounded-xl border border-slate-300 lg:col-span-3 flex justify-center items-start overflow-auto min-h-[450px] max-h-[650px] sm:max-h-[800px] touch-pan-x touch-pan-y">
+                            <div id="canvas-wrapper" class="relative bg-white shadow-lg rounded-sm overflow-hidden flex justify-center items-center my-auto">
                                 <canvas id="doc-canvas" class="block max-w-full h-auto"></canvas>
                                 
                                 <!-- เลเยอร์ที่ 1: ตราปั๊มเลขรับโรงเรียน -->
-                                <div id="stamp-receipt-box" class="absolute hidden border-2 border-dashed border-blue-500 cursor-move bg-blue-500/5 select-none" style="top: 20px; left: 20px; padding: 2px;">
+                                <div id="stamp-receipt-box" class="absolute hidden border-2 border-dashed border-blue-500 cursor-move bg-blue-500/5 select-none touch-none" style="top: 20px; left: 20px; padding: 2px;">
                                     <div id="stamp-receipt-content" class="relative pointer-events-none"></div>
                                 </div>
 
                                 <!-- เลเยอร์ที่ 2: ตราปั๊มเสนอ ผอ. -->
-                                <div id="stamp-propose-box" class="absolute hidden border-2 border-dashed border-indigo-500 cursor-move bg-indigo-500/5 select-none" style="top: 160px; left: 20px; padding: 2px;">
+                                <div id="stamp-propose-box" class="absolute hidden border-2 border-dashed border-indigo-500 cursor-move bg-indigo-500/5 select-none touch-none" style="top: 160px; left: 20px; padding: 2px;">
                                     <div id="stamp-propose-content" class="relative pointer-events-none"></div>
                                 </div>
                             </div>
