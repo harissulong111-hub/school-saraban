@@ -1731,3 +1731,58 @@ async function downloadStampedPDF() {
         alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF กรุณาลองใหม่อีกครั้งครับ");
     }
 }
+
+// ==========================================
+// TOUCH DRAG EVENT HANDLER FOR MOBILE DEVICES
+// รองรับการสัมผัสและลากตรายางบนหน้าจอมือถือ
+// ==========================================
+(function initMobileTouchDrag() {
+    const stampBoxes = ['stamp-receipt-box', 'stamp-propose-box'];
+
+    stampBoxes.forEach(boxId => {
+        const box = document.getElementById(boxId);
+        if (!box) return;
+
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        box.addEventListener('touchstart', function(e) {
+            if (e.touches.length !== 1) return; // ทำงานเฉพาะเมื่อใช้ 1 นิ้วลาก
+            
+            isDragging = true;
+            const touch = e.touches[0];
+            
+            startX = touch.clientX;
+            startY = touch.clientY;
+            
+            // อ่านค่าตำแหน่งปัจจุบันของ Element
+            initialLeft = parseFloat(box.style.left) || 20;
+            initialTop = parseFloat(box.style.top) || 20;
+            
+            // ป้องกันไม่ให้หน้าจอเลื่อน (Scroll) ขณะกำลังลากตรายาง
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDragging || e.touches.length !== 1) return;
+
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - startX;
+            const deltaY = touch.clientY - startY;
+
+            // คำนวณตำแหน่งใหม่
+            box.style.left = (initialLeft + deltaX) + 'px';
+            box.style.top = (initialTop + deltaY) + 'px';
+
+            e.preventDefault(); // ป้องกันการ Scroll หน้าจอ
+        }, { passive: false });
+
+        document.addEventListener('touchend', function() {
+            isDragging = false;
+        });
+
+        document.addEventListener('touchcancel', function() {
+            isDragging = false;
+        });
+    });
+})();
