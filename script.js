@@ -1,4 +1,4 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsRfyQW3SPoYyuJS4EaM2mbLI7ZzGYXdFNkgMbRbfIOKvTAO3Gf8MzDL1P5FxHwBeh/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaO3V82p5engfi8rimAWQiv2jQuaEKgJoTJLcwzQJ2p_C9lmBoWc1vo91mcCApJQOT/exec"; 
 
 // 🔗 1. Firebase เดิม (สำหรับดึงสถิติการมาเรียนเท่านั้น)
 const attendanceFirebaseConfig = {
@@ -36,7 +36,7 @@ let globalReceiptsData = [];
 let globalAttendanceData = [];
 let currentSarabanTab = 'inbound';
 let sarabanEditIndex = null;
-let currentUser = null; 
+let currentUser = null;  
 let calendarObj = null;
 
 window.onload = function() { 
@@ -182,27 +182,92 @@ async function fetchSystemData() {
     }
 }
 
-// 📂 ฟังก์ชันช่วยอัปโหลดไฟล์ไป Google Drive เพื่อเอา URL (ปรับปรุงเช็คไฟล์เพื่อความรวดเร็ว)
+// 📦 ฟังก์ชันย้ายข้อมูลเดิมจาก Google Sheet เข้า Firebase โปรเจกต์ใหม่ (ทำครั้งเดียว)
+async function migrateGoogleSheetToFirebase() {
+    if (!confirm("คุณต้องการดึงข้อมูลเดิมจาก Google Sheet ทั้งหมด แล้วนำมาบันทึกลง Firebase โปรเจกต์ใหม่ใช่หรือไม่?")) return;
+    showLoading("กำลังอ่านข้อมูลเดิมจาก Google Sheet เพื่อย้ายเข้า Firebase ใหม่...");
+
+    try {
+        const res = await fetch(GOOGLE_SCRIPT_URL);
+        const out = await res.json();
+
+        if (out.status === "success") {
+            const batch = mainDb.batch();
+
+            if (out.sarabanData && out.sarabanData.length > 0) {
+                out.sarabanData.forEach(item => {
+                    const ref = mainDb.collection("saraban").doc(item.internalId.replace(/\//g, "_"));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            if (out.ordersData && out.ordersData.length > 0) {
+                out.ordersData.forEach(item => {
+                    const docId = item.id || item.orderId || 'ORD-' + Date.now();
+                    const ref = mainDb.collection("orders").doc(String(docId));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            if (out.memosData && out.memosData.length > 0) {
+                out.memosData.forEach(item => {
+                    const ref = mainDb.collection("memos").doc(String(item.id));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            if (out.genDocsData && out.genDocsData.length > 0) {
+                out.genDocsData.forEach(item => {
+                    const ref = mainDb.collection("gendocs").doc(String(item.id));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            if (out.receiptsData && out.receiptsData.length > 0) {
+                out.receiptsData.forEach(item => {
+                    const ref = mainDb.collection("receipts").doc(String(item.id));
+                    batch.set(ref, item, { merge: true });
+                });
+            }
+
+            await batch.commit();
+            alert("✅ ย้ายข้อมูลจาก Google Sheet เข้าสู่ Firebase Firestore โปรเจกต์ใหม่สำเร็จเรียบร้อย!");
+            await fetchSystemData();
+        }
+    } catch (err) {
+        alert("❌ เกิดข้อผิดพลาดขณะย้ายข้อมูล: " + err.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+// 📂 ฟังก์ชันช่วยอัปโหลดไฟล์ไป Google Drive (เสถียร ไม่ติด CORS / HTML Error)
 async function uploadFileToGoogleDrive(fileInputId, department) {
     const fileInput = document.getElementById(fileInputId);
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) return "";
 
     const file = fileInput.files[0];
     const base64 = await convertFileToBase64(file);
-    const payload = {
-        action: "uploadOnly",
-        department: department || "เอกสารระบบ",
-        fileData: base64,
-        fileName: file.name,
-        mimeType: file.type
-    };
+    
+    const bodyData = new URLSearchParams();
+    bodyData.append("action", "uploadOnly");
+    bodyData.append("department", department || "เอกสารระบบ");
+    bodyData.append("fileData", base64);
+    bodyData.append("fileName", file.name);
+    bodyData.append("mimeType", file.type);
 
     try {
         const res = await fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
-            body: JSON.stringify(payload)
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: bodyData.toString()
         });
-        const result = await res.json();
+        const text = await res.text();
+        if (text.startsWith("<!DOCTYPE") || text.startsWith("<html")) {
+            console.error("Deploy Error: สิทธิ์ Web App ไม่ใช่ Anyone");
+            return "";
+        }
+        const result = JSON.parse(text);
         return result.fileUrl || "";
     } catch (err) {
         console.error("Upload Error:", err);
@@ -896,6 +961,7 @@ function renderNewMenusTables() {
     }
 }
 
+// 🗑️ ฟังก์ชันลบข้อมูลออกจาก Firebase Firestore โปรเจกต์ใหม่
 async function deleteFirestoreDocument(collectionName, targetId) {
     if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้อย่างถาวรออกจากระบบ Firebase?")) return;
     showLoading("กำลังดำเนินการลบข้อมูลจาก Firebase...");
@@ -971,7 +1037,7 @@ function openGenDocModal() {
 }
 function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
 
-// 🎯 ปรับแก้สปีด: ระบบอัปโหลดไฟล์หลักและไฟล์แนบเพิ่มเติม (1-6) ขึ้น Google Drive แบบขนาน (Parallel Upload)
+// 🎯 ปรับแก้: ระบบอัปโหลดไฟล์หลักและไฟล์แนบเพิ่มเติม (1-6) ขึ้น Google Drive และบันทึกลง Firebase แบบขนาน
 async function handleGenDocSubmit(e) {
     e.preventDefault();
     showLoading("กำลังอัปโหลดไฟล์แนบเข้า Google Drive และบันทึกคลังเอกสาร...");
@@ -983,29 +1049,43 @@ async function handleGenDocSubmit(e) {
             existingItem = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
         }
 
-        // ⚡ อัปโหลดไฟล์ 1-6 พร้อมกันในคราวเดียว
-        const uploadPromises = [
-            uploadFileToGoogleDrive("gendoc-file", "เอกสารทั่วไป"),
-            uploadFileToGoogleDrive("gendoc-file2", "เอกสารทั่วไป"),
-            uploadFileToGoogleDrive("gendoc-file3", "เอกสารทั่วไป"),
-            uploadFileToGoogleDrive("gendoc-file4", "เอกสารทั่วไป"),
-            uploadFileToGoogleDrive("gendoc-file5", "เอกสารทั่วไป"),
-            uploadFileToGoogleDrive("gendoc-file6", "เอกสารทั่วไป")
+        const fileInputs = [
+            { id: "gendoc-file", key: "fileUrl" },
+            { id: "gendoc-file2", key: "fileUrl2" },
+            { id: "gendoc-file3", key: "fileUrl3" },
+            { id: "gendoc-file4", key: "fileUrl4" },
+            { id: "gendoc-file5", key: "fileUrl5" },
+            { id: "gendoc-file6", key: "fileUrl6" }
         ];
 
-        const [u1, u2, u3, u4, u5, u6] = await Promise.all(uploadPromises);
+        // ประมวลผลเฉพาะช่องที่มีไฟล์จริงถูกเลือกเพื่อประหยัดเวลา
+        const uploadTasks = fileInputs.map(async (item) => {
+            const inputEl = document.getElementById(item.id);
+            if (inputEl && inputEl.files && inputEl.files.length > 0) {
+                const url = await uploadFileToGoogleDrive(item.id, "เอกสารทั่วไป");
+                return { key: item.key, url: url };
+            } else if (existingItem && existingItem[item.key]) {
+                return { key: item.key, url: existingItem[item.key] };
+            }
+            return { key: item.key, url: "" };
+        });
+
+        // ส่งอัปโหลดแบบขนานพร้อมกันทั้งหมดในคราวเดียว
+        const results = await Promise.all(uploadTasks);
+        const uploadedUrls = {};
+        results.forEach(res => { uploadedUrls[res.key] = res.url; });
 
         const payload = {
             id: id,
             docName: document.getElementById('gendoc-name').value,
             date: document.getElementById('gendoc-date').value,
             category: document.getElementById('gendoc-category').value,
-            fileUrl: u1 || (existingItem ? existingItem.fileUrl : ""),
-            fileUrl2: u2 || (existingItem ? existingItem.fileUrl2 : ""),
-            fileUrl3: u3 || (existingItem ? existingItem.fileUrl3 : ""),
-            fileUrl4: u4 || (existingItem ? existingItem.fileUrl4 : ""),
-            fileUrl5: u5 || (existingItem ? existingItem.fileUrl5 : ""),
-            fileUrl6: u6 || (existingItem ? existingItem.fileUrl6 : "")
+            fileUrl: uploadedUrls.fileUrl || "",
+            fileUrl2: uploadedUrls.fileUrl2 || "",
+            fileUrl3: uploadedUrls.fileUrl3 || "",
+            fileUrl4: uploadedUrls.fileUrl4 || "",
+            fileUrl5: uploadedUrls.fileUrl5 || "",
+            fileUrl6: uploadedUrls.fileUrl6 || ""
         };
 
         await mainDb.collection("gendocs").doc(String(id)).set(payload, { merge: true });
@@ -1732,7 +1812,9 @@ async function downloadStampedPDF() {
     }
 }
 
+// ==========================================
 // TOUCH DRAG EVENT HANDLER FOR MOBILE DEVICES
+// ==========================================
 (function initMobileTouchDrag() {
     const stampBoxes = ['stamp-receipt-box', 'stamp-propose-box'];
 
