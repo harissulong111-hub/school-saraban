@@ -1,4 +1,4 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_syN7jarKh33mDKB4JMFHpZT90Ghxouw3-G9WOfUUdCtE_INhroawsTPKBlxtTZvM/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsRfyQW3SPoYyuJS4EaM2mbLI7ZzGYXdFNkgMbRbfIOKvTAO3Gf8MzDL1P5FxHwBeh/exec"; 
 
 // 🔗 1. Firebase เดิม (สำหรับดึงสถิติการมาเรียนเท่านั้น)
 const attendanceFirebaseConfig = {
@@ -182,69 +182,10 @@ async function fetchSystemData() {
     }
 }
 
-// 📦 ฟังก์ชันย้ายข้อมูลเดิมจาก Google Sheet เข้า Firebase โปรเจกต์ใหม่ (ทำครั้งเดียว)
-async function migrateGoogleSheetToFirebase() {
-    if (!confirm("คุณต้องการดึงข้อมูลเดิมจาก Google Sheet ทั้งหมด แล้วนำมาบันทึกลง Firebase โปรเจกต์ใหม่ใช่หรือไม่?")) return;
-    showLoading("กำลังอ่านข้อมูลเดิมจาก Google Sheet เพื่อย้ายเข้า Firebase ใหม่...");
-
-    try {
-        const res = await fetch(GOOGLE_SCRIPT_URL);
-        const out = await res.json();
-
-        if (out.status === "success") {
-            const batch = mainDb.batch();
-
-            if (out.sarabanData && out.sarabanData.length > 0) {
-                out.sarabanData.forEach(item => {
-                    const ref = mainDb.collection("saraban").doc(item.internalId.replace(/\//g, "_"));
-                    batch.set(ref, item, { merge: true });
-                });
-            }
-
-            if (out.ordersData && out.ordersData.length > 0) {
-                out.ordersData.forEach(item => {
-                    const docId = item.id || item.orderId || 'ORD-' + Date.now();
-                    const ref = mainDb.collection("orders").doc(String(docId));
-                    batch.set(ref, item, { merge: true });
-                });
-            }
-
-            if (out.memosData && out.memosData.length > 0) {
-                out.memosData.forEach(item => {
-                    const ref = mainDb.collection("memos").doc(String(item.id));
-                    batch.set(ref, item, { merge: true });
-                });
-            }
-
-            if (out.genDocsData && out.genDocsData.length > 0) {
-                out.genDocsData.forEach(item => {
-                    const ref = mainDb.collection("gendocs").doc(String(item.id));
-                    batch.set(ref, item, { merge: true });
-                });
-            }
-
-            if (out.receiptsData && out.receiptsData.length > 0) {
-                out.receiptsData.forEach(item => {
-                    const ref = mainDb.collection("receipts").doc(String(item.id));
-                    batch.set(ref, item, { merge: true });
-                });
-            }
-
-            await batch.commit();
-            alert("✅ ย้ายข้อมูลจาก Google Sheet เข้าสู่ Firebase Firestore โปรเจกต์ใหม่สำเร็จเรียบร้อย!");
-            await fetchSystemData();
-        }
-    } catch (err) {
-        alert("❌ เกิดข้อผิดพลาดขณะย้ายข้อมูล: " + err.message);
-    } finally {
-        hideLoading();
-    }
-}
-
-// 📂 ฟังก์ชันช่วยอัปโหลดไฟล์ไป Google Drive เพื่อเอา URL
+// 📂 ฟังก์ชันช่วยอัปโหลดไฟล์ไป Google Drive เพื่อเอา URL (ปรับปรุงเช็คไฟล์เพื่อความรวดเร็ว)
 async function uploadFileToGoogleDrive(fileInputId, department) {
     const fileInput = document.getElementById(fileInputId);
-    if (!fileInput || fileInput.files.length === 0) return "";
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) return "";
 
     const file = fileInput.files[0];
     const base64 = await convertFileToBase64(file);
@@ -256,12 +197,17 @@ async function uploadFileToGoogleDrive(fileInputId, department) {
         mimeType: file.type
     };
 
-    const res = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    return result.fileUrl || "";
+    try {
+        const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        return result.fileUrl || "";
+    } catch (err) {
+        console.error("Upload Error:", err);
+        return "";
+    }
 }
 
 function syncAttendanceWithFirebase() {
@@ -494,7 +440,6 @@ function renderSarabanTable() {
         const priority = doc.priority || "ปกติ";
         const pColor = priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : priority.includes("มาก") ? "text-orange-600 bg-orange-50" : priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
         
-        // รองรับสถานะ "ยังไม่ปริ้น" พร้อมแสดงป้ายสีฟ้าสดใส (sky-500)
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : 
                        doc.status === "ยังไม่ปริ้น" ? "bg-sky-500 text-white" : "bg-amber-500 text-white";
         
@@ -661,7 +606,6 @@ async function deleteSaraban(index) {
     }
 }
 
-// 🎯 ดึงเฉพาะเอกสารที่เป็น "หนังสือรับ" (internalId ขึ้นต้นด้วย 'รับ') มาแสดงในตารางเสนอเกษียณ
 function renderWorkflowTable() {
     const tbody = document.getElementById("workflow-table-body");
     tbody.innerHTML = "";
@@ -881,7 +825,6 @@ function formatThaiDateFull(dateString) {
     return `${parseInt(parts[2])} ${thaiMonthsFull[parseInt(parts[1]) - 1]} ${parseInt(parts[0]) + 543}`;
 }
 
-// 🎯 ปรับแก้: เพิ่มระบบแสดงไฟล์แนบสูงสุด 6 ไฟล์ในตารางเอกสารทั่วไป
 function renderNewMenusTables() {
     const memoBody = document.getElementById('memos-table-body');
     if(memoBody) {
@@ -953,7 +896,6 @@ function renderNewMenusTables() {
     }
 }
 
-// 🗑️ ฟังก์ชันลบข้อมูลออกจาก Firebase Firestore โปรเจกต์ใหม่
 async function deleteFirestoreDocument(collectionName, targetId) {
     if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้อย่างถาวรออกจากระบบ Firebase?")) return;
     showLoading("กำลังดำเนินการลบข้อมูลจาก Firebase...");
@@ -1020,7 +962,6 @@ function editMemo(id) {
     document.getElementById('memo-modal-title').innerText = "✏️ แก้ไขข้อมูลบันทึกข้อความ";
 }
 
-// 🎯 ปรับแก้: ล้างสถานะไฟล์เดิมเมื่อเปิด Modal เพิ่มเอกสารทั่วไปใหม่
 function openGenDocModal() { 
     document.getElementById('gendoc-form').reset(); 
     document.getElementById('gendoc-id').value = ''; 
@@ -1030,7 +971,7 @@ function openGenDocModal() {
 }
 function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
 
-// 🎯 ปรับแก้: ระบบอัปโหลดไฟล์หลักและไฟล์แนบเพิ่มเติม (2-6) ขึ้น Google Drive และบันทึกลง Firebase
+// 🎯 ปรับแก้สปีด: ระบบอัปโหลดไฟล์หลักและไฟล์แนบเพิ่มเติม (1-6) ขึ้น Google Drive แบบขนาน (Parallel Upload)
 async function handleGenDocSubmit(e) {
     e.preventDefault();
     showLoading("กำลังอัปโหลดไฟล์แนบเข้า Google Drive และบันทึกคลังเอกสาร...");
@@ -1042,41 +983,29 @@ async function handleGenDocSubmit(e) {
             existingItem = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
         }
 
-        let fileUrl1 = existingItem ? (existingItem.fileUrl || "") : "";
-        const uploadedUrl1 = await uploadFileToGoogleDrive("gendoc-file", "เอกสารทั่วไป");
-        if (uploadedUrl1) fileUrl1 = uploadedUrl1;
+        // ⚡ อัปโหลดไฟล์ 1-6 พร้อมกันในคราวเดียว
+        const uploadPromises = [
+            uploadFileToGoogleDrive("gendoc-file", "เอกสารทั่วไป"),
+            uploadFileToGoogleDrive("gendoc-file2", "เอกสารทั่วไป"),
+            uploadFileToGoogleDrive("gendoc-file3", "เอกสารทั่วไป"),
+            uploadFileToGoogleDrive("gendoc-file4", "เอกสารทั่วไป"),
+            uploadFileToGoogleDrive("gendoc-file5", "เอกสารทั่วไป"),
+            uploadFileToGoogleDrive("gendoc-file6", "เอกสารทั่วไป")
+        ];
 
-        let fileUrl2 = existingItem ? (existingItem.fileUrl2 || "") : "";
-        const uploadedUrl2 = await uploadFileToGoogleDrive("gendoc-file2", "เอกสารทั่วไป");
-        if (uploadedUrl2) fileUrl2 = uploadedUrl2;
-
-        let fileUrl3 = existingItem ? (existingItem.fileUrl3 || "") : "";
-        const uploadedUrl3 = await uploadFileToGoogleDrive("gendoc-file3", "เอกสารทั่วไป");
-        if (uploadedUrl3) fileUrl3 = uploadedUrl3;
-
-        let fileUrl4 = existingItem ? (existingItem.fileUrl4 || "") : "";
-        const uploadedUrl4 = await uploadFileToGoogleDrive("gendoc-file4", "เอกสารทั่วไป");
-        if (uploadedUrl4) fileUrl4 = uploadedUrl4;
-
-        let fileUrl5 = existingItem ? (existingItem.fileUrl5 || "") : "";
-        const uploadedUrl5 = await uploadFileToGoogleDrive("gendoc-file5", "เอกสารทั่วไป");
-        if (uploadedUrl5) fileUrl5 = uploadedUrl5;
-
-        let fileUrl6 = existingItem ? (existingItem.fileUrl6 || "") : "";
-        const uploadedUrl6 = await uploadFileToGoogleDrive("gendoc-file6", "เอกสารทั่วไป");
-        if (uploadedUrl6) fileUrl6 = uploadedUrl6;
+        const [u1, u2, u3, u4, u5, u6] = await Promise.all(uploadPromises);
 
         const payload = {
             id: id,
             docName: document.getElementById('gendoc-name').value,
             date: document.getElementById('gendoc-date').value,
             category: document.getElementById('gendoc-category').value,
-            fileUrl: fileUrl1,
-            fileUrl2: fileUrl2,
-            fileUrl3: fileUrl3,
-            fileUrl4: fileUrl4,
-            fileUrl5: fileUrl5,
-            fileUrl6: fileUrl6
+            fileUrl: u1 || (existingItem ? existingItem.fileUrl : ""),
+            fileUrl2: u2 || (existingItem ? existingItem.fileUrl2 : ""),
+            fileUrl3: u3 || (existingItem ? existingItem.fileUrl3 : ""),
+            fileUrl4: u4 || (existingItem ? existingItem.fileUrl4 : ""),
+            fileUrl5: u5 || (existingItem ? existingItem.fileUrl5 : ""),
+            fileUrl6: u6 || (existingItem ? existingItem.fileUrl6 : "")
         };
 
         await mainDb.collection("gendocs").doc(String(id)).set(payload, { merge: true });
@@ -1090,7 +1019,6 @@ async function handleGenDocSubmit(e) {
     }
 }
 
-// 🎯 ปรับแก้: แสดงสถานะไฟล์เดิมเมื่อกดปุ่มแก้ไข
 function editGenDoc(id) {
     const item = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
     if(!item) return;
@@ -1302,7 +1230,7 @@ function isDuplicateData(tbodyId, columnIndex, newValue) {
 }
 
 // ==========================================
-// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE) - Smart Dictionary-Based Thai Word Wrap
+// 🔏 ระบบจัดการปั๊มตรายางดิจิทัล (DIGITAL STAMP ENGINE)
 // ==========================================
 let currentDocImage = null;
 
@@ -1605,7 +1533,6 @@ function resizeStamp(type, val) {
     }
 }
 
-// 🎯 ฟังก์ชันแบ่งกลุ่มคำภาษาไทยด้วย Intl.Segmenter
 function getThaiWords(text) {
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
         const segmenter = new Intl.Segmenter('th-TH', { granularity: 'word' });
@@ -1614,7 +1541,6 @@ function getThaiWords(text) {
     return text.split(' ');
 }
 
-// 🎯 ฟังก์ชันช่วยคำนวณการตัดขึ้นบรรทัดใหม่ตามพจนานุกรมคำภาษาไทย (Smart Dictionary Word Wrap)
 function wrapCanvasText(ctx, text, maxWidth) {
     const rawLines = text.split('\n');
     let finalLines = [];
@@ -1651,7 +1577,6 @@ function wrapCanvasText(ctx, text, maxWidth) {
     return finalLines;
 }
 
-// 🎯 ฟังก์ชันสร้างและดาวน์โหลดไฟล์ PDF ขนาดมาตรฐาน A4 แบบดาวน์โหลดไว คมชัดสูง (500 DPI)
 async function downloadStampedPDF() {
     if (!currentDocImage) {
         alert('กรุณาเลือกเอกสารหนังสือราชการก่อนดาวน์โหลดครับ');
@@ -1807,10 +1732,7 @@ async function downloadStampedPDF() {
     }
 }
 
-// ==========================================
 // TOUCH DRAG EVENT HANDLER FOR MOBILE DEVICES
-// รองรับการสัมผัสและลากตรายางบนหน้าจอมือถือ
-// ==========================================
 (function initMobileTouchDrag() {
     const stampBoxes = ['stamp-receipt-box', 'stamp-propose-box'];
 
@@ -1822,7 +1744,7 @@ async function downloadStampedPDF() {
         let startX, startY, initialLeft, initialTop;
 
         box.addEventListener('touchstart', function(e) {
-            if (e.touches.length !== 1) return; // ทำงานเฉพาะเมื่อใช้ 1 นิ้วลาก
+            if (e.touches.length !== 1) return;
             
             isDragging = true;
             const touch = e.touches[0];
@@ -1830,11 +1752,9 @@ async function downloadStampedPDF() {
             startX = touch.clientX;
             startY = touch.clientY;
             
-            // อ่านค่าตำแหน่งปัจจุบันของ Element
             initialLeft = parseFloat(box.style.left) || 20;
             initialTop = parseFloat(box.style.top) || 20;
             
-            // ป้องกันไม่ให้หน้าจอเลื่อน (Scroll) ขณะกำลังลากตรายาง
             e.preventDefault();
         }, { passive: false });
 
@@ -1845,11 +1765,10 @@ async function downloadStampedPDF() {
             const deltaX = touch.clientX - startX;
             const deltaY = touch.clientY - startY;
 
-            // คำนวณตำแหน่งใหม่
             box.style.left = (initialLeft + deltaX) + 'px';
             box.style.top = (initialTop + deltaY) + 'px';
 
-            e.preventDefault(); // ป้องกันการ Scroll หน้าจอ
+            e.preventDefault();
         }, { passive: false });
 
         document.addEventListener('touchend', function() {
