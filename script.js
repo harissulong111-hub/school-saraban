@@ -493,7 +493,10 @@ function renderSarabanTable() {
         const realIndex = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
         const priority = doc.priority || "ปกติ";
         const pColor = priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : priority.includes("มาก") ? "text-orange-600 bg-orange-50" : priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
-        const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
+        
+        // รองรับสถานะ "ยังไม่ปริ้น" พร้อมแสดงป้ายสีฟ้าสดใส (sky-500)
+        const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : 
+                       doc.status === "ยังไม่ปริ้น" ? "bg-sky-500 text-white" : "bg-amber-500 text-white";
         
         let linksArray = [];
         
@@ -669,7 +672,11 @@ function renderWorkflowTable() {
         
         const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
         const statusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${idx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">🔄 สลับสถานะ</button>` : ``;
-        const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
+        
+        // รองรับสถานะ "ยังไม่ปริ้น" พร้อมแสดงป้ายสีฟ้าสดใส (sky-500)
+        const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : 
+                       doc.status === "ยังไม่ปริ้น" ? "bg-sky-500 text-white" : "bg-amber-500 text-white";
+        
         const fileLinkHtml = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs inline-flex items-center gap-1 border border-indigo-200 transition-colors">📄 เปิดไฟล์แนบ</a>` : `<span class="text-slate-300 italic text-xs">ไม่มีไฟล์แนบ</span>`;
 
         tbody.innerHTML += `
