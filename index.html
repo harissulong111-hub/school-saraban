@@ -373,7 +373,7 @@
                         </div>
                     </div>
 
-                    <!-- 📊 ส่วนการ์ดสรุปแดชบอร์ดสถิติจำแนกละเอียดแบบใหม่ -->
+                    <!-- 📊 ส่วนการ์ดสรุปแดชบอร์ดสถิติจำแนกรายละเอียดแบบใหม่ -->
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div class="glass-card p-5 rounded-xl flex items-center justify-between shadow-xs border-l-4 border-l-blue-500">
                             <div>
@@ -660,19 +660,57 @@
         </div>
     </div>
 
+    <!-- 🎯 ปรับแก้: เพิ่มโครงสร้างรองรับการแนบไฟล์สูงสุด 6 ไฟล์ -->
     <div id="gendoc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
                 <h3 class="font-extrabold text-slate-900 text-sm" id="gendoc-modal-title">🗂️ แฟ้มจัดเก็บเอกสารทั่วไป</h3>
-                <button onclick="closeGenDocModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
+                <button type="button" onclick="closeGenDocModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
-            <form id="gendoc-form" onsubmit="handleGenDocSubmit(event)" class="p-5 space-y-3.5">
-                <input type="hidden" id="gendoc-id">
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">ชื่อเอกสาร/รายละเอียดแฟ้มข้อมูล</label><input type="text" id="gendoc-name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่บันทึกจัดเก็บ</label><input type="date" id="gendoc-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">หมวดหมู่เอกสาร</label><input type="text" id="gendoc-category" placeholder="เช่น นโยบายสพฐ., แผนงานพัฒนาชุมชน" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
-                <div><label class="block font-bold text-slate-600 mb-1 text-xs">แนบไฟล์หลักฐานเอกสาร</label><input type="file" id="gendoc-file" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs"></div>
-                <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeGenDocModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">บันทึกส่งคลาวด์</button></div>
+            <form id="gendoc-form" onsubmit="handleGenDocSubmit(event)" class="flex flex-col min-h-0 flex-1">
+                <div class="p-5 space-y-3.5 overflow-y-auto flex-1">
+                    <input type="hidden" id="gendoc-id">
+                    <div><label class="block font-bold text-slate-600 mb-1 text-xs">ชื่อเอกสาร/รายละเอียดแฟ้มข้อมูล</label><input type="text" id="gendoc-name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">วันที่บันทึกจัดเก็บ</label><input type="date" id="gendoc-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">หมวดหมู่เอกสาร</label><input type="text" id="gendoc-category" placeholder="เช่น นโยบายสพฐ., ชุมชน" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500"></div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1 text-xs">อัปโหลดไฟล์หลัก (ไฟล์ที่ 1)</label>
+                        <input type="file" id="gendoc-file" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-300 rounded-xl p-1 bg-slate-50 text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 font-bold">
+                        <p id="gendoc-file-status" class="mt-1 text-xs text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-100">
+                        <label class="block font-bold text-slate-700 text-xs">📁 เพิ่มไฟล์แนบเพิ่มเติม (สูงสุดรวม 6 ไฟล์)</label>
+                        <div class="space-y-2 text-xs">
+                            <div>
+                                <span class="text-[10px] text-slate-500 font-semibold">ไฟล์แนบที่ 2:</span>
+                                <input type="file" id="gendoc-file2" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-lg p-1 bg-slate-50 text-[11px]">
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-500 font-semibold">ไฟล์แนบที่ 3:</span>
+                                <input type="file" id="gendoc-file3" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-lg p-1 bg-slate-50 text-[11px]">
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-500 font-semibold">ไฟล์แนบที่ 4:</span>
+                                <input type="file" id="gendoc-file4" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-lg p-1 bg-slate-50 text-[11px]">
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-500 font-semibold">ไฟล์แนบที่ 5:</span>
+                                <input type="file" id="gendoc-file5" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-lg p-1 bg-slate-50 text-[11px]">
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-500 font-semibold">ไฟล์แนบที่ 6:</span>
+                                <input type="file" id="gendoc-file6" accept=".pdf, .docx, .doc, .png, .jpg, .jpeg" class="w-full border border-slate-200 rounded-lg p-1 bg-slate-50 text-[11px]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50 px-5 py-3.5 shrink-0">
+                    <button type="button" onclick="closeGenDocModal()" class="px-4 py-2 border rounded-xl text-xs font-bold hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer">บันทึกคลังเอกสาร</button>
+                </div>
             </form>
         </div>
     </div>

@@ -661,19 +661,29 @@ async function deleteSaraban(index) {
     }
 }
 
+// 🎯 ดึงเฉพาะเอกสารที่เป็น "หนังสือรับ" (internalId ขึ้นต้นด้วย 'รับ') มาแสดงในตารางเสนอเกษียณ
 function renderWorkflowTable() {
     const tbody = document.getElementById("workflow-table-body");
     tbody.innerHTML = "";
-    globalSarabanData.forEach((doc, idx) => {
+    
+    const inboundDocs = globalSarabanData.filter(doc => doc.internalId && doc.internalId.startsWith("รับ"));
+    
+    if (inboundDocs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">📥 ยังไม่มีรายการหนังสือรับในระบบเสนอเกษียณ</td></tr>`;
+        return;
+    }
+
+    inboundDocs.forEach((doc) => {
+        const realIdx = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
+        
         const isDirector = currentUser.role === "ผอ." || currentUser.role === "แอดมิน";
         const rowActionHtml = isDirector 
-            ? `<div class="flex gap-2"><input type="text" id="work-comment-${idx}" value="${doc.managercomment || ''}" placeholder="ระบุข้อสั่งการ" class="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs w-full bg-white"><button onclick="submitWorkflowComment(${idx})" class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs hover:bg-blue-700 cursor-pointer whitespace-nowrap shadow-2xs">เซ็นคำสั่ง</button></div>`
+            ? `<div class="flex gap-2"><input type="text" id="work-comment-${realIdx}" value="${doc.managercomment || ''}" placeholder="ระบุข้อสั่งการ" class="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs w-full bg-white"><button onclick="submitWorkflowComment(${realIdx})" class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs hover:bg-blue-700 cursor-pointer whitespace-nowrap shadow-2xs">เซ็นคำสั่ง</button></div>`
             : `<span class="text-slate-400 font-bold text-xs">ไม่มีสิทธิ์บันทึกข้อสั่งการ</span>`;
         
         const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
-        const statusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${idx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">🔄 สลับสถานะ</button>` : ``;
+        const statusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${realIdx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">🔄 สลับสถานะ</button>` : ``;
         
-        // รองรับสถานะ "ยังไม่ปริ้น" พร้อมแสดงป้ายสีฟ้าสดใส (sky-500)
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : 
                        doc.status === "ยังไม่ปริ้น" ? "bg-sky-500 text-white" : "bg-amber-500 text-white";
         
@@ -871,6 +881,7 @@ function formatThaiDateFull(dateString) {
     return `${parseInt(parts[2])} ${thaiMonthsFull[parseInt(parts[1]) - 1]} ${parseInt(parts[0]) + 543}`;
 }
 
+// 🎯 ปรับแก้: เพิ่มระบบแสดงไฟล์แนบสูงสุด 6 ไฟล์ในตารางเอกสารทั่วไป
 function renderNewMenusTables() {
     const memoBody = document.getElementById('memos-table-body');
     if(memoBody) {
@@ -891,19 +902,37 @@ function renderNewMenusTables() {
 
     const genBody = document.getElementById('gendocs-table-body');
     if(genBody) {
-        genBody.innerHTML = globalGenDocsData.map(item => `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 text-xs font-mono text-slate-400">${(item.id || '').substring(0,8)}</td>
-                <td class="py-3 px-4 font-bold text-slate-800">${item.docName || ''}</td>
-                <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
-                <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                </td>
-            </tr>
-        `).join('');
+        genBody.innerHTML = globalGenDocsData.map(item => {
+            let filesArray = [];
+            
+            if (item.fileUrl && item.fileUrl.startsWith("http")) {
+                filesArray.push(`<a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold hover:underline bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📂 ไฟล์ที่ 1</a>`);
+            }
+            for (let i = 2; i <= 6; i++) {
+                const extraUrl = item[`fileUrl${i}`];
+                if (extraUrl && extraUrl.trim().startsWith("http")) {
+                    filesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="text-teal-700 font-bold hover:underline bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📁 ไฟล์ที่ ${i}</a>`);
+                }
+            }
+
+            const fileListHtml = filesArray.length > 0 
+                ? `<div class="flex flex-col gap-1 items-center justify-center">${filesArray.join('')}</div>` 
+                : `<span class="text-slate-300 text-xs">-</span>`;
+
+            return `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-4 text-xs font-mono text-slate-400">${(item.id || '').substring(0,8)}</td>
+                    <td class="py-3 px-4 font-bold text-slate-800">${item.docName || ''}</td>
+                    <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                    <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
+                    <td class="py-3 px-3 text-center">${fileListHtml}</td>
+                    <td class="py-3 px-4 text-right space-x-1">
+                        <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                        <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     const receiptBody = document.getElementById('receipts-table-body');
@@ -991,31 +1020,63 @@ function editMemo(id) {
     document.getElementById('memo-modal-title').innerText = "✏️ แก้ไขข้อมูลบันทึกข้อความ";
 }
 
-function openGenDocModal() { document.getElementById('gendoc-form').reset(); document.getElementById('gendoc-id').value = ''; document.getElementById('gendoc-modal-title').innerText = "🗂️ เพิ่มเอกสารทั่วไป"; document.getElementById('gendoc-modal').classList.remove('hidden'); }
+// 🎯 ปรับแก้: ล้างสถานะไฟล์เดิมเมื่อเปิด Modal เพิ่มเอกสารทั่วไปใหม่
+function openGenDocModal() { 
+    document.getElementById('gendoc-form').reset(); 
+    document.getElementById('gendoc-id').value = ''; 
+    document.getElementById('gendoc-file-status').classList.add('hidden');
+    document.getElementById('gendoc-modal-title').innerText = "🗂️ เพิ่มเอกสารทั่วไป"; 
+    document.getElementById('gendoc-modal').classList.remove('hidden'); 
+}
 function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
 
+// 🎯 ปรับแก้: ระบบอัปโหลดไฟล์หลักและไฟล์แนบเพิ่มเติม (2-6) ขึ้น Google Drive และบันทึกลง Firebase
 async function handleGenDocSubmit(e) {
     e.preventDefault();
-    showLoading("กำลังบันทึกข้อมูลเอกสารทั่วไปลง Firebase...");
+    showLoading("กำลังอัปโหลดไฟล์แนบเข้า Google Drive และบันทึกคลังเอกสาร...");
 
     try {
         const id = document.getElementById('gendoc-id').value || 'DOC-' + Date.now();
-        let driveFileUrl = "";
-
+        let existingItem = null;
         if (document.getElementById('gendoc-id').value) {
-            const existing = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
-            if (existing) driveFileUrl = existing.fileUrl || "";
+            existingItem = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
         }
 
-        const uploadedUrl = await uploadFileToGoogleDrive("gendoc-file", "เอกสารทั่วไป");
-        if (uploadedUrl) driveFileUrl = uploadedUrl;
+        let fileUrl1 = existingItem ? (existingItem.fileUrl || "") : "";
+        const uploadedUrl1 = await uploadFileToGoogleDrive("gendoc-file", "เอกสารทั่วไป");
+        if (uploadedUrl1) fileUrl1 = uploadedUrl1;
+
+        let fileUrl2 = existingItem ? (existingItem.fileUrl2 || "") : "";
+        const uploadedUrl2 = await uploadFileToGoogleDrive("gendoc-file2", "เอกสารทั่วไป");
+        if (uploadedUrl2) fileUrl2 = uploadedUrl2;
+
+        let fileUrl3 = existingItem ? (existingItem.fileUrl3 || "") : "";
+        const uploadedUrl3 = await uploadFileToGoogleDrive("gendoc-file3", "เอกสารทั่วไป");
+        if (uploadedUrl3) fileUrl3 = uploadedUrl3;
+
+        let fileUrl4 = existingItem ? (existingItem.fileUrl4 || "") : "";
+        const uploadedUrl4 = await uploadFileToGoogleDrive("gendoc-file4", "เอกสารทั่วไป");
+        if (uploadedUrl4) fileUrl4 = uploadedUrl4;
+
+        let fileUrl5 = existingItem ? (existingItem.fileUrl5 || "") : "";
+        const uploadedUrl5 = await uploadFileToGoogleDrive("gendoc-file5", "เอกสารทั่วไป");
+        if (uploadedUrl5) fileUrl5 = uploadedUrl5;
+
+        let fileUrl6 = existingItem ? (existingItem.fileUrl6 || "") : "";
+        const uploadedUrl6 = await uploadFileToGoogleDrive("gendoc-file6", "เอกสารทั่วไป");
+        if (uploadedUrl6) fileUrl6 = uploadedUrl6;
 
         const payload = {
             id: id,
             docName: document.getElementById('gendoc-name').value,
             date: document.getElementById('gendoc-date').value,
             category: document.getElementById('gendoc-category').value,
-            fileUrl: driveFileUrl
+            fileUrl: fileUrl1,
+            fileUrl2: fileUrl2,
+            fileUrl3: fileUrl3,
+            fileUrl4: fileUrl4,
+            fileUrl5: fileUrl5,
+            fileUrl6: fileUrl6
         };
 
         await mainDb.collection("gendocs").doc(String(id)).set(payload, { merge: true });
@@ -1023,12 +1084,13 @@ async function handleGenDocSubmit(e) {
         closeGenDocModal();
         await fetchSystemData();
     } catch(err) {
-        alert("เกิดข้อผิดพลาด: " + err.message);
+        alert("เกิดข้อผิดพลาดในการบันทึก: " + err.message);
     } finally {
         hideLoading();
     }
 }
 
+// 🎯 ปรับแก้: แสดงสถานะไฟล์เดิมเมื่อกดปุ่มแก้ไข
 function editGenDoc(id) {
     const item = globalGenDocsData.find(el => (el.firebaseId === id || el.id === id));
     if(!item) return;
@@ -1038,6 +1100,12 @@ function editGenDoc(id) {
     document.getElementById('gendoc-date').value = item.date || "";
     document.getElementById('gendoc-category').value = item.category || "";
     document.getElementById('gendoc-modal-title').innerText = "✏️ แก้ไขข้อมูลเอกสารทั่วไป";
+
+    if(item.fileUrl && item.fileUrl.startsWith("http")) {
+        const el = document.getElementById("gendoc-file-status");
+        el.innerHTML = `📎 ไฟล์เดิมบนคลาวด์: <a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold underline">เปิดดูไฟล์ที่ 1</a>`;
+        el.classList.remove("hidden");
+    }
 }
 
 function openReceiptModal() { document.getElementById('receipt-form').reset(); document.getElementById('receipt-id').value = ''; document.getElementById('receipt-modal-title').innerText = "💰 ลงทะเบียนหลักฐานใบเสร็จ"; document.getElementById('receipt-modal').classList.remove('hidden'); }
