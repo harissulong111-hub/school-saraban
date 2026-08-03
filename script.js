@@ -517,7 +517,7 @@ function renderSarabanTable() {
         for (let i = 1; i <= 6; i++) {
             const extraUrl = doc[`link${i}`];
             if (extraUrl && extraUrl.trim().startsWith("http")) {
-                linksArray.push(`<a href="${extraUrl.trim()}" target="_blank" title="เปิดลิงก์แนบที่ ${i}" class="text-indigo-600 font-bold hover:underline bg-indigo-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">🔗 ลิงก์ ${i}</a>`);
+                linksArray.push(`<a href="${extraUrl.trim()}" target="_blank" title="เปิดลิงก์แนบที่ ${i}" class="text-indigo-600 font-bold hover:underline bg-indigo-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">🔗 ไฟล์ ${i}</a>`);
             }
         }
         
