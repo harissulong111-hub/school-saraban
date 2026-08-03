@@ -1,4 +1,4 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaO3V82p5engfi8rimAWQiv2jQuaEKgJoTJLcwzQJ2p_C9lmBoWc1vo91mcCApJQOT/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxB4E-iBT76N8SfxCUcS99T80JEwtU46xTgAmVU4oaTeSaPHxBb2EEuWNzjBLEw9mv-/exec"; 
 
 // 🔗 1. Firebase เดิม (สำหรับดึงสถิติการมาเรียนเท่านั้น)
 const attendanceFirebaseConfig = {
@@ -241,7 +241,7 @@ async function migrateGoogleSheetToFirebase() {
     }
 }
 
-// 📂 ฟังก์ชันช่วยอัปโหลดไฟล์ไป Google Drive (เสถียร ไม่ติด CORS / HTML Error)
+// 📂 ฟังก์ชันช่วยอัปโหลดไฟล์ไป Google Drive
 async function uploadFileToGoogleDrive(fileInputId, department) {
     const fileInput = document.getElementById(fileInputId);
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) return "";
@@ -272,6 +272,27 @@ async function uploadFileToGoogleDrive(fileInputId, department) {
     } catch (err) {
         console.error("Upload Error:", err);
         return "";
+    }
+}
+
+// 🗑️ ฟังก์ชันช่วยสั่งลบไฟล์ใน Google Drive
+async function deleteGoogleDriveFiles(fileUrls) {
+    if (!fileUrls || fileUrls.length === 0) return;
+    const validUrls = fileUrls.filter(url => url && typeof url === 'string' && url.includes('drive.google.com'));
+    if (validUrls.length === 0) return;
+
+    try {
+        const bodyData = new URLSearchParams();
+        bodyData.append("action", "deleteFile");
+        bodyData.append("fileUrls", JSON.stringify(validUrls));
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: bodyData.toString()
+        });
+    } catch (err) {
+        console.error("Failed to delete drive file:", err);
     }
 }
 
@@ -659,11 +680,22 @@ function convertFileToBase64(file) {
     });
 }
 
+// 🗑️ ปรับปรุง: ลบรายการหนังสือรับ-ส่ง พร้อมไฟล์แนบใน Google Drive
 async function deleteSaraban(index) {
     const item = globalSarabanData[index];
-    if(confirm(`ยืนยันขอลบแถวทะเบียนสารบรรณรหัส ${item.internalId} หรือไม่?`)) {
-        showLoading("กำลังลบข้อมูลออกจากระบบ Firebase...");
+    if(confirm(`ยืนยันขอลบแถวทะเบียนสารบรรณรหัส ${item.internalId} พร้อมไฟล์แนบทั้งหมดใน Google Drive หรือไม่?`)) {
+        showLoading("กำลังลบข้อมูลออกจากระบบ Firebase และ Google Drive...");
         try {
+            // รวบรวมไฟล์แนบทั้งหมด (1-6)
+            const filesToDelete = [item.fileUrl];
+            for (let i = 1; i <= 6; i++) {
+                if (item[`link${i}`]) filesToDelete.push(item[`link${i}`]);
+            }
+
+            // ลบไฟล์ออกจาก Google Drive
+            await deleteGoogleDriveFiles(filesToDelete);
+
+            // ลบข้อมูลออกจาก Firebase
             const fbDocId = item.firebaseId || item.internalId.replace(/\//g, "_");
             await mainDb.collection("saraban").doc(fbDocId).delete();
             await fetchSystemData();
@@ -961,12 +993,34 @@ function renderNewMenusTables() {
     }
 }
 
-// 🗑️ ฟังก์ชันลบข้อมูลออกจาก Firebase Firestore โปรเจกต์ใหม่
+// 🗑️ ปรับปรุง: ลบรายการใน Firebase พร้อมไฟล์แนบใน Google Drive
 async function deleteFirestoreDocument(collectionName, targetId) {
-    if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้อย่างถาวรออกจากระบบ Firebase?")) return;
-    showLoading("กำลังดำเนินการลบข้อมูลจาก Firebase...");
+    if(!confirm("คุณครูแน่ใจใช่หรือไม่ที่จะลบรายการข้อมูลแถวนี้พร้อมไฟล์แนบอย่างถาวร?")) return;
+    showLoading("กำลังดำเนินการลบข้อมูลและไฟล์แนบออกจาก Google Drive...");
 
     try {
+        let targetList = [];
+        if (collectionName === 'orders') targetList = globalOrdersData;
+        if (collectionName === 'memos') targetList = globalMemosData;
+        if (collectionName === 'gendocs') targetList = globalGenDocsData;
+        if (collectionName === 'receipts') targetList = globalReceiptsData;
+
+        const item = targetList.find(el => (el.firebaseId === targetId || el.id === targetId || el.orderId === targetId));
+        
+        if (item) {
+            const filesToDelete = [];
+            if (item.fileUrl) filesToDelete.push(item.fileUrl);
+            
+            // ลบไฟล์แนบเพิ่มเติม 2-6 (สำหรับเอกสารทั่วไป)
+            for (let i = 2; i <= 6; i++) {
+                if (item[`fileUrl${i}`]) filesToDelete.push(item[`fileUrl${i}`]);
+            }
+
+            // ส่งคำสั่งลบไฟล์ไปยัง Google Drive
+            await deleteGoogleDriveFiles(filesToDelete);
+        }
+
+        // ลบข้อมูลจาก Firebase
         await mainDb.collection(collectionName).doc(String(targetId)).delete();
         await fetchSystemData();
     } catch(e) {
@@ -1037,7 +1091,6 @@ function openGenDocModal() {
 }
 function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
 
-// 🎯 ปรับแก้: ระบบอัปโหลดไฟล์หลักและไฟล์แนบเพิ่มเติม (1-6) ขึ้น Google Drive และบันทึกลง Firebase แบบขนาน
 async function handleGenDocSubmit(e) {
     e.preventDefault();
     showLoading("กำลังอัปโหลดไฟล์แนบเข้า Google Drive และบันทึกคลังเอกสาร...");
@@ -1058,7 +1111,6 @@ async function handleGenDocSubmit(e) {
             { id: "gendoc-file6", key: "fileUrl6" }
         ];
 
-        // ประมวลผลเฉพาะช่องที่มีไฟล์จริงถูกเลือกเพื่อประหยัดเวลา
         const uploadTasks = fileInputs.map(async (item) => {
             const inputEl = document.getElementById(item.id);
             if (inputEl && inputEl.files && inputEl.files.length > 0) {
@@ -1070,7 +1122,6 @@ async function handleGenDocSubmit(e) {
             return { key: item.key, url: "" };
         });
 
-        // ส่งอัปโหลดแบบขนานพร้อมกันทั้งหมดในคราวเดียว
         const results = await Promise.all(uploadTasks);
         const uploadedUrls = {};
         results.forEach(res => { uploadedUrls[res.key] = res.url; });
