@@ -134,7 +134,17 @@
                                 <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-600 shadow-xs cursor-pointer">📥 ทะเบียนหนังสือรับ</button>
                                 <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">📤 ทะเบียนหนังสือส่ง</button>
                             </div>
-                            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end items-center">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-xs font-bold text-slate-600 whitespace-nowrap">จำกัดดึงข้อมูล:</span>
+                                    <select id="fetch-limit-saraban" onchange="fetchSystemData()" class="px-2 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-blue-700 focus:outline-none focus:border-blue-500 shadow-xs">
+                                        <option value="50">50 ล่าสุด</option>
+                                        <option value="100" selected>100 ล่าสุด</option>
+                                        <option value="200">200 ล่าสุด</option>
+                                        <option value="500">500 ล่าสุด</option>
+                                        <option value="all">ทั้งหมด (ไม่จำกัด)</option>
+                                    </select>
+                                </div>
                                 <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง..." class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs w-full sm:w-64 focus:outline-none focus:border-blue-500 shadow-xs">
                                 <button onclick="openSarabanModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer whitespace-nowrap shadow-xs">➕ ลงทะเบียนเอกสารใหม่</button>
                             </div>

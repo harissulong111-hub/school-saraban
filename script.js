@@ -139,20 +139,40 @@ function initLiveHeader() {
 }
 
 // ===================================================================================
-// 📡 ฟังก์ชันดึงข้อมูลจาก Firebase Firestore โปรเจกต์ใหม่
+// 📡 ฟังก์ชันดึงข้อมูลจาก Firebase Firestore แบบประหยัดโควต้า (จำกัดจำนวนดึงข้อมูล - Limit Query)
 // ===================================================================================
 async function fetchSystemData() {
-    showLoading("กำลังดึงข้อมูลจากคลาวด์ Firebase Firestore...");
+    showLoading("กำลังดึงข้อมูลแบบจำกัดจำนวน (Limit) จากคลาวด์ Firebase Firestore...");
     try {
         const currentToday = document.getElementById('sync-att-date').value || new Date().toISOString().split('T')[0];
         fetchFirebaseAttendanceData(currentToday);
 
+        // อ่านค่า limit จาก Dropdown หน้าระบบสารบรรณ (ค่าเริ่มต้น 100 รายการ)
+        const limitSelect = document.getElementById('fetch-limit-saraban');
+        const limitVal = limitSelect ? limitSelect.value : "100";
+
+        // สร้าง Query แบบมี Limit สำหรับแต่ละ Collection
+        let sarabanQuery = mainDb.collection("saraban").orderBy("date", "desc");
+        let ordersQuery = mainDb.collection("orders").orderBy("signDate", "desc");
+        let memosQuery = mainDb.collection("memos").orderBy("date", "desc");
+        let genDocsQuery = mainDb.collection("gendocs").orderBy("date", "desc");
+        let receiptsQuery = mainDb.collection("receipts").orderBy("date", "desc");
+
+        if (limitVal !== "all") {
+            const numLimit = parseInt(limitVal, 10) || 100;
+            sarabanQuery = sarabanQuery.limit(numLimit);
+            ordersQuery = ordersQuery.limit(numLimit);
+            memosQuery = memosQuery.limit(numLimit);
+            genDocsQuery = genDocsQuery.limit(numLimit);
+            receiptsQuery = receiptsQuery.limit(numLimit);
+        }
+
         const [sarabanSnap, ordersSnap, memosSnap, genDocsSnap, receiptsSnap] = await Promise.all([
-            mainDb.collection("saraban").get(),
-            mainDb.collection("orders").get(),
-            mainDb.collection("memos").get(),
-            mainDb.collection("gendocs").get(),
-            mainDb.collection("receipts").get()
+            sarabanQuery.get(),
+            ordersQuery.get(),
+            memosQuery.get(),
+            genDocsQuery.get(),
+            receiptsQuery.get()
         ]);
 
         globalSarabanData = sarabanSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
@@ -169,14 +189,60 @@ async function fetchSystemData() {
         renderNewMenusTables();
         populateStampSarabanDropdown();
 
+        // 🎯 สั่งให้ทุกตารางเริ่มต้นที่หน้า 1 (หน้าแรก) เสมอหลังโหลดข้อมูล
         setTimeout(() => {
-            const tablesToLastPage = ["saraban", "sign", "orders", "memos", "gendocs", "receipts"];
-            tablesToLastPage.forEach(tableType => jumpToLastPage(tableType));
+            const tablesToFirstPage = ["saraban", "sign", "orders", "memos", "gendocs", "receipts"];
+            tablesToFirstPage.forEach(tableType => jumpToPage(tableType, 1));
         }, 300);
 
     } catch(e) { 
         console.error(e);
-        alert("⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase Firestore: " + e.message); 
+        // Fallback หาก Firestore ยังไม่ได้สร้าง Composite Index สำหรับ orderBy
+        try {
+            console.warn("สลับไปใช้ดึงข้อมูลแบบ Fallback (ไม่ระบุ orderBy) เพื่อป้องกัน Error");
+            const limitSelect = document.getElementById('fetch-limit-saraban');
+            const limitVal = limitSelect ? limitSelect.value : "100";
+            
+            let sQ = mainDb.collection("saraban");
+            let oQ = mainDb.collection("orders");
+            let mQ = mainDb.collection("memos");
+            let gQ = mainDb.collection("gendocs");
+            let rQ = mainDb.collection("receipts");
+
+            if (limitVal !== "all") {
+                const numLimit = parseInt(limitVal, 10) || 100;
+                sQ = sQ.limit(numLimit);
+                oQ = oQ.limit(numLimit);
+                mQ = mQ.limit(numLimit);
+                gQ = gQ.limit(numLimit);
+                rQ = rQ.limit(numLimit);
+            }
+
+            const [sarabanSnap, ordersSnap, memosSnap, genDocsSnap, receiptsSnap] = await Promise.all([
+                sQ.get(), oQ.get(), mQ.get(), gQ.get(), rQ.get()
+            ]);
+
+            globalSarabanData = sarabanSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+            globalOrdersData = ordersSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+            globalMemosData = memosSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+            globalGenDocsData = genDocsSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+            globalReceiptsData = receiptsSnap.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+
+            calculateDashboardCounters();
+            renderSarabanTable();
+            renderWorkflowTable();
+            renderOrdersTable();
+            initCalendar();
+            renderNewMenusTables();
+            populateStampSarabanDropdown();
+
+            setTimeout(() => {
+                const tablesToFirstPage = ["saraban", "sign", "orders", "memos", "gendocs", "receipts"];
+                tablesToFirstPage.forEach(tableType => jumpToPage(tableType, 1));
+            }, 300);
+        } catch(fallbackErr) {
+            alert("⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase Firestore: " + fallbackErr.message);
+        }
     } finally {
         hideLoading();
     }
@@ -503,8 +569,9 @@ function switchSarabanTab(tab) {
     document.getElementById('th-saraban-id').innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
     renderSarabanTable();
     
+    // 🎯 สลับสลับแท็บรับ-ส่ง ให้กลับมาเปิดหน้า 1 (หน้าแรก) เสมอ
     setTimeout(() => {
-        jumpToLastPage('saraban');
+        jumpToPage('saraban', 1);
     }, 50);
 }
 
