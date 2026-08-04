@@ -846,7 +846,7 @@ function renderOrdersTable() {
                 <td class="py-3 px-4 font-black text-purple-700">เลขที่ ${ord.orderId}</td>
                 <td class="py-3 px-3 font-bold text-slate-400">${ord.year}</td>
                 <td class="py-3 px-5 font-bold text-slate-900">${ord.title}</td>
-                <td class="py-3 px-4 text-slate-600">${ord.signDate}</td>
+                <td class="py-3 px-4 text-slate-600 font-medium">${formatThaiDateShort(ord.signDate)}</td>
                 <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold text-xs">${(ord.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
                 <td class="py-3 px-3 text-center">${fl}</td>
                 <td class="py-3 px-4 text-right space-x-1 font-bold">
