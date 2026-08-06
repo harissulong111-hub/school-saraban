@@ -527,13 +527,6 @@ function navigateTo(targetTabId) {
         document.getElementById(mobileNavId).classList.add('mobile-tab-active');
     }
 
-    // Dock Navigation active state
-    document.querySelectorAll('.dock-item').forEach(btn => btn.classList.remove('dock-item-active'));
-    const dockNavId = targetTabId.replace('menu-', 'dock-nav-');
-    if(document.getElementById(dockNavId)) {
-        document.getElementById(dockNavId).classList.add('dock-item-active');
-    }
-
     if(targetTabId === 'menu-calendar' && calendarObj) {
         setTimeout(() => calendarObj.render(), 150); 
     }

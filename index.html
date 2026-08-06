@@ -602,75 +602,28 @@
             </main>
         </div>
 
-        <!-- Floating Dock Navigation (Mobile Style Dock) -->
-        <div id="dock-navigation" class="flex md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-40 max-w-[95vw] overflow-x-auto no-scrollbar py-1 px-1.5">
-            <div class="dock-bar flex items-center gap-1 shadow-2xl">
-                <!-- 1. แดชบอร์ด -->
-                <button onclick="navigateTo('menu-dashboard')" id="dock-nav-dashboard" class="dock-item group" title="หน้าแรก / แดชบอร์ด">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">แดชบอร์ด</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
-                </button>
-
-                <!-- 2. ทะเบียนหนังสือรับ-ส่ง -->
-                <button onclick="navigateTo('menu-saraban')" id="dock-nav-saraban" class="dock-item group" title="ทะเบียนหนังสือรับ-ส่ง">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">หนังสือรับ-ส่ง</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.375l1.332-9A2.25 2.25 0 018 3h8a2.25 2.25 0 012.23 1.875l1.332 9A2.25 2.25 0 0117.332 16.5H15a2.25 2.25 0 01-2-1.125l-.256-.512a2.25 2.25 0 00-2.013-1.125H9.27a2.25 2.25 0 00-2.013 1.125l-.256.512A2.25 2.25 0 015 16.5H2.668A2.25 2.25 0 01.436 13.875z"/></svg>
-                </button>
-
-                <!-- 3. เสนอเกษียณ -->
-                <button onclick="navigateTo('menu-workflow')" id="dock-nav-workflow" class="dock-item group" title="เสนอเกษียณ & ส่งต่อฝ่าย">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">เสนอเกษียณ</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </button>
-
-                <!-- 4. คำสั่งโรงเรียน -->
-                <button onclick="navigateTo('menu-orders')" id="dock-nav-orders" class="dock-item group" title="ออกเลขคำสั่งโรงเรียน">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">คำสั่งโรงเรียน</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                </button>
-
-                <!-- Divider -->
-                <div class="w-[1px] h-6 bg-slate-700/60 mx-0.5"></div>
-
-                <!-- 5. ปฏิทินกำหนดส่งงาน -->
-                <button onclick="navigateTo('menu-calendar')" id="dock-nav-calendar" class="dock-item group" title="ปฏิทินงาน">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">ปฏิทินงาน</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
-                </button>
-
-                <!-- 6. บันทึกข้อความ -->
-                <button onclick="navigateTo('menu-memos')" id="dock-nav-memos" class="dock-item group" title="บันทึกข้อความ">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">บันทึกข้อความ</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
-                </button>
-
-                <!-- 7. เอกสารทั่วไป -->
-                <button onclick="navigateTo('menu-gendocs')" id="dock-nav-gendocs" class="dock-item group" title="เอกสารทั่วไป">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">เอกสารทั่วไป</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-19.5 0A2.25 2.25 0 004.5 15h15a2.25 2.25 0 002.25-2.25m-19.5 0v.243a2.25 2.25 0 001.07 1.916l7.5 4.615a2.25 2.25 0 002.36 0l7.5-4.615a2.25 2.25 0 001.07-1.916V12.75"/></svg>
-                </button>
-
-                <!-- 8. ทะเบียนใบเสร็จ -->
-                <button onclick="navigateTo('menu-receipts')" id="dock-nav-receipts" class="dock-item group" title="ใบเสร็จรับเงิน">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">ใบเสร็จรับเงิน</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
-                </button>
-
-                <!-- Divider -->
-                <div class="w-[1px] h-6 bg-slate-700/60 mx-0.5"></div>
-
-                <!-- 9. สถิติการมาเรียน -->
-                <button onclick="navigateTo('menu-attendance')" id="dock-nav-attendance" class="dock-item group" title="สถิติการมาเรียน">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">สถิติมาเรียน</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
-                </button>
-
-                <!-- 10. ปั๊มตรายางดิจิทัล -->
-                <button onclick="navigateTo('menu-stamp')" id="dock-nav-stamp" class="dock-item group" title="ปั๊มตรายางดิจิทัล">
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">ปั๊มตรายาง</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.959 11.959 0 0112 2.714z"/></svg>
-                </button>
-            </div>
+        <!-- Mobile Bottom Navigation Tab Bar (Mobile Style) -->
+        <div id="mobile-tab-bar" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg px-2 py-1.5 flex items-center justify-around">
+            <button onclick="navigateTo('menu-dashboard')" id="mobile-nav-dashboard" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-1 active:scale-95 transition-all cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                <span>หน้าแรก</span>
+            </button>
+            <button onclick="navigateTo('menu-saraban')" id="mobile-nav-saraban" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-1 active:scale-95 transition-all cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.375l1.332-9A2.25 2.25 0 018 3h8a2.25 2.25 0 012.23 1.875l1.332 9A2.25 2.25 0 0117.332 16.5H15a2.25 2.25 0 01-2-1.125l-.256-.512a2.25 2.25 0 00-2.013-1.125H9.27a2.25 2.25 0 00-2.013 1.125l-.256.512A2.25 2.25 0 015 16.5H2.668A2.25 2.25 0 01.436 13.875z"/></svg>
+                <span>รับ-ส่ง</span>
+            </button>
+            <button onclick="navigateTo('menu-workflow')" id="mobile-nav-workflow" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-1 active:scale-95 transition-all cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>เกษียณ</span>
+            </button>
+            <button onclick="navigateTo('menu-orders')" id="mobile-nav-orders" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-1 active:scale-95 transition-all cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                <span>คำสั่ง</span>
+            </button>
+            <button onclick="toggleMobileMoreMenu()" id="mobile-nav-more" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-1 active:scale-95 transition-all cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+                <span>เพิ่มเติม</span>
+            </button>
         </div>
 
         <!-- Mobile More Drawer Modal -->
