@@ -241,7 +241,7 @@ async function fetchSystemData() {
                 tablesToFirstPage.forEach(tableType => jumpToPage(tableType, 1));
             }, 300);
         } catch(fallbackErr) {
-            alert("⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase Firestore: " + fallbackErr.message);
+            alert("เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase Firestore: " + fallbackErr.message);
         }
     } finally {
         hideLoading();
@@ -297,11 +297,11 @@ async function migrateGoogleSheetToFirebase() {
             }
 
             await batch.commit();
-            alert("✅ ย้ายข้อมูลจาก Google Sheet เข้าสู่ Firebase Firestore โปรเจกต์ใหม่สำเร็จเรียบร้อย!");
+            alert("ย้ายข้อมูลจาก Google Sheet เข้าสู่ Firebase Firestore โปรเจกต์ใหม่สำเร็จเรียบร้อย!");
             await fetchSystemData();
         }
     } catch (err) {
-        alert("❌ เกิดข้อผิดพลาดขณะย้ายข้อมูล: " + err.message);
+        alert("เกิดข้อผิดพลาดขณะย้ายข้อมูล: " + err.message);
     } finally {
         hideLoading();
     }
@@ -482,7 +482,7 @@ function renderFallbackAttendanceTable(targetDate) {
     const localFilter = globalAttendanceData.filter(d => d.date === targetDate);
     
     if(localFilter.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="py-10 text-center text-slate-400 text-xs">📭 ไม่พบสถิติการเช็คชื่อในระบบคลาวด์ Firebase และชีตหลักของวันที่ ${formatThaiDate(targetDate)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" class="py-10 text-center text-slate-400 text-xs">ไม่พบสถิติการเช็คชื่อในระบบคลาวด์ Firebase และชีตหลักของวันที่ ${formatThaiDate(targetDate)}</td></tr>`;
         return;
     }
     
@@ -525,6 +525,13 @@ function navigateTo(targetTabId) {
     const mobileNavId = targetTabId.replace('menu-', 'mobile-nav-');
     if(document.getElementById(mobileNavId)) {
         document.getElementById(mobileNavId).classList.add('mobile-tab-active');
+    }
+
+    // Dock Navigation active state
+    document.querySelectorAll('.dock-item').forEach(btn => btn.classList.remove('dock-item-active'));
+    const dockNavId = targetTabId.replace('menu-', 'dock-nav-');
+    if(document.getElementById(dockNavId)) {
+        document.getElementById(dockNavId).classList.add('dock-item-active');
     }
 
     if(targetTabId === 'menu-calendar' && calendarObj) {
@@ -586,7 +593,7 @@ function switchSarabanTab(tab) {
     document.getElementById('th-saraban-id').innerText = tab === 'inbound' ? "เลขทะเบียนรับ" : "เลขทะเบียนส่ง";
     renderSarabanTable();
     
-    // 🎯 สลับสลับแท็บรับ-ส่ง ให้กลับมาเปิดหน้า 1 (หน้าแรก) เสมอ
+    // สลับสลับแท็บรับ-ส่ง ให้กลับมาเปิดหน้า 1 (หน้าแรก) เสมอ
     setTimeout(() => {
         jumpToPage('saraban', 1);
     }, 50);
@@ -601,7 +608,7 @@ function renderSarabanTable() {
     const filtered = raw.filter(d => (d.internalId && d.internalId.toLowerCase().includes(search)) || (d.docId && d.docId.toLowerCase().includes(search)) || (d.title && d.title.toLowerCase().includes(search)));
     
     if(filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
         return;
     }
 
@@ -616,13 +623,13 @@ function renderSarabanTable() {
         let linksArray = [];
         
         if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
-            linksArray.push(`<a href="${doc.fileUrl}" target="_blank" title="เปิดไฟล์คลาวด์" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📄 หนังสือ</a>`);
+            linksArray.push(`<a href="${doc.fileUrl}" target="_blank" title="เปิดไฟล์คลาวด์" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">หนังสือ</a>`);
         }
         
         for (let i = 1; i <= 6; i++) {
             const extraUrl = doc[`link${i}`];
             if (extraUrl && extraUrl.trim().startsWith("http")) {
-                linksArray.push(`<a href="${extraUrl.trim()}" target="_blank" title="เปิดลิงก์แนบที่ ${i}" class="text-indigo-600 font-bold hover:underline bg-indigo-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">🔗 ไฟล์ ${i}</a>`);
+                linksArray.push(`<a href="${extraUrl.trim()}" target="_blank" title="เปิดลิงก์แนบที่ ${i}" class="text-indigo-600 font-bold hover:underline bg-indigo-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ ${i}</a>`);
             }
         }
         
@@ -642,7 +649,7 @@ function renderSarabanTable() {
                 <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
                 <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
                 <td class="py-3 px-4 text-right space-x-2 font-bold">
-                    <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">✏️ แก้ไข</button>
+                    <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">แก้ไข</button>
                     <button onclick="deleteSaraban(${realIndex})" class="text-rose-500 hover:text-rose-700 cursor-pointer">ลบ</button>
                 </td>
             </tr>
@@ -695,7 +702,7 @@ function editSaraban(index) {
 
     if(data.fileUrl && data.fileUrl.startsWith("http")) {
         const el = document.getElementById("form-file-status");
-        el.innerHTML = `📎 คลาวด์ลิงก์เดิม: <a href="${data.fileUrl}" target="_blank" class="text-blue-600 font-bold underline">เปิดดูไฟล์แนบ</a>`;
+        el.innerHTML = `คลาวด์ลิงก์เดิม: <a href="${data.fileUrl}" target="_blank" class="text-blue-600 font-bold underline">เปิดดูไฟล์แนบ</a>`;
         el.classList.remove("hidden");
     }
     document.getElementById("saraban-modal").classList.remove("hidden");
@@ -708,7 +715,7 @@ async function handleSarabanSubmit(event) {
 
     if (sarabanEditIndex === null) { 
         if (isDuplicateData("saraban-table-body", 4, currentTitle)) {
-            alert(`⚠️ เรื่อง "${currentTitle}" นี้เคยลงทะเบียนไว้ในระบบสารบรรณแล้วครับ`);
+            alert(`เรื่อง "${currentTitle}" นี้เคยลงทะเบียนไว้ในระบบสารบรรณแล้วครับ`);
             return;
         }
     }
@@ -794,7 +801,7 @@ function renderWorkflowTable() {
     const inboundDocs = globalSarabanData.filter(doc => doc.internalId && doc.internalId.startsWith("รับ"));
     
     if (inboundDocs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">📥 ยังไม่มีรายการหนังสือรับในระบบเสนอเกษียณ</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">ยังไม่มีรายการหนังสือรับในระบบเสนอเกษียณ</td></tr>`;
         return;
     }
 
@@ -807,12 +814,12 @@ function renderWorkflowTable() {
             : `<span class="text-slate-400 font-bold text-xs">ไม่มีสิทธิ์บันทึกข้อสั่งการ</span>`;
         
         const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
-        const statusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${realIdx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">🔄 สลับสถานะ</button>` : ``;
+        const statusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${realIdx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">สลับสถานะ</button>` : ``;
         
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : 
                        doc.status === "ยังไม่ปริ้น" ? "bg-sky-500 text-white" : "bg-amber-500 text-white";
         
-        const fileLinkHtml = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs inline-flex items-center gap-1 border border-indigo-200 transition-colors">📄 เปิดไฟล์แนบ</a>` : `<span class="text-slate-300 italic text-xs">ไม่มีไฟล์แนบ</span>`;
+        const fileLinkHtml = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs inline-flex items-center gap-1 border border-indigo-200 transition-colors">เปิดไฟล์แนบ</a>` : `<span class="text-slate-300 italic text-xs">ไม่มีไฟล์แนบ</span>`;
 
         tbody.innerHTML += `
             <tr class="hover:bg-slate-50 transition-colors">
@@ -820,7 +827,7 @@ function renderWorkflowTable() {
                 <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold text-xs text-slate-700">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
                 <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
                 <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
-                <td class="py-3 px-4 text-blue-800 font-bold italic bg-blue-50/20">${doc.managercomment || '⏳ รอกรรมการ/ผอ. ลงนาม...'}</td>
+                <td class="py-3 px-4 text-blue-800 font-bold italic bg-blue-50/20">${doc.managercomment || 'รอกรรมการ/ผอ. ลงนาม...'}</td>
                 <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
                 <td class="py-3 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
             </tr>
@@ -853,7 +860,7 @@ async function toggleWorkflowStatus(idx) {
 function renderOrdersTable() {
     const tbody = document.getElementById("orders-table-body"); tbody.innerHTML = "";
     if(globalOrdersData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">📜 ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
         return;
     }
     globalOrdersData.forEach(ord => {
@@ -867,8 +874,8 @@ function renderOrdersTable() {
                 <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold text-xs">${(ord.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
                 <td class="py-3 px-3 text-center">${fl}</td>
                 <td class="py-3 px-4 text-right space-x-1 font-bold">
-                    <button onclick="editOrder('${ord.firebaseId || ord.id || ord.orderId}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteFirestoreDocument('orders', '${ord.firebaseId || ord.id || ord.orderId}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    <button onclick="editOrder('${ord.firebaseId || ord.id || ord.orderId}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                    <button onclick="deleteFirestoreDocument('orders', '${ord.firebaseId || ord.id || ord.orderId}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
                 </td>
             </tr>
         `;
@@ -878,7 +885,7 @@ function renderOrdersTable() {
 function openOrderModal() {
     document.getElementById("order-form").reset(); 
     document.getElementById("order-unique-id").value = '';
-    document.getElementById("order-modal-title").innerText = "📜 ขอออกเลขคำสั่งโรงเรียนใหม่";
+    document.getElementById("order-modal-title").innerText = "ขอออกเลขคำสั่งโรงเรียนใหม่";
     
     let nextNum = 1;
     if(globalOrdersData.length > 0) {
@@ -906,7 +913,7 @@ async function handleOrderSubmit(event) {
 
     if (!orderUniqueId) {
         if (isDuplicateData("orders-table-body", 2, currentOrderTitle)) {
-            alert(`⚠️ คำสั่งโรงเรียนเรื่อง "${currentOrderTitle}" นี้มีอยู่ในระบบคุมเลขแล้วครับ`);
+            alert(`คำสั่งโรงเรียนเรื่อง "${currentOrderTitle}" นี้มีอยู่ในระบบคุมเลขแล้วครับ`);
             return;
         }
     }
@@ -954,7 +961,7 @@ function editOrder(id) {
     document.getElementById("order-form-title").value = item.title;
     document.getElementById("order-form-date").value = item.signDate;
     document.getElementById("order-form-department").value = item.department;
-    document.getElementById("order-modal-title").innerText = "✏️ แก้ไขข้อมูลคำสั่งโรงเรียน";
+    document.getElementById("order-modal-title").innerText = "แก้ไขข้อมูลคำสั่งโรงเรียน";
     document.getElementById("order-modal").classList.remove("hidden");
 }
 
@@ -992,7 +999,7 @@ function initCalendar() {
         },
         eventClick: function(info) {
             const d = info.event.extendedProps.docData;
-            alert(`📄 ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nกำหนดส่ง: ${formatThaiDateFull(d.deadline)}`);
+            alert(`ทะเบียน: ${d.internalId}\nเรื่อง: ${d.title}\nกำหนดส่ง: ${formatThaiDateFull(d.deadline)}`);
         }
     });
     calendarObj.render();
@@ -1028,7 +1035,7 @@ function renderNewMenusTables() {
         );
 
         if(filteredMemos.length === 0) {
-            memoBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลบันทึกข้อความในระบบขณะนี้</td></tr>`;
+            memoBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลบันทึกข้อความในระบบขณะนี้</td></tr>`;
         } else {
             memoBody.innerHTML = filteredMemos.map(item => `
                 <tr class="hover:bg-slate-50 transition-colors">
@@ -1036,10 +1043,10 @@ function renderNewMenusTables() {
                     <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
                     <td class="py-3 px-4 text-slate-700">${item.title || ''}</td>
                     <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department || ''}</span></td>
-                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
+                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
                     <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="editMemo('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                        <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                        <button onclick="editMemo('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                        <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
                     </td>
                 </tr>
             `).join('');
@@ -1057,18 +1064,18 @@ function renderNewMenusTables() {
         );
 
         if(filteredGenDocs.length === 0) {
-            genBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลเอกสารทั่วไปในระบบขณะนี้</td></tr>`;
+            genBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลเอกสารทั่วไปในระบบขณะนี้</td></tr>`;
         } else {
             genBody.innerHTML = filteredGenDocs.map(item => {
                 let filesArray = [];
                 
                 if (item.fileUrl && item.fileUrl.startsWith("http")) {
-                    filesArray.push(`<a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold hover:underline bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📂 ไฟล์ที่ 1</a>`);
+                    filesArray.push(`<a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold hover:underline bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ที่ 1</a>`);
                 }
                 for (let i = 2; i <= 6; i++) {
                     const extraUrl = item[`fileUrl${i}`];
                     if (extraUrl && extraUrl.trim().startsWith("http")) {
-                        filesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="text-teal-700 font-bold hover:underline bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📁 ไฟล์ที่ ${i}</a>`);
+                        filesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="text-teal-700 font-bold hover:underline bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ที่ ${i}</a>`);
                     }
                 }
 
@@ -1084,8 +1091,8 @@ function renderNewMenusTables() {
                         <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
                         <td class="py-3 px-3 text-center">${fileListHtml}</td>
                         <td class="py-3 px-4 text-right space-x-1">
-                            <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                            <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                            <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                            <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
                         </td>
                     </tr>
                 `;
@@ -1104,7 +1111,7 @@ function renderNewMenusTables() {
         );
 
         if(filteredReceipts.length === 0) {
-            receiptBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลใบเสร็จในระบบขณะนี้</td></tr>`;
+            receiptBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลใบเสร็จในระบบขณะนี้</td></tr>`;
         } else {
             receiptBody.innerHTML = filteredReceipts.map(item => `
                 <tr class="hover:bg-slate-50 transition-colors">
@@ -1112,10 +1119,10 @@ function renderNewMenusTables() {
                     <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
                     <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
                     <td class="py-3 px-4 text-slate-700">${item.payer || ''}</td>
-                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
+                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
                     <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="editReceipt('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                        <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                        <button onclick="editReceipt('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                        <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
                     </td>
                 </tr>
             `).join('');
@@ -1160,7 +1167,7 @@ async function deleteFirestoreDocument(collectionName, targetId) {
     }
 }
 
-function openMemoModal() { document.getElementById('memo-form').reset(); document.getElementById('memo-id').value = ''; document.getElementById('memo-modal-title').innerText = "📝 ลงทะเบียนบันทึกข้อความใหม่"; document.getElementById('memo-modal').classList.remove('hidden'); }
+function openMemoModal() { document.getElementById('memo-form').reset(); document.getElementById('memo-id').value = ''; document.getElementById('memo-modal-title').innerText = "ลงทะเบียนบันทึกข้อความใหม่"; document.getElementById('memo-modal').classList.remove('hidden'); }
 function closeMemoModal() { document.getElementById('memo-modal').classList.add('hidden'); }
 
 async function handleMemoSubmit(e) {
@@ -1209,14 +1216,14 @@ function editMemo(id) {
     document.getElementById('memo-date').value = item.date || "";
     document.getElementById('memo-title').value = item.title || "";
     document.getElementById('memo-dept').value = item.department || "ฝ่ายบริหารงานทั่วไป";
-    document.getElementById('memo-modal-title').innerText = "✏️ แก้ไขข้อมูลบันทึกข้อความ";
+    document.getElementById('memo-modal-title').innerText = "แก้ไขข้อมูลบันทึกข้อความ";
 }
 
 function openGenDocModal() { 
     document.getElementById('gendoc-form').reset(); 
     document.getElementById('gendoc-id').value = ''; 
     document.getElementById('gendoc-file-status').classList.add('hidden');
-    document.getElementById('gendoc-modal-title').innerText = "🗂️ เพิ่มเอกสารทั่วไป"; 
+    document.getElementById('gendoc-modal-title').innerText = "เพิ่มเอกสารทั่วไป"; 
     document.getElementById('gendoc-modal').classList.remove('hidden'); 
 }
 function closeGenDocModal() { document.getElementById('gendoc-modal').classList.add('hidden'); }
@@ -1288,16 +1295,16 @@ function editGenDoc(id) {
     document.getElementById('gendoc-name').value = item.docName || "";
     document.getElementById('gendoc-date').value = item.date || "";
     document.getElementById('gendoc-category').value = item.category || "";
-    document.getElementById('gendoc-modal-title').innerText = "✏️ แก้ไขข้อมูลเอกสารทั่วไป";
+    document.getElementById('gendoc-modal-title').innerText = "แก้ไขข้อมูลเอกสารทั่วไป";
 
     if(item.fileUrl && item.fileUrl.startsWith("http")) {
         const el = document.getElementById("gendoc-file-status");
-        el.innerHTML = `📎 ไฟล์เดิมบนคลาวด์: <a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold underline">เปิดดูไฟล์ที่ 1</a>`;
+        el.innerHTML = `ไฟล์เดิมบนคลาวด์: <a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold underline">เปิดดูไฟล์ที่ 1</a>`;
         el.classList.remove("hidden");
     }
 }
 
-function openReceiptModal() { document.getElementById('receipt-form').reset(); document.getElementById('receipt-id').value = ''; document.getElementById('receipt-modal-title').innerText = "💰 ลงทะเบียนหลักฐานใบเสร็จ"; document.getElementById('receipt-modal').classList.remove('hidden'); }
+function openReceiptModal() { document.getElementById('receipt-form').reset(); document.getElementById('receipt-id').value = ''; document.getElementById('receipt-modal-title').innerText = "ลงทะเบียนหลักฐานใบเสร็จ"; document.getElementById('receipt-modal').classList.remove('hidden'); }
 function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
 
 async function handleReceiptSubmit(e) {
@@ -1345,7 +1352,7 @@ function editReceipt(id) {
     document.getElementById('receipt-date').value = item.date || "";
     document.getElementById('receipt-amount').value = item.amount || "";
     document.getElementById('receipt-payer').value = item.payer || "";
-    document.getElementById('receipt-modal-title').innerText = "✏️ แก้ไขหลักฐานเอกสารใบเสร็จ";
+    document.getElementById('receipt-modal-title').innerText = "แก้ไขหลักฐานเอกสารใบเสร็จ";
 }
 
 function filterTable(inputId, tableBodyId) {
@@ -1509,7 +1516,7 @@ function populateStampSarabanDropdown() {
         if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
             const opt = document.createElement('option');
             opt.value = doc.fileUrl;
-            opt.textContent = `[${doc.internalId}] 📄 ${(doc.title || '').substring(0, 35)}...`;
+            opt.textContent = `[${doc.internalId}] ${(doc.title || '').substring(0, 35)}...`;
             select.appendChild(opt);
         }
     });

@@ -37,7 +37,7 @@
                 <h2 class="text-2xl font-extrabold tracking-tight text-slate-800 mt-2">ระบบบริหารงานสารบรรณ</h2>
                 <p class="text-[11px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50/80 py-1 px-4 rounded-full w-fit mx-auto border border-blue-100">โรงเรียนบ้านกาหยี</p>
             </div>
-            <div id="login-error" class="hidden p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl">🔒 บัญชีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือติดต่อ ฮาริส สุหลง 0924291775</div>
+            <div id="login-error" class="hidden p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-2xl">บัญชีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือติดต่อ ฮาริส สุหลง 0924291775</div>
             <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">บัญชีผู้ใช้ (Username)</label>
@@ -66,19 +66,52 @@
                 </div>
             </div>
             <nav class="flex-1 p-3 space-y-1.5">
-                <button onclick="navigateTo('menu-dashboard')" id="nav-dashboard" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">📊 หน้าแรก / แดชบอร์ดสรุปผล</button>
-                <button onclick="navigateTo('menu-saraban')" id="nav-saraban" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">📥 ทะเบียนหนังสือรับ-ส่ง</button>
-                <button onclick="navigateTo('menu-workflow')" id="nav-workflow" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">🔄 ระบบเสนอเกษียณ & ส่งต่อฝ่าย</button>
-                <button onclick="navigateTo('menu-orders')" id="nav-orders" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">📜 ออกเลขคำสั่ง/ประกาศโรงเรียน</button>
-                <button onclick="navigateTo('menu-calendar')" id="nav-calendar" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">📅 ปฏิทินกำหนดส่งงานสารบรรณ</button>
-                <button onclick="navigateTo('menu-memos')" id="nav-memos" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">📝 เลขที่บันทึกข้อความ</button>
-                <button onclick="navigateTo('menu-gendocs')" id="nav-gendocs" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">🗂️ จัดเก็บเอกสารทั่วไป</button>
-                <button onclick="navigateTo('menu-receipts')" id="nav-receipts" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">💰 จัดเก็บใบเสร็จใบรับเงิน</button>
-                <button onclick="navigateTo('menu-attendance')" id="nav-attendance" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">📊 สถิติการมาเรียนของนักเรียน</button>
-                <button onclick="navigateTo('menu-stamp')" id="nav-stamp" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">🔏 ระบบปั๊มตรายางดิจิทัล</button>
+                <button onclick="navigateTo('menu-dashboard')" id="nav-dashboard" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                    <span>หน้าแรก / แดชบอร์ดสรุปผล</span>
+                </button>
+                <button onclick="navigateTo('menu-saraban')" id="nav-saraban" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.375l1.332-9A2.25 2.25 0 018 3h8a2.25 2.25 0 012.23 1.875l1.332 9A2.25 2.25 0 0117.332 16.5H15a2.25 2.25 0 01-2-1.125l-.256-.512a2.25 2.25 0 00-2.013-1.125H9.27a2.25 2.25 0 00-2.013 1.125l-.256.512A2.25 2.25 0 015 16.5H2.668A2.25 2.25 0 01.436 13.875z"/></svg>
+                    <span>ทะเบียนหนังสือรับ-ส่ง</span>
+                </button>
+                <button onclick="navigateTo('menu-workflow')" id="nav-workflow" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>ระบบเสนอเกษียณ & ส่งต่อฝ่าย</span>
+                </button>
+                <button onclick="navigateTo('menu-orders')" id="nav-orders" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                    <span>ออกเลขคำสั่ง/ประกาศโรงเรียน</span>
+                </button>
+                <button onclick="navigateTo('menu-calendar')" id="nav-calendar" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                    <span>ปฏิทินกำหนดส่งงานสารบรรณ</span>
+                </button>
+                <button onclick="navigateTo('menu-memos')" id="nav-memos" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                    <span>เลขที่บันทึกข้อความ</span>
+                </button>
+                <button onclick="navigateTo('menu-gendocs')" id="nav-gendocs" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-19.5 0A2.25 2.25 0 004.5 15h15a2.25 2.25 0 002.25-2.25m-19.5 0v.243a2.25 2.25 0 001.07 1.916l7.5 4.615a2.25 2.25 0 002.36 0l7.5-4.615a2.25 2.25 0 001.07-1.916V12.75"/></svg>
+                    <span>จัดเก็บเอกสารทั่วไป</span>
+                </button>
+                <button onclick="navigateTo('menu-receipts')" id="nav-receipts" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+                    <span>จัดเก็บใบเสร็จใบรับเงิน</span>
+                </button>
+                <button onclick="navigateTo('menu-attendance')" id="nav-attendance" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                    <span>สถิติการมาเรียนของนักเรียน</span>
+                </button>
+                <button onclick="navigateTo('menu-stamp')" id="nav-stamp" class="sidebar-nav-btn w-full flex items-center gap-3 px-4 py-3 text-xs text-left cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.959 11.959 0 0112 2.714z"/></svg>
+                    <span>ระบบปั๊มตรายางดิจิทัล</span>
+                </button>
             </nav>
             <div class="p-3 border-t border-slate-100 text-center">
-                <button onclick="handleLogout()" class="soft-btn-secondary w-full py-2.5 text-xs font-bold text-rose-600 hover:text-rose-700 cursor-pointer">🚪 ออกจากระบบ</button>
+                <button onclick="handleLogout()" class="soft-btn-secondary w-full py-2.5 text-xs font-bold text-rose-600 hover:text-rose-700 cursor-pointer flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25"/></svg>
+                    <span>ออกจากระบบ</span>
+                </button>
             </div>
         </aside>
 
@@ -102,29 +135,37 @@
                     <section id="menu-dashboard" class="tab-content space-y-5 hidden">
                         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                             <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📥 หนังสือรับทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-2xs">📥</div>
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">หนังสือรับทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
+                                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-2xs">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 12m0 0l4.5-4.5M12 12V3"/></svg>
+                                </div>
                             </div>
                             <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📤 หนังสือส่งทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-2xs">📤</div>
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">หนังสือส่งทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-2xs">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v9"/></svg>
+                                </div>
                             </div>
                             <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">⏳ เรื่องค้างดำเนินการ</p><h3 class="text-3xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shadow-2xs">⏳</div>
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">เรื่องค้างดำเนินการ</p><h3 class="text-3xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
+                                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-2xs">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
                             </div>
                             <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">📜 คำสั่งโรงเรียนปีนี้</p><h3 class="text-3xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-2xs">📜</div>
+                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">คำสั่งโรงเรียนปีนี้</p><h3 class="text-3xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
+                                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-2xs">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                                </div>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="soft-card-sm p-5">
-                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">📊 สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
+                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
                                 <div class="h-64 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
                             </div>
                             <div class="soft-card-sm p-5">
-                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">📈 ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
+                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
                                 <div class="h-64 flex items-center justify-center"><canvas id="chart-priority"></canvas></div>
                             </div>
                         </div>
@@ -133,8 +174,8 @@
                     <section id="menu-saraban" class="tab-content space-y-4 hidden">
                         <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                             <div class="flex bg-slate-100 p-1 rounded-full w-full sm:w-auto">
-                                <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-full text-xs font-bold soft-btn-primary cursor-pointer">📥 ทะเบียนหนังสือรับ</button>
-                                <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer">📤 ทะเบียนหนังสือส่ง</button>
+                                <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-full text-xs font-bold soft-btn-primary cursor-pointer">ทะเบียนหนังสือรับ</button>
+                                <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer">ทะเบียนหนังสือส่ง</button>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end items-center">
                                 <div class="flex items-center gap-1.5">
@@ -148,7 +189,7 @@
                                     </select>
                                 </div>
                                 <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง..." class="px-4 py-2 soft-input text-xs w-full sm:w-64">
-                                <button onclick="openSarabanModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer whitespace-nowrap">➕ ลงทะเบียนเอกสารใหม่</button>
+                                <button onclick="openSarabanModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer whitespace-nowrap">ลงทะเบียนเอกสารใหม่</button>
                             </div>
                         </div>
                         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
@@ -183,7 +224,9 @@
 
                     <section id="menu-workflow" class="tab-content space-y-4 hidden">
                         <div class="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 shadow-xs">
-                            <span class="text-xl">💼</span>
+                            <div class="w-8 h-8 rounded-xl bg-blue-100/80 text-blue-700 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H16.5m3.75 2.25H3.75m16.5 0v-4.25c0-.621-.504-1.125-1.125-1.125H4.875A1.125 1.125 0 003.75 8.65v4.25m0 0a2.25 2.25 0 002.25 2.25H7.5M9.75 3.75h4.5c.621 0 1.125.504 1.125 1.125v3.75H8.625v-3.75c0-.621.504-1.125 1.125-1.125z"/></svg>
+                            </div>
                             <div>
                                 <h4 class="text-xs font-bold text-blue-900">ระบบกล่องเสนอเกษียณและสั่งการออนไลน์ (พร้อมปุ่มกดเปิดดูไฟล์แนบ)</h4>
                             </div>
@@ -197,7 +240,7 @@
                                             <th class="py-3.5 px-3">ฝ่ายรับผิดชอบ</th>
                                             <th class="py-3.5 px-4 w-1/4">เรื่อง / หัวข้อราชการ</th>
                                             <th class="py-3.5 px-3 text-center">ไฟล์เอกสาร</th>
-                                            <th class="py-3.5 px-4 w-1/4">✍️ บันทึกข้อสั่งการของ ผอ. โรงเรียน</th>
+                                            <th class="py-3.5 px-4 w-1/4">บันทึกข้อสั่งการของ ผอ. โรงเรียน</th>
                                             <th class="py-3.5 px-3 text-center">สถานะ</th>
                                             <th class="py-3.5 px-4 text-center">การดำเนินการตามสิทธิ์</th>
                                         </tr>
@@ -218,9 +261,9 @@
                     <section id="menu-orders" class="tab-content space-y-4 hidden">
                         <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">📜 ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
+                                <h4 class="text-xs font-bold text-slate-800">ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
                             </div>
-                            <button onclick="openOrderModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">➕ ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
+                            <button onclick="openOrderModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
                         </div>
                         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                             <div class="overflow-x-auto">
@@ -251,7 +294,7 @@
 
                     <section id="menu-calendar" class="tab-content hidden">
                         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                            <div class="mb-3"><h4 class="text-xs font-bold text-slate-800">📅 ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4></div>
+                            <div class="mb-3"><h4 class="text-xs font-bold text-slate-800">ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4></div>
                             <div id="calendar-container" class="font-semibold text-sm"></div>
                         </div>
                     </section>
@@ -260,12 +303,12 @@
                 <section id="menu-memos" class="tab-content hidden animate-fade-in">
                     <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between mb-3">
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800">📝 ระบบทะเบียนคุมเลขที่บันทึกข้อความ</h4>
+                            <h4 class="text-xs font-bold text-slate-800">ระบบทะเบียนคุมเลขที่บันทึกข้อความ</h4>
                         </div>
-                        <button id="btn-add-memo" onclick="openMemoModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">➕ ลงทะเบียนบันทึกข้อความใหม่</button>
+                        <button id="btn-add-memo" onclick="openMemoModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">ลงทะเบียนบันทึกข้อความใหม่</button>
                     </div>
                     <div class="mb-4">
-                        <input type="text" id="search-memos" onkeyup="renderNewMenusTables()" placeholder="🔍 ค้นหาบันทึกข้อความ (เลขที่, เรื่อง, ฝ่ายงาน)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
+                        <input type="text" id="search-memos" onkeyup="renderNewMenusTables()" placeholder="ค้นหาบันทึกข้อความ (เลขที่, เรื่อง, ฝ่ายงาน)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
                     </div>
                     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
@@ -296,12 +339,12 @@
                 <section id="menu-gendocs" class="tab-content hidden animate-fade-in">
                     <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between mb-3">
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800">🗂️ ระบบสารสนเทศการคุมไฟล์เอกสารทั่วไป</h4>
+                            <h4 class="text-xs font-bold text-slate-800">ระบบสารสนเทศการคุมไฟล์เอกสารทั่วไป</h4>
                         </div>
-                        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">➕ เพิ่มเอกสารทั่วไป</button>
+                        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">เพิ่มเอกสารทั่วไป</button>
                     </div>
                     <div class="mb-4">
-                        <input type="text" id="search-gendocs" onkeyup="renderNewMenusTables()" placeholder="🔍 ค้นหาเอกสารทั่วไป (รหัส, ชื่อเอกสาร, หมวดหมู่)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
+                        <input type="text" id="search-gendocs" onkeyup="renderNewMenusTables()" placeholder="ค้นหาเอกสารทั่วไป (รหัส, ชื่อเอกสาร, หมวดหมู่)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
                     </div>
                     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
@@ -332,12 +375,12 @@
                 <section id="menu-receipts" class="tab-content hidden animate-fade-in">
                     <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between mb-3">
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800">💰 ระบบควบคุมทะเบียนใบเสร็จและใบรับเงิน</h4>
+                            <h4 class="text-xs font-bold text-slate-800">ระบบควบคุมทะเบียนใบเสร็จและใบรับเงิน</h4>
                         </div>
-                        <button id="btn-add-receipt" onclick="openReceiptModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">➕ ลงทะเบียนหลักฐานใบเสร็จ</button>
+                        <button id="btn-add-receipt" onclick="openReceiptModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">ลงทะเบียนหลักฐานใบเสร็จ</button>
                     </div>
                     <div class="mb-4">
-                        <input type="text" id="search-receipts" onkeyup="renderNewMenusTables()" placeholder="🔍 ค้นหาใบเสร็จ (เลขที่, ร้านค้า, หมายเหตุ)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
+                        <input type="text" id="search-receipts" onkeyup="renderNewMenusTables()" placeholder="ค้นหาใบเสร็จ (เลขที่, ร้านค้า, หมายเหตุ)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
                     </div>
                     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
@@ -371,11 +414,11 @@
                     <!-- แถบควบคุมวันที่และปุ่มดึงข้อมูล -->
                     <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800">📊 ระบบสถิติการมาเรียนของนักเรียนประจำวัน (ซิงค์ข้อมูล Cloud Firebase โครงสร้างใหม่)</h4>
+                            <h4 class="text-xs font-bold text-slate-800">ระบบสถิติการมาเรียนของนักเรียนประจำวัน (ซิงค์ข้อมูล Cloud Firebase โครงสร้างใหม่)</h4>
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="date" id="sync-att-date" onchange="fetchFirebaseAttendanceData(this.value)" class="px-3 py-2 text-xs soft-input font-bold text-slate-700">
-                            <button onclick="syncAttendanceWithFirebase()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer flex items-center gap-1.5 whitespace-nowrap">🔄 ดึงข้อมูลล่าสุด</button>
+                            <button onclick="syncAttendanceWithFirebase()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer flex items-center gap-1.5 whitespace-nowrap">ดึงข้อมูลล่าสุด</button>
                         </div>
                     </div>
 
@@ -383,33 +426,39 @@
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div class="soft-card-sm p-5 flex items-center justify-between border-l-4 border-l-blue-500">
                             <div>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase">👥 นักเรียนทั้งหมด</p>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase">นักเรียนทั้งหมด</p>
                                 <h3 class="text-2xl font-black text-slate-800 mt-1" id="att-dash-total">0 <span class="text-xs font-normal text-slate-400">คน</span></h3>
                             </div>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-2xs">👥</div>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-2xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                            </div>
                         </div>
                         <div class="soft-card-sm p-5 flex items-center justify-between border-l-4 border-l-emerald-500">
                             <div>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase">🟢 มาเรียนวันนี้</p>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase">มาเรียนวันนี้</p>
                                 <h3 class="text-2xl font-black text-emerald-600 mt-1" id="att-dash-present">0 <span class="text-xs font-normal text-slate-400">(0.00%)</span></h3>
                             </div>
-                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-2xs">📅</div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-2xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
                         </div>
                         <div class="soft-card-sm p-5 flex items-center justify-between border-l-4 border-l-rose-500">
                             <div>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase">🔴 รวมขาดเรียนทั้งหมด</p>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase">รวมขาดเรียนทั้งหมด</p>
                                 <h3 class="text-2xl font-black text-rose-600 mt-1" id="att-dash-absent">0 <span class="text-xs font-normal text-slate-400">คน</span></h3>
                             </div>
-                            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shadow-2xs">👤</div>
+                            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shadow-2xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.765z"/></svg>
+                            </div>
                         </div>
                         <div class="soft-card-sm p-5 flex items-center justify-between border-l-4 border-l-pink-500">
                             <div class="grid grid-cols-2 gap-4 w-full">
                                 <div class="border-r border-slate-100 pr-2">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🚹 ชายขาด</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">ชายขาด</p>
                                     <h4 class="text-base font-black text-rose-500 mt-0.5" id="att-dash-male-absent">0 <span class="text-[10px] font-normal text-slate-400">(0%)</span></h4>
                                 </div>
                                 <div class="pl-1">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">🚺 หญิงขาด</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">หญิงขาด</p>
                                     <h4 class="text-base font-black text-pink-500 mt-0.5" id="att-dash-female-absent">0 <span class="text-[10px] font-normal text-pink-400">(0%)</span></h4>
                                 </div>
                             </div>
@@ -441,7 +490,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="attendance-table-body" class="text-sm divide-y divide-slate-100 text-center font-medium text-slate-600">
-                                    <tr><td colspan="11" class="py-6 text-slate-400 text-xs">📅 กรุณาเลือกวันที่หรือกดรีเฟรชเพื่อซิงค์ข้อมูลสถิติจากระบบ Firebase</td></tr>
+                                    <tr><td colspan="11" class="py-6 text-slate-400 text-xs">กรุณาเลือกวันที่หรือกดรีเฟรชเพื่อซิงค์ข้อมูลสถิติจากระบบ Firebase</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -452,17 +501,17 @@
                 <section id="menu-stamp" class="tab-content hidden animate-fade-in space-y-4">
                     <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800">🔏 ระบบประทับตรายางดิจิทัล (Digital Stamp Tool)</h4>
+                            <h4 class="text-xs font-bold text-slate-800">ระบบประทับตรายางดิจิทัล (Digital Stamp Tool)</h4>
                         </div>
                         <div class="flex gap-2 w-full sm:w-auto justify-end">
-                            <button onclick="downloadStampedPDF()" class="w-full sm:w-auto justify-center soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer flex items-center gap-1.5 active:scale-95 transition-transform">💾 ดาวน์โหลดเอกสารประทับตรายาง (PDF)</button>
+                            <button onclick="downloadStampedPDF()" class="w-full sm:w-auto justify-center soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer flex items-center gap-1.5 active:scale-95 transition-transform">ดาวน์โหลดเอกสารประทับตรายาง (PDF)</button>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
                         <!-- แผงเครื่องมือฝั่งซ้าย (Control Panel) -->
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-4 lg:col-span-1 overflow-y-auto max-h-[500px] lg:max-h-[750px]">
-                            <h5 class="text-xs font-extrabold text-slate-700 border-b pb-2">🛠️ เครื่องมือปั๊มเอกสาร</h5>
+                            <h5 class="text-xs font-extrabold text-slate-700 border-b pb-2">เครื่องมือปั๊มเอกสาร</h5>
                             
                             <!-- 1. เลือกเอกสารจากหนังสือรับ / อัปโหลดไฟล์ภายนอก -->
                             <div class="space-y-2">
@@ -470,7 +519,7 @@
                                 
                                 <!-- ดึงเฉพาะหนังสือรับ เรียงล่าสุดขึ้นก่อน -->
                                 <div>
-                                    <span class="text-[11px] font-semibold text-blue-700 block mb-1">📥 เลือกจากทะเบียนหนังสือรับ:</span>
+                                    <span class="text-[11px] font-semibold text-blue-700 block mb-1">เลือกจากทะเบียนหนังสือรับ:</span>
                                     <select id="stamp-saraban-select" onchange="loadDocFromSaraban(this.value)" class="w-full p-2 border border-blue-200 rounded-xl bg-blue-50/50 text-xs font-semibold focus:outline-none focus:border-blue-500">
                                         <option value="">-- ดึงเอกสารจากทะเบียนหนังสือรับ --</option>
                                     </select>
@@ -480,7 +529,7 @@
 
                                 <!-- นำเข้าไฟล์ภายนอก (PDF/รูปภาพ) -->
                                 <div>
-                                    <span class="text-[11px] font-semibold text-slate-500 block mb-1">📁 เลือกไฟล์ภายนอกจากเครื่อง (PDF/รูปภาพ):</span>
+                                    <span class="text-[11px] font-semibold text-slate-500 block mb-1">เลือกไฟล์ภายนอกจากเครื่อง (PDF/รูปภาพ):</span>
                                     <input type="file" id="stamp-doc-input" accept="image/*,.pdf" onchange="loadDocToCanvas(event)" class="w-full border border-slate-300 rounded-xl p-1.5 bg-slate-50 text-xs">
                                 </div>
                             </div>
@@ -500,7 +549,7 @@
                                     <input type="text" id="stamp-receipt-dept" placeholder="ฝ่ายงาน (เช่น บริหารงานทั่วไป)" oninput="updateStampText('receipt')" class="w-full p-2 text-xs border border-slate-300 rounded-lg bg-white">
                                     
                                     <div class="pt-1">
-                                        <span class="text-[10px] font-bold text-slate-500">🔍 ปรับขนาด:</span>
+                                        <span class="text-[10px] font-bold text-slate-500">ปรับขนาด:</span>
                                         <input type="range" id="scale-receipt" min="0.4" max="1.6" step="0.05" value="1" oninput="resizeStamp('receipt', this.value)" class="w-full cursor-pointer">
                                     </div>
                                 </div>
@@ -521,7 +570,7 @@
                                     <textarea id="stamp-propose-note" rows="3" placeholder="ข้อความเพิ่มเติม..." oninput="updateStampText('propose')" class="w-full p-2 text-xs border border-slate-300 rounded-lg bg-white"></textarea>
                                     
                                     <div class="pt-1">
-                                        <span class="text-[10px] font-bold text-slate-500">🔍 ปรับขนาด:</span>
+                                        <span class="text-[10px] font-bold text-slate-500">ปรับขนาด:</span>
                                         <input type="range" id="scale-propose" min="0.4" max="1.6" step="0.05" value="1" oninput="resizeStamp('propose', this.value)" class="w-full cursor-pointer">
                                     </div>
                                 </div>
@@ -553,47 +602,115 @@
             </main>
         </div>
 
-        <!-- Mobile Bottom Navigation Tab Bar (Mobile Style) -->
-        <div id="mobile-tab-bar" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg px-2 py-1.5 flex items-center justify-around">
-            <button onclick="navigateTo('menu-dashboard')" id="mobile-nav-dashboard" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-0.5 active:scale-95 transition-all cursor-pointer">
-                <span class="text-base leading-none">📊</span>
-                <span>หน้าแรก</span>
-            </button>
-            <button onclick="navigateTo('menu-saraban')" id="mobile-nav-saraban" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-0.5 active:scale-95 transition-all cursor-pointer">
-                <span class="text-base leading-none">📥</span>
-                <span>รับ-ส่ง</span>
-            </button>
-            <button onclick="navigateTo('menu-workflow')" id="mobile-nav-workflow" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-0.5 active:scale-95 transition-all cursor-pointer">
-                <span class="text-base leading-none">🔄</span>
-                <span>เกษียณ</span>
-            </button>
-            <button onclick="navigateTo('menu-orders')" id="mobile-nav-orders" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-0.5 active:scale-95 transition-all cursor-pointer">
-                <span class="text-base leading-none">📜</span>
-                <span>คำสั่ง</span>
-            </button>
-            <button onclick="toggleMobileMoreMenu()" id="mobile-nav-more" class="mobile-tab-btn flex flex-col items-center justify-center p-1.5 text-slate-500 rounded-xl flex-1 text-[10px] font-bold gap-0.5 active:scale-95 transition-all cursor-pointer">
-                <span class="text-base leading-none">📑</span>
-                <span>เพิ่มเติม</span>
-            </button>
+        <!-- Floating Dock Navigation (Mobile Style Dock) -->
+        <div id="dock-navigation" class="flex md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-40 max-w-[95vw] overflow-x-auto no-scrollbar py-1 px-1.5">
+            <div class="dock-bar flex items-center gap-1 shadow-2xl">
+                <!-- 1. แดชบอร์ด -->
+                <button onclick="navigateTo('menu-dashboard')" id="dock-nav-dashboard" class="dock-item group" title="หน้าแรก / แดชบอร์ด">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">แดชบอร์ด</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                </button>
+
+                <!-- 2. ทะเบียนหนังสือรับ-ส่ง -->
+                <button onclick="navigateTo('menu-saraban')" id="dock-nav-saraban" class="dock-item group" title="ทะเบียนหนังสือรับ-ส่ง">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">หนังสือรับ-ส่ง</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.375l1.332-9A2.25 2.25 0 018 3h8a2.25 2.25 0 012.23 1.875l1.332 9A2.25 2.25 0 0117.332 16.5H15a2.25 2.25 0 01-2-1.125l-.256-.512a2.25 2.25 0 00-2.013-1.125H9.27a2.25 2.25 0 00-2.013 1.125l-.256.512A2.25 2.25 0 015 16.5H2.668A2.25 2.25 0 01.436 13.875z"/></svg>
+                </button>
+
+                <!-- 3. เสนอเกษียณ -->
+                <button onclick="navigateTo('menu-workflow')" id="dock-nav-workflow" class="dock-item group" title="เสนอเกษียณ & ส่งต่อฝ่าย">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">เสนอเกษียณ</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </button>
+
+                <!-- 4. คำสั่งโรงเรียน -->
+                <button onclick="navigateTo('menu-orders')" id="dock-nav-orders" class="dock-item group" title="ออกเลขคำสั่งโรงเรียน">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">คำสั่งโรงเรียน</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                </button>
+
+                <!-- Divider -->
+                <div class="w-[1px] h-6 bg-slate-700/60 mx-0.5"></div>
+
+                <!-- 5. ปฏิทินกำหนดส่งงาน -->
+                <button onclick="navigateTo('menu-calendar')" id="dock-nav-calendar" class="dock-item group" title="ปฏิทินงาน">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">ปฏิทินงาน</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                </button>
+
+                <!-- 6. บันทึกข้อความ -->
+                <button onclick="navigateTo('menu-memos')" id="dock-nav-memos" class="dock-item group" title="บันทึกข้อความ">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">บันทึกข้อความ</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                </button>
+
+                <!-- 7. เอกสารทั่วไป -->
+                <button onclick="navigateTo('menu-gendocs')" id="dock-nav-gendocs" class="dock-item group" title="เอกสารทั่วไป">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">เอกสารทั่วไป</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-19.5 0A2.25 2.25 0 004.5 15h15a2.25 2.25 0 002.25-2.25m-19.5 0v.243a2.25 2.25 0 001.07 1.916l7.5 4.615a2.25 2.25 0 002.36 0l7.5-4.615a2.25 2.25 0 001.07-1.916V12.75"/></svg>
+                </button>
+
+                <!-- 8. ทะเบียนใบเสร็จ -->
+                <button onclick="navigateTo('menu-receipts')" id="dock-nav-receipts" class="dock-item group" title="ใบเสร็จรับเงิน">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">ใบเสร็จรับเงิน</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+                </button>
+
+                <!-- Divider -->
+                <div class="w-[1px] h-6 bg-slate-700/60 mx-0.5"></div>
+
+                <!-- 9. สถิติการมาเรียน -->
+                <button onclick="navigateTo('menu-attendance')" id="dock-nav-attendance" class="dock-item group" title="สถิติการมาเรียน">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">สถิติมาเรียน</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                </button>
+
+                <!-- 10. ปั๊มตรายางดิจิทัล -->
+                <button onclick="navigateTo('menu-stamp')" id="dock-nav-stamp" class="dock-item group" title="ปั๊มตรายางดิจิทัล">
+                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-slate-900/90 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap pointer-events-none shadow-lg border border-slate-700/80 backdrop-blur-xs scale-90 group-hover:scale-100">ปั๊มตรายาง</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.959 11.959 0 0112 2.714z"/></svg>
+                </button>
+            </div>
         </div>
 
         <!-- Mobile More Drawer Modal -->
         <div id="mobile-more-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-end justify-center hidden z-50 p-0 md:hidden" onclick="toggleMobileMoreMenu()">
             <div class="bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl w-full p-5 space-y-4 transform transition-transform" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h4 class="font-extrabold text-slate-800 text-sm">📑 เมนูการทำงานทั้งหมด</h4>
+                    <h4 class="font-extrabold text-slate-800 text-sm">เมนูการทำงานทั้งหมด</h4>
                     <button onclick="toggleMobileMoreMenu()" class="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-500 hover:bg-rose-500 hover:text-white cursor-pointer">&times;</button>
                 </div>
                 <div class="grid grid-cols-2 gap-2.5">
-                    <button onclick="navigateTo('menu-calendar'); toggleMobileMoreMenu();" id="mobile-more-calendar" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">📅 ปฏิทินงาน</button>
-                    <button onclick="navigateTo('menu-memos'); toggleMobileMoreMenu();" id="mobile-more-memos" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">📝 บันทึกข้อความ</button>
-                    <button onclick="navigateTo('menu-gendocs'); toggleMobileMoreMenu();" id="mobile-more-gendocs" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">🗂️ เอกสารทั่วไป</button>
-                    <button onclick="navigateTo('menu-receipts'); toggleMobileMoreMenu();" id="mobile-more-receipts" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">💰 ใบเสร็จรับเงิน</button>
-                    <button onclick="navigateTo('menu-attendance'); toggleMobileMoreMenu();" id="mobile-more-attendance" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">📊 สถิติมาเรียน</button>
-                    <button onclick="navigateTo('menu-stamp'); toggleMobileMoreMenu();" id="mobile-more-stamp" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">🔏 ปั๊มตรายาง</button>
+                    <button onclick="navigateTo('menu-calendar'); toggleMobileMoreMenu();" id="mobile-more-calendar" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                        <span>ปฏิทินงาน</span>
+                    </button>
+                    <button onclick="navigateTo('menu-memos'); toggleMobileMoreMenu();" id="mobile-more-memos" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                        <span>บันทึกข้อความ</span>
+                    </button>
+                    <button onclick="navigateTo('menu-gendocs'); toggleMobileMoreMenu();" id="mobile-more-gendocs" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-19.5 0A2.25 2.25 0 004.5 15h15a2.25 2.25 0 002.25-2.25m-19.5 0v.243a2.25 2.25 0 001.07 1.916l7.5 4.615a2.25 2.25 0 002.36 0l7.5-4.615a2.25 2.25 0 001.07-1.916V12.75"/></svg>
+                        <span>เอกสารทั่วไป</span>
+                    </button>
+                    <button onclick="navigateTo('menu-receipts'); toggleMobileMoreMenu();" id="mobile-more-receipts" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+                        <span>ใบเสร็จรับเงิน</span>
+                    </button>
+                    <button onclick="navigateTo('menu-attendance'); toggleMobileMoreMenu();" id="mobile-more-attendance" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                        <span>สถิติมาเรียน</span>
+                    </button>
+                    <button onclick="navigateTo('menu-stamp'); toggleMobileMoreMenu();" id="mobile-more-stamp" class="sidebar-nav-btn flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.959 11.959 0 0112 2.714z"/></svg>
+                        <span>ปั๊มตรายาง</span>
+                    </button>
                 </div>
                 <div class="pt-2 border-t border-slate-100">
-                    <button onclick="handleLogout()" class="w-full py-3 soft-btn-secondary text-xs font-bold text-rose-600 rounded-2xl cursor-pointer">🚪 ออกจากระบบ</button>
+                    <button onclick="handleLogout()" class="w-full py-3 soft-btn-secondary text-xs font-bold text-rose-600 rounded-2xl cursor-pointer flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25"/></svg>
+                        <span>ออกจากระบบ</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -603,7 +720,7 @@
     <div id="saraban-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
-                <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">📄 ลงทะเบียนหนังสือราชการ</h3>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="saraban-modal-title">ลงทะเบียนหนังสือราชการ</h3>
                 <button type="button" onclick="closeSarabanModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
             
@@ -615,7 +732,7 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="block font-bold text-slate-600 mb-1 text-xs">ลงวันที่</label><input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
-                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500" required><option value="ฝ่ายบริหารงานทั่วไป">📁 1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">💰 2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">📖 3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">👥 4. ฝ่ายบริหารงานบุคคล</option></select></div>
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ส่งให้ปฏิบัติ (ฝ่ายงาน)</label><select id="form-department" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500" required><option value="ฝ่ายบริหารงานทั่วไป">1. ฝ่ายบริหารงานทั่วไป</option><option value="ฝ่ายบริหารงานงบประมาณ">2. ฝ่ายบริหารงานงบประมาณ</option><option value="ฝ่ายบริหารงานวิชาการ">3. ฝ่ายบริหารงานวิชาการ</option><option value="ฝ่ายบริหารงานบุคคล">4. ฝ่ายบริหารงานบุคคล</option></select></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="block font-bold text-slate-600 mb-1 text-xs">จาก</label><input type="text" id="form-source" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
@@ -623,7 +740,7 @@
                     </div>
                     <div><label class="block font-bold text-slate-600 mb-1 text-xs">เรื่อง / หัวข้อเอกสารราชการ</label><input type="text" id="form-title" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="ปกติ">🟢 ปกติ</option><option value="ด่วน">🟡 ด่วน</option><option value="ด่วนมาก">🟠 ด่วนมาก</option><option value="ด่วนที่สุด">🔴 ด่วนที่สุด</option></select></div>
+                        <div><label class="block font-bold text-slate-600 mb-1 text-xs">ระดับความเร่งด่วน</label><select id="form-priority" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500"><option value="ปกติ">ปกติ</option><option value="ด่วน">ด่วน</option><option value="ด่วนมาก">ด่วนมาก</option><option value="ด่วนที่สุด">ด่วนที่สุด</option></select></div>
                         <div><label class="block font-bold text-slate-600 mb-1 text-xs">กำหนดส่งงาน</label><input type="date" id="form-deadline" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500"></div>
                     </div>
                     <div>
@@ -632,9 +749,9 @@
                         <p id="form-file-status" class="mt-1 text-xs text-slate-500 hidden p-2 bg-slate-50 rounded-xl border"></p>
                     </div>
 
-                    <!-- 🔗 ช่องแนบลิงก์เพิ่มเติม 6 ลิงก์ -->
+                    <!-- ลิงก์แนบเพิ่มเติม 6 ลิงก์ -->
                     <div class="space-y-2 pt-1">
-                        <label class="block font-bold text-slate-600 text-xs">🔗 ลิงก์แนบเพิ่มเติม (สูงสุด 6 ลิงก์)</label>
+                        <label class="block font-bold text-slate-600 text-xs">ลิงก์แนบเพิ่มเติม (สูงสุด 6 ลิงก์)</label>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                             <input type="url" id="form-link1" placeholder="ลิงก์ที่ 1 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
                             <input type="url" id="form-link2" placeholder="ลิงก์ที่ 2 (https://...)" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
@@ -648,9 +765,9 @@
                     <div>
                         <label class="block font-bold text-slate-600 mb-1 text-xs">สถานะ</label>
                         <select id="form-status" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
-                            <option value="สำเร็จแล้ว">✔️ AM-สำเร็จแล้ว</option>
-                            <option value="รอดำเนินการ">⏳ รอดำเนินการ</option>
-                            <option value="ยังไม่ปริ้น">🖨️ ยังไม่ปริ้น</option>
+                            <option value="สำเร็จแล้ว">AM-สำเร็จแล้ว</option>
+                            <option value="รอดำเนินการ">รอดำเนินการ</option>
+                            <option value="ยังไม่ปริ้น">ยังไม่ปริ้น</option>
                         </select>
                     </div>
                 </div>
@@ -666,7 +783,7 @@
     <div id="order-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm" id="order-modal-title">📜 ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="order-modal-title">ขอออกเลขคำสั่งโรงเรียนใหม่</h3>
                 <button type="button" onclick="closeOrderModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-600 rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
             <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-5 space-y-3.5">
@@ -695,7 +812,7 @@
     <div id="memo-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm" id="memo-modal-title">📝 ข้อมูลบันทึกข้อความ</h3>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="memo-modal-title">ข้อมูลบันทึกข้อความ</h3>
                 <button onclick="closeMemoModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
             <form id="memo-form" onsubmit="handleMemoSubmit(event)" class="p-5 space-y-3.5">
@@ -714,7 +831,7 @@
     <div id="gendoc-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
-                <h3 class="font-extrabold text-slate-900 text-sm" id="gendoc-modal-title">🗂️ แฟ้มจัดเก็บเอกสารทั่วไป</h3>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="gendoc-modal-title">แฟ้มจัดเก็บเอกสารทั่วไป</h3>
                 <button type="button" onclick="closeGenDocModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
             <form id="gendoc-form" onsubmit="handleGenDocSubmit(event)" class="flex flex-col min-h-0 flex-1">
@@ -732,7 +849,7 @@
                     </div>
 
                     <div class="space-y-2 pt-2 border-t border-slate-100">
-                        <label class="block font-bold text-slate-700 text-xs">📁 เพิ่มไฟล์แนบเพิ่มเติม (สูงสุดรวม 6 ไฟล์)</label>
+                        <label class="block font-bold text-slate-700 text-xs">เพิ่มไฟล์แนบเพิ่มเติม (สูงสุดรวม 6 ไฟล์)</label>
                         <div class="space-y-2 text-xs">
                             <div>
                                 <span class="text-[10px] text-slate-500 font-semibold">ไฟล์แนบที่ 2:</span>
@@ -768,7 +885,7 @@
     <div id="receipt-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-2xl max-w-md w-full overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 class="font-extrabold text-slate-900 text-sm" id="receipt-modal-title">💰 หลักฐานเอกสารการเงินใบเสร็จ</h3>
+                <h3 class="font-extrabold text-slate-900 text-sm" id="receipt-modal-title">หลักฐานเอกสารการเงินใบเสร็จ</h3>
                 <button onclick="closeReceiptModal()" class="w-7 h-7 bg-slate-200 hover:bg-rose-500 hover:text-white rounded-full flex items-center justify-center text-sm cursor-pointer">&times;</button>
             </div>
             <form id="receipt-form" onsubmit="handleReceiptSubmit(event)" class="p-5 space-y-3.5">
