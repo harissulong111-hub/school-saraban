@@ -673,60 +673,105 @@ function switchSarabanTab(tab) {
 
 function renderSarabanTable() {
     const tbody = document.getElementById("saraban-table-body");
-    tbody.innerHTML = "";
+    const mBody = document.getElementById("saraban-mobile-cards");
+    if (tbody) tbody.innerHTML = "";
+    if (mBody) mBody.innerHTML = "";
+
     const prefix = currentSarabanTab === 'inbound' ? 'รับ' : 'ส่ง';
     const raw = globalSarabanData.filter(d => d.internalId && d.internalId.startsWith(prefix));
     const search = document.getElementById("search-saraban").value.toLowerCase();
     const filtered = raw.filter(d => (d.internalId && d.internalId.toLowerCase().includes(search)) || (d.docId && d.docId.toLowerCase().includes(search)) || (d.title && d.title.toLowerCase().includes(search)));
     
     if(filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</td></tr>`;
+        if (mBody) mBody.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-bold shadow-xs">ไม่พบข้อมูลทะเบียนเอกสารในระบบขณะนี้</div>`;
         return;
     }
 
     filtered.forEach(doc => {
         const realIndex = globalSarabanData.findIndex(d => d.internalId === doc.internalId);
         const priority = doc.priority || "ปกติ";
-        const pColor = priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50" : priority.includes("มาก") ? "text-orange-600 bg-orange-50" : priority.includes("ด่วน") ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
+        const pColor = priority.includes("ที่สุด") ? "text-rose-600 bg-rose-50 border-rose-200" : priority.includes("มาก") ? "text-orange-600 bg-orange-50 border-orange-200" : priority.includes("ด่วน") ? "text-amber-600 bg-amber-50 border-amber-200" : "text-emerald-600 bg-emerald-50 border-emerald-200";
         
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : 
                        doc.status === "ยังไม่ปริ้น" ? "bg-sky-500 text-white" : "bg-amber-500 text-white";
         
         let linksArray = [];
+        let mobileLinksArray = [];
         
         if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
             linksArray.push(`<a href="${doc.fileUrl}" target="_blank" title="เปิดไฟล์คลาวด์" class="text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">หนังสือ</a>`);
+            mobileLinksArray.push(`<a href="${doc.fileUrl}" target="_blank" class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl font-bold text-xs inline-flex items-center gap-1">เปิดไฟล์หนังสือ</a>`);
         }
         
         for (let i = 1; i <= 6; i++) {
             const extraUrl = doc[`link${i}`];
             if (extraUrl && extraUrl.trim().startsWith("http")) {
                 linksArray.push(`<a href="${extraUrl.trim()}" target="_blank" title="เปิดลิงก์แนบที่ ${i}" class="text-indigo-600 font-bold hover:underline bg-indigo-50 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ ${i}</a>`);
+                mobileLinksArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded-xl font-bold text-xs inline-flex items-center gap-1">ไฟล์แนบ ${i}</a>`);
             }
         }
         
         const fileLinkHtml = linksArray.length > 0 
             ? `<div class="flex flex-col gap-1 items-center justify-center">${linksArray.join('')}</div>` 
             : `<span class="text-slate-300 text-xs">ไม่มีไฟล์</span>`;
-        
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                <td class="py-3 px-3 font-semibold">${doc.docId || ''}</td>
-                <td class="py-3 px-3">${formatThaiDate(doc.date)}</td>
-                <td class="py-3 px-3 font-bold text-blue-800">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</td>
-                <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
-                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${priority}</span></td>
-                <td class="py-3 px-3 text-center font-bold text-rose-500">${formatThaiDateShort(doc.deadline) || '-'}</td>
-                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
-                <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
-                <td class="py-3 px-4 text-right space-x-2 font-bold">
-                    <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">แก้ไข</button>
-                    <button onclick="deleteSaraban(${realIndex})" class="text-rose-500 hover:text-rose-700 cursor-pointer">ลบ</button>
-                </td>
-            </tr>
-        `;
+
+        const mobileFileLinksHtml = mobileLinksArray.length > 0
+            ? `<div class="flex flex-wrap gap-2 mt-2">${mobileLinksArray.join('')}</div>`
+            : `<span class="text-slate-300 text-xs italic">ไม่มีไฟล์แนบ</span>`;
+
+        if (tbody) {
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
+                    <td class="py-3 px-3 font-semibold">${doc.docId || ''}</td>
+                    <td class="py-3 px-3">${formatThaiDate(doc.date)}</td>
+                    <td class="py-3 px-3 font-bold text-blue-800">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</td>
+                    <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
+                    <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${priority}</span></td>
+                    <td class="py-3 px-3 text-center font-bold text-rose-500">${formatThaiDateShort(doc.deadline) || '-'}</td>
+                    <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
+                    <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
+                    <td class="py-3 px-4 text-right space-x-2 font-bold">
+                        <button onclick="editSaraban(${realIndex})" class="text-blue-600 hover:text-blue-800 cursor-pointer">แก้ไข</button>
+                        <button onclick="deleteSaraban(${realIndex})" class="text-rose-500 hover:text-rose-700 cursor-pointer">ลบ</button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        if (mBody) {
+            mBody.innerHTML += `
+                <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <span class="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl font-black text-xs">${doc.internalId}</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${pColor}">${priority}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-slate-800 text-sm leading-snug">${doc.title || ''}</h4>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100/80 text-slate-600">
+                        <div><span class="text-slate-400 font-bold block text-[10px]">ที่เอกสาร:</span> <span class="font-bold text-slate-700">${doc.docId || '-'}</span></div>
+                        <div><span class="text-slate-400 font-bold block text-[10px]">ลงวันที่:</span> <span class="font-semibold text-slate-700">${formatThaiDateShort(doc.date)}</span></div>
+                        <div><span class="text-slate-400 font-bold block text-[10px]">ฝ่ายงาน:</span> <span class="font-bold text-blue-700">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</span></div>
+                        <div><span class="text-slate-400 font-bold block text-[10px]">กำหนดส่ง:</span> <span class="font-bold text-rose-600">${formatThaiDateShort(doc.deadline) || '-'}</span></div>
+                    </div>
+                    <div>
+                        ${mobileFileLinksHtml}
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button onclick="editSaraban(${realIndex})" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-xl font-bold text-xs cursor-pointer">แก้ไข</button>
+                        <button onclick="deleteSaraban(${realIndex})" class="px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-xl font-bold text-xs cursor-pointer">ลบ</button>
+                    </div>
+                </div>
+            `;
+        }
     });
+
+    changeTablePage('saraban', 0);
 }
 
 function openSarabanModal() {
@@ -914,11 +959,55 @@ function renderWorkflowTable() {
                 </tr>
             `;
         }
+
+        if (mBody) {
+            mBody.innerHTML += `
+                <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl font-black text-xs">${doc.internalId}</span>
+                            <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold text-[10px] text-slate-700">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</span>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span>
+                    </div>
+
+                    <div>
+                        <h4 class="font-extrabold text-slate-800 text-sm leading-snug">${doc.title || ''}</h4>
+                    </div>
+
+                    <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-100/80 space-y-1">
+                        <span class="text-[10px] font-extrabold text-blue-900 block">ข้อสั่งการของ ผอ. โรงเรียน:</span>
+                        <p class="text-xs font-bold text-blue-800 italic">${doc.managercomment || 'รอกรรมการ/ผอ. ลงนาม...'}</p>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <div>${fileLinkHtml}</div>
+                        <div>${mobileStatusBtnHtml}</div>
+                    </div>
+
+                    ${isDirector ? `<div class="pt-2 border-t border-slate-100">${mobileActionHtml}</div>` : ''}
+                </div>
+            `;
+        }
     });
+
+    changeTablePage('sign', 0);
+}
+
+function submitMobileWorkflowComment(idx) {
+    const commentInput = document.getElementById(`m-work-comment-${idx}`);
+    if (commentInput) {
+        const desktopInput = document.getElementById(`work-comment-${idx}`);
+        if (desktopInput) desktopInput.value = commentInput.value;
+    }
+    submitWorkflowComment(idx);
 }
 
 async function submitWorkflowComment(idx) {
-    const commentVal = document.getElementById(`work-comment-`+idx).value;
+    const desktopInput = document.getElementById(`work-comment-`+idx);
+    const mobileInput = document.getElementById(`m-work-comment-`+idx);
+    const commentVal = (mobileInput && mobileInput.value.trim() !== "") ? mobileInput.value : (desktopInput ? desktopInput.value : "");
+    
     showLoading("กำลังลงนามบันทึกข้อสั่งการลง Firebase...");
     const target = globalSarabanData[idx];
     try {
@@ -940,28 +1029,64 @@ async function toggleWorkflowStatus(idx) {
 }
 
 function renderOrdersTable() {
-    const tbody = document.getElementById("orders-table-body"); tbody.innerHTML = "";
+    const tbody = document.getElementById("orders-table-body");
+    const mBody = document.getElementById("orders-mobile-cards");
+    if (tbody) tbody.innerHTML = "";
+    if (mBody) mBody.innerHTML = "";
+
     if(globalOrdersData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</td></tr>`;
+        if (mBody) mBody.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-bold shadow-xs">ยังไม่มีการออกเลขคำสั่งโรงเรียนในปีนี้</div>`;
         return;
     }
+
     globalOrdersData.forEach(ord => {
         const fl = ord.fileUrl && ord.fileUrl.startsWith("http") ? `<a href="${ord.fileUrl}" target="_blank" class="text-purple-700 font-bold underline bg-purple-50 px-2 py-0.5 rounded-md text-xs">เปิดดูครุฑ</a>` : `<span class="text-slate-300">ไม่มีไฟล์</span>`;
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-black text-purple-700">เลขที่ ${ord.orderId}</td>
-                <td class="py-3 px-3 font-bold text-slate-400">${ord.year}</td>
-                <td class="py-3 px-5 font-bold text-slate-900">${ord.title}</td>
-                <td class="py-3 px-4 text-slate-600 font-medium">${formatThaiDateShort(ord.signDate)}</td>
-                <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold text-xs">${(ord.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
-                <td class="py-3 px-3 text-center">${fl}</td>
-                <td class="py-3 px-4 text-right space-x-1 font-bold">
-                    <button onclick="editOrder('${ord.firebaseId || ord.id || ord.orderId}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
-                    <button onclick="deleteFirestoreDocument('orders', '${ord.firebaseId || ord.id || ord.orderId}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
-                </td>
-            </tr>
-        `;
+        const mFl = ord.fileUrl && ord.fileUrl.startsWith("http") ? `<a href="${ord.fileUrl}" target="_blank" class="px-3 py-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 rounded-xl font-bold text-xs inline-flex items-center gap-1">เปิดดูคำสั่งครุฑ</a>` : `<span class="text-slate-300 text-xs italic">ไม่มีไฟล์แนบ</span>`;
+
+        if (tbody) {
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-4 font-black text-purple-700">เลขที่ ${ord.orderId}</td>
+                    <td class="py-3 px-3 font-bold text-slate-400">${ord.year}</td>
+                    <td class="py-3 px-5 font-bold text-slate-900">${ord.title}</td>
+                    <td class="py-3 px-4 text-slate-600 font-medium">${formatThaiDateShort(ord.signDate)}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md font-bold text-xs">${(ord.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
+                    <td class="py-3 px-3 text-center">${fl}</td>
+                    <td class="py-3 px-4 text-right space-x-1 font-bold">
+                        <button onclick="editOrder('${ord.firebaseId || ord.id || ord.orderId}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                        <button onclick="deleteFirestoreDocument('orders', '${ord.firebaseId || ord.id || ord.orderId}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        if (mBody) {
+            mBody.innerHTML += `
+                <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <span class="px-3 py-1 bg-purple-50 border border-purple-200 text-purple-800 rounded-xl font-black text-xs">เลขที่ ${ord.orderId}/${ord.year}</span>
+                        <span class="px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-md font-bold text-[10px]">${(ord.department || '').replace("ฝ่ายบริหารงาน", "")}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-slate-800 text-sm leading-snug">${ord.title || ''}</h4>
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium">
+                        วันที่ลงนามประกาศ: <span class="font-bold text-slate-700">${formatThaiDateShort(ord.signDate)}</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <div>${mFl}</div>
+                        <div class="flex gap-2">
+                            <button onclick="editOrder('${ord.firebaseId || ord.id || ord.orderId}')" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-xl font-bold text-xs cursor-pointer">แก้ไข</button>
+                            <button onclick="deleteFirestoreDocument('orders', '${ord.firebaseId || ord.id || ord.orderId}')" class="px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-xl font-bold text-xs cursor-pointer">ลบ</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     });
+
+    changeTablePage('orders', 0);
 }
 
 function openOrderModal() {
@@ -1315,6 +1440,10 @@ function renderNewMenusTables() {
             }
         }
     }
+
+    changeTablePage('memos', 0);
+    changeTablePage('gendocs', 0);
+    changeTablePage('receipts', 0);
 }
 
 // 🗑️ ปรับปรุง: ลบรายการใน Firebase พร้อมไฟล์แนบใน Google Drive
@@ -1570,14 +1699,24 @@ function changeTablePage(tableType, direction) {
                     (tableType === "memos") ? "memos-table-body" : 
                     (tableType === "gendocs") ? "gendocs-table-body" : 
                     (tableType === "receipts") ? "receipts-table-body" : "workflow-table-body";
-                    
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody) return;
-    const rows = tbody.getElementsByTagName("tr");
-    if (rows.length === 0) return;
 
-    const maxPage = Math.ceil(rows.length / ROWS_PER_PAGE);
-    let newPage = tablePages[tableType] + direction;
+    const mBodyId = (tableType === "saraban") ? "saraban-mobile-cards" : 
+                    (tableType === "orders") ? "orders-mobile-cards" : 
+                    (tableType === "memos") ? "memos-mobile-cards" : 
+                    (tableType === "gendocs") ? "gendocs-mobile-cards" : 
+                    (tableType === "receipts") ? "receipts-mobile-cards" : "workflow-mobile-cards";
+
+    const tbody = document.getElementById(tbodyId);
+    const mBody = document.getElementById(mBodyId);
+
+    const rows = tbody ? Array.from(tbody.getElementsByTagName("tr")) : [];
+    const cards = mBody ? Array.from(mBody.children) : [];
+
+    const totalItems = Math.max(rows.length, cards.length);
+    if (totalItems === 0) return;
+
+    const maxPage = Math.ceil(totalItems / ROWS_PER_PAGE);
+    let newPage = (tablePages[tableType] || 1) + direction;
     if (newPage < 1) newPage = 1;
     if (newPage > maxPage) newPage = maxPage;
     
@@ -1589,8 +1728,11 @@ function changeTablePage(tableType, direction) {
     for (let i = 0; i < rows.length; i++) {
         rows[i].style.display = (i >= startIndex && i < endIndex) ? "" : "none";
     }
+    for (let i = 0; i < cards.length; i++) {
+        cards[i].style.display = (i >= startIndex && i < endIndex) ? "" : "none";
+    }
 
-    renderPageNumbers(tableType, rows.length, newPage);
+    renderPageNumbers(tableType, totalItems, newPage);
 }
 
 function jumpToPage(tableType, pageNum) {
@@ -1604,10 +1746,20 @@ function jumpToLastPage(tableType) {
                     (tableType === "memos") ? "memos-table-body" : 
                     (tableType === "gendocs") ? "gendocs-table-body" : 
                     (tableType === "receipts") ? "receipts-table-body" : "workflow-table-body";
+    const mBodyId = (tableType === "saraban") ? "saraban-mobile-cards" : 
+                    (tableType === "orders") ? "orders-mobile-cards" : 
+                    (tableType === "memos") ? "memos-mobile-cards" : 
+                    (tableType === "gendocs") ? "gendocs-mobile-cards" : 
+                    (tableType === "receipts") ? "receipts-mobile-cards" : "workflow-mobile-cards";
+
     const tbody = document.getElementById(tbodyId);
-    if (!tbody) return;
-    const rows = tbody.getElementsByTagName("tr");
-    const maxPage = Math.ceil(rows.length / ROWS_PER_PAGE);
+    const mBody = document.getElementById(mBodyId);
+
+    const rowsCount = tbody ? tbody.getElementsByTagName("tr").length : 0;
+    const cardsCount = mBody ? mBody.children.length : 0;
+    const totalItems = Math.max(rowsCount, cardsCount);
+
+    const maxPage = Math.ceil(totalItems / ROWS_PER_PAGE);
     if (maxPage > 0) {
         jumpToPage(tableType, maxPage);
     }
