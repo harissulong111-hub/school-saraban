@@ -369,13 +369,14 @@ function syncAttendanceWithFirebase() {
 }
 
 function fetchFirebaseAttendanceData(targetDate) {
-    showLoading("กำลังดึงสถิติการมาเรียนจาก Firebase เดิม...");
+    showLoading("กำลังดึงสถิติการมาเรียนจาก Firebase...");
     
     attendanceDb.collection("attendance").doc(targetDate).get()
         .then((doc) => {
             const tbody = document.getElementById('attendance-table-body');
-            if (!tbody) return;
-            tbody.innerHTML = '';
+            const mBody = document.getElementById('attendance-mobile-cards');
+            if (tbody) tbody.innerHTML = '';
+            if (mBody) mBody.innerHTML = '';
 
             let grandTotalStudents = 0, grandTotalMale = 0, grandTotalFemale = 0;
             let grandPresent = 0, grandAbsent = 0;
@@ -418,21 +419,51 @@ function fetchFirebaseAttendanceData(targetDate) {
                         grandMalePresent += pMale;
                         grandFemalePresent += pFemale;
 
-                        tbody.innerHTML += `
-                            <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
-                                <td class="p-3 font-bold text-left text-slate-800 bg-slate-50/50">${className}</td>
-                                <td class="p-2 text-slate-500">${tMale}</td>
-                                <td class="p-2 text-slate-500">${tFemale}</td>
-                                <td class="p-2 font-bold text-slate-900 bg-slate-50">${totalClass}</td>
-                                <td class="p-2"><span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded font-bold">${pMale}</span></td>
-                                <td class="p-2"><span class="px-2 py-0.5 bg-pink-500/10 text-pink-600 border border-pink-500/20 rounded font-bold">${pFemale}</span></td>
-                                <td class="p-2"><span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded font-bold">${present}</span></td>
-                                <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${abMale}</span></td>
-                                <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded font-bold">${abFemale}</span></td>
-                                <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded font-bold">${absent}</span></td>
-                                <td class="p-3 text-right pr-6 font-black text-emerald-500 text-sm bg-slate-50/30">${classPercent}%</td>
-                            </tr>
-                        `;
+                        if (tbody) {
+                            tbody.innerHTML += `
+                                <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
+                                    <td class="p-3 font-bold text-left text-slate-800 bg-slate-50/50">${className}</td>
+                                    <td class="p-2 text-slate-500">${tMale}</td>
+                                    <td class="p-2 text-slate-500">${tFemale}</td>
+                                    <td class="p-2 font-bold text-slate-900 bg-slate-50">${totalClass}</td>
+                                    <td class="p-2"><span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded font-bold">${pMale}</span></td>
+                                    <td class="p-2"><span class="px-2 py-0.5 bg-pink-500/10 text-pink-600 border border-pink-500/20 rounded font-bold">${pFemale}</span></td>
+                                    <td class="p-2"><span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded font-bold">${present}</span></td>
+                                    <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${abMale}</span></td>
+                                    <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded font-bold">${abFemale}</span></td>
+                                    <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded font-bold">${absent}</span></td>
+                                    <td class="p-3 text-right pr-6 font-black text-emerald-500 text-sm bg-slate-50/30">${classPercent}%</td>
+                                </tr>
+                            `;
+                        }
+
+                        if (mBody) {
+                            mBody.innerHTML += `
+                                <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                        <span class="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl font-black text-xs">ระดับชั้น ${className}</span>
+                                        <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-black text-xs">มาเรียน ${classPercent}%</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                        <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                            <span class="text-[10px] font-bold text-slate-400 block">ทั้งหมด</span>
+                                            <span class="font-black text-slate-800 text-sm">${totalClass}</span>
+                                            <span class="text-[9px] text-slate-400 block">ชาย ${tMale} | หญิง ${tFemale}</span>
+                                        </div>
+                                        <div class="bg-emerald-50/60 p-2 rounded-xl border border-emerald-100">
+                                            <span class="text-[10px] font-bold text-emerald-700 block">มาเรียน</span>
+                                            <span class="font-black text-emerald-600 text-sm">${present}</span>
+                                            <span class="text-[9px] text-emerald-600 block">ชาย ${pMale} | หญิง ${pFemale}</span>
+                                        </div>
+                                        <div class="bg-rose-50/60 p-2 rounded-xl border border-rose-100">
+                                            <span class="text-[10px] font-bold text-rose-700 block">ขาดเรียน</span>
+                                            <span class="font-black text-rose-600 text-sm">${absent}</span>
+                                            <span class="text-[9px] text-rose-600 block">ชาย ${abMale} | หญิง ${abFemale}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
                 });
                 
@@ -441,21 +472,23 @@ function fetchFirebaseAttendanceData(targetDate) {
                     const mAbsentPercent = grandTotalMale > 0 ? ((grandMaleAbsent / grandTotalMale) * 100).toFixed(2) : "0.00";
                     const fAbsentPercent = grandTotalFemale > 0 ? ((grandFemaleAbsent / grandTotalFemale) * 100).toFixed(2) : "0.00";
 
-                    tbody.innerHTML += `
-                        <tr class="bg-slate-100 font-bold text-center text-slate-900 border-t border-slate-300">
-                            <td class="p-3 text-left font-black">รวม</td>
-                            <td class="p-2">${grandTotalMale}</td>
-                            <td class="p-2">${grandTotalFemale}</td>
-                            <td class="p-2 font-black">${grandTotalStudents}</td>
-                            <td class="p-2 text-blue-600">${grandMalePresent}</td>
-                            <td class="p-2 text-pink-600">${grandFemalePresent}</td>
-                            <td class="p-2 text-emerald-600">${grandPresent}</td>
-                            <td class="p-2 text-rose-500">${grandMaleAbsent}</td>
-                            <td class="p-2 text-rose-500">${grandFemaleAbsent}</td>
-                            <td class="p-2 text-rose-600">${grandAbsent}</td>
-                            <td class="p-3 text-right pr-6 text-emerald-600 font-black text-sm">${grandPercentage}%</td>
-                        </tr>
-                    `;
+                    if (tbody) {
+                        tbody.innerHTML += `
+                            <tr class="bg-slate-100 font-bold text-center text-slate-900 border-t border-slate-300">
+                                <td class="p-3 text-left font-black">รวม</td>
+                                <td class="p-2">${grandTotalMale}</td>
+                                <td class="p-2">${grandTotalFemale}</td>
+                                <td class="p-2 font-black">${grandTotalStudents}</td>
+                                <td class="p-2 text-blue-600">${grandMalePresent}</td>
+                                <td class="p-2 text-pink-600">${grandFemalePresent}</td>
+                                <td class="p-2 text-emerald-600">${grandPresent}</td>
+                                <td class="p-2 text-rose-500">${grandMaleAbsent}</td>
+                                <td class="p-2 text-rose-500">${grandFemaleAbsent}</td>
+                                <td class="p-2 text-rose-600">${grandAbsent}</td>
+                                <td class="p-3 text-right pr-6 text-emerald-600 font-black text-sm">${grandPercentage}%</td>
+                            </tr>
+                        `;
+                    }
 
                     document.getElementById('att-dash-total').innerHTML = `${grandTotalStudents} <span class="text-xs font-normal text-slate-400">คน</span>`;
                     document.getElementById('att-dash-present').innerHTML = `${grandPresent} <span class="text-xs font-semibold text-emerald-500">(${grandPercentage}%)</span>`;
@@ -478,35 +511,76 @@ function fetchFirebaseAttendanceData(targetDate) {
 
 function renderFallbackAttendanceTable(targetDate) {
     const tbody = document.getElementById('attendance-table-body');
-    if (!tbody) return;
+    const mBody = document.getElementById('attendance-mobile-cards');
+    if (!tbody && !mBody) return;
     const localFilter = globalAttendanceData.filter(d => d.date === targetDate);
     
     if(localFilter.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="py-10 text-center text-slate-400 text-xs">ไม่พบสถิติการเช็คชื่อในระบบคลาวด์ Firebase และชีตหลักของวันที่ ${formatThaiDate(targetDate)}</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="11" class="py-10 text-center text-slate-400 text-xs">ไม่พบสถิติการเช็คชื่อในระบบคลาวด์ Firebase และชีตหลักของวันที่ ${formatThaiDate(targetDate)}</td></tr>`;
+        if (mBody) mBody.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-bold shadow-xs">ไม่พบสถิติการเช็คชื่อของวันที่ ${formatThaiDate(targetDate)}</div>`;
         return;
     }
     
-    tbody.innerHTML = localFilter.map(item => {
-        const tM = parseInt(item.totalMale) || 0;
-        const tF = parseInt(item.totalFemale) || 0;
-        const pM = parseInt(item.presentMale) || 0;
-        const pF = parseInt(item.presentFemale) || 0;
-        return `
-            <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
-                <td class="p-3 font-bold text-left text-slate-800 bg-slate-50/50">${item.classLevel}</td>
-                <td class="p-2 text-slate-500">${tM}</td>
-                <td class="p-2 text-slate-500">${tF}</td>
-                <td class="p-2 font-bold text-slate-900 bg-slate-50">${tM + tF}</td>
-                <td class="p-2"><span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded font-bold">${pM}</span></td>
-                <td class="p-2"><span class="px-2 py-0.5 bg-pink-500/10 text-pink-500 border border-pink-500/20 rounded font-bold">${pF}</span></td>
-                <td class="p-2"><span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded font-bold">${pM + pF}</span></td>
-                <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${tM - pM < 0 ? 0 : tM - pM}</span></td>
-                <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${tF - pF < 0 ? 0 : tF - pF}</span></td>
-                <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded font-bold">${(tM + tF) - (pM + pF)}</span></td>
-                <td class="p-3 text-right pr-6 font-black text-blue-600 bg-slate-50/30">${item.percentage}%</td>
-            </tr>
-        `;
-    }).join('');
+    if (tbody) {
+        tbody.innerHTML = localFilter.map(item => {
+            const tM = parseInt(item.totalMale) || 0;
+            const tF = parseInt(item.totalFemale) || 0;
+            const pM = parseInt(item.presentMale) || 0;
+            const pF = parseInt(item.presentFemale) || 0;
+            return `
+                <tr class="hover:bg-slate-50 transition-colors text-center font-medium">
+                    <td class="p-3 font-bold text-left text-slate-800 bg-slate-50/50">${item.classLevel}</td>
+                    <td class="p-2 text-slate-500">${tM}</td>
+                    <td class="p-2 text-slate-500">${tF}</td>
+                    <td class="p-2 font-bold text-slate-900 bg-slate-50">${tM + tF}</td>
+                    <td class="p-2"><span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded font-bold">${pM}</span></td>
+                    <td class="p-2"><span class="px-2 py-0.5 bg-pink-500/10 text-pink-500 border border-pink-500/20 rounded font-bold">${pF}</span></td>
+                    <td class="p-2"><span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded font-bold">${pM + pF}</span></td>
+                    <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${tM - pM < 0 ? 0 : tM - pM}</span></td>
+                    <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded font-bold">${tF - pF < 0 ? 0 : tF - pF}</span></td>
+                    <td class="p-2"><span class="px-2 py-0.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded font-bold">${(tM + tF) - (pM + pF)}</span></td>
+                    <td class="p-3 text-right pr-6 font-black text-blue-600 bg-slate-50/30">${item.percentage}%</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    if (mBody) {
+        mBody.innerHTML = localFilter.map(item => {
+            const tM = parseInt(item.totalMale) || 0;
+            const tF = parseInt(item.totalFemale) || 0;
+            const pM = parseInt(item.presentMale) || 0;
+            const pF = parseInt(item.presentFemale) || 0;
+            const abM = tM - pM < 0 ? 0 : tM - pM;
+            const abF = tF - pF < 0 ? 0 : tF - pF;
+
+            return `
+                <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <span class="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl font-black text-xs">ระดับชั้น ${item.classLevel}</span>
+                        <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-black text-xs">มาเรียน ${item.percentage}%</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 block">ทั้งหมด</span>
+                            <span class="font-black text-slate-800 text-sm">${tM + tF}</span>
+                            <span class="text-[9px] text-slate-400 block">ชาย ${tM} | หญิง ${tF}</span>
+                        </div>
+                        <div class="bg-emerald-50/60 p-2 rounded-xl border border-emerald-100">
+                            <span class="text-[10px] font-bold text-emerald-700 block">มาเรียน</span>
+                            <span class="font-black text-emerald-600 text-sm">${pM + pF}</span>
+                            <span class="text-[9px] text-emerald-600 block">ชาย ${pM} | หญิง ${pF}</span>
+                        </div>
+                        <div class="bg-rose-50/60 p-2 rounded-xl border border-rose-100">
+                            <span class="text-[10px] font-bold text-rose-700 block">ขาดเรียน</span>
+                            <span class="font-black text-rose-600 text-sm">${abM + abF}</span>
+                            <span class="text-[9px] text-rose-600 block">ชาย ${abM} | หญิง ${abF}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 }
 
 function navigateTo(targetTabId) {
@@ -547,10 +621,15 @@ function calculateDashboardCounters() {
     const pendingCount = globalSarabanData.filter(d => d.status === "รอดำเนินการ").length;
     const orderCount = globalOrdersData.length;
 
-    document.getElementById("dash-in").innerText = inCount;
-    document.getElementById("dash-out").innerText = outCount;
-    document.getElementById("dash-pending").innerText = pendingCount;
-    document.getElementById("dash-orders").innerText = orderCount;
+    const elIn = document.getElementById("dash-stat-inbound") || document.getElementById("dash-in");
+    const elOut = document.getElementById("dash-stat-outbound") || document.getElementById("dash-out");
+    const elPending = document.getElementById("dash-stat-pending") || document.getElementById("dash-pending");
+    const elOrders = document.getElementById("dash-stat-orders") || document.getElementById("dash-orders");
+
+    if (elIn) elIn.innerHTML = `${inCount} <span class="text-xs font-normal text-slate-400">ฉบับ</span>`;
+    if (elOut) elOut.innerHTML = `${outCount} <span class="text-xs font-normal text-slate-400">ฉบับ</span>`;
+    if (elPending) elPending.innerHTML = `${pendingCount} <span class="text-xs font-normal text-slate-400">รายการ</span>`;
+    if (elOrders) elOrders.innerHTML = `${orderCount} <span class="text-xs font-normal text-slate-400">ฉบับ</span>`;
 
     const depts = ["ฝ่ายบริหารงานทั่วไป", "ฝ่ายบริหารงานงบประมาณ", "ฝ่ายบริหารงานวิชาการ", "ฝ่ายบริหารงานบุคคล"];
     const deptCounts = depts.map(name => globalSarabanData.filter(d => d.department && d.department.includes(name)).length);
@@ -789,12 +868,15 @@ async function deleteSaraban(index) {
 
 function renderWorkflowTable() {
     const tbody = document.getElementById("workflow-table-body");
-    tbody.innerHTML = "";
+    const mBody = document.getElementById("workflow-mobile-cards");
+    if (tbody) tbody.innerHTML = "";
+    if (mBody) mBody.innerHTML = "";
     
     const inboundDocs = globalSarabanData.filter(doc => doc.internalId && doc.internalId.startsWith("รับ"));
     
     if (inboundDocs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">ยังไม่มีรายการหนังสือรับในระบบเสนอเกษียณ</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400 text-xs">ยังไม่มีรายการหนังสือรับในระบบเสนอเกษียณ</td></tr>`;
+        if (mBody) mBody.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-bold shadow-xs">ยังไม่มีรายการหนังสือรับในระบบเสนอเกษียณ</div>`;
         return;
     }
 
@@ -806,25 +888,32 @@ function renderWorkflowTable() {
             ? `<div class="flex gap-2"><input type="text" id="work-comment-${realIdx}" value="${doc.managercomment || ''}" placeholder="ระบุข้อสั่งการ" class="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs w-full bg-white"><button onclick="submitWorkflowComment(${realIdx})" class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs hover:bg-blue-700 cursor-pointer whitespace-nowrap shadow-2xs">เซ็นคำสั่ง</button></div>`
             : `<span class="text-slate-400 font-bold text-xs">ไม่มีสิทธิ์บันทึกข้อสั่งการ</span>`;
         
+        const mobileActionHtml = isDirector
+            ? `<div class="flex gap-2 w-full mt-1"><input type="text" id="m-work-comment-${realIdx}" value="${doc.managercomment || ''}" placeholder="ระบุข้อสั่งการของ ผอ." class="px-3 py-2 border border-slate-300 rounded-xl text-xs flex-1 bg-white"><button onclick="submitMobileWorkflowComment(${realIdx})" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs hover:bg-blue-700 cursor-pointer whitespace-nowrap shadow-2xs">เซ็นคำสั่ง</button></div>`
+            : `<span class="text-slate-400 font-bold text-xs">ไม่มีสิทธิ์บันทึกข้อสั่งการ</span>`;
+
         const isMyDept = currentUser.department === doc.department || currentUser.role === "แอดมิน";
         const statusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${realIdx})" class="mt-1 px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[11px] font-bold text-slate-700 cursor-pointer block w-full">สลับสถานะ</button>` : ``;
-        
+        const mobileStatusBtnHtml = isMyDept ? `<button onclick="toggleWorkflowStatus(${realIdx})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 cursor-pointer">สลับสถานะ</button>` : ``;
+
         const sColor = doc.status === "สำเร็จแล้ว" ? "bg-emerald-500 text-white" : 
                        doc.status === "ยังไม่ปริ้น" ? "bg-sky-500 text-white" : "bg-amber-500 text-white";
         
         const fileLinkHtml = doc.fileUrl && doc.fileUrl.startsWith("http") ? `<a href="${doc.fileUrl}" target="_blank" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs inline-flex items-center gap-1 border border-indigo-200 transition-colors">เปิดไฟล์แนบ</a>` : `<span class="text-slate-300 italic text-xs">ไม่มีไฟล์แนบ</span>`;
 
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
-                <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold text-xs text-slate-700">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
-                <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
-                <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
-                <td class="py-3 px-4 text-blue-800 font-bold italic bg-blue-50/20">${doc.managercomment || 'รอกรรมการ/ผอ. ลงนาม...'}</td>
-                <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
-                <td class="py-3 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
-            </tr>
-        `;
+        if (tbody) {
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-4 font-bold text-slate-900">${doc.internalId}</td>
+                    <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md font-bold text-xs text-slate-700">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</span></td>
+                    <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
+                    <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
+                    <td class="py-3 px-4 text-blue-800 font-bold italic bg-blue-50/20">${doc.managercomment || 'รอกรรมการ/ผอ. ลงนาม...'}</td>
+                    <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
+                    <td class="py-3 px-4 text-center">${rowActionHtml} ${statusBtnHtml}</td>
+                </tr>
+            `;
+        }
     });
 }
 
@@ -1018,7 +1107,9 @@ function formatThaiDateFull(dateString) {
 
 function renderNewMenusTables() {
     const memoBody = document.getElementById('memos-table-body');
-    if(memoBody) {
+    const memoMobileBody = document.getElementById('memos-mobile-cards');
+
+    if (memoBody || memoMobileBody) {
         const memoSearch = (document.getElementById('search-memos')?.value || '').toLowerCase().trim();
         const filteredMemos = globalMemosData.filter(item => 
             !memoSearch ||
@@ -1027,27 +1118,57 @@ function renderNewMenusTables() {
             (item.department && item.department.toLowerCase().includes(memoSearch))
         );
 
-        if(filteredMemos.length === 0) {
-            memoBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลบันทึกข้อความในระบบขณะนี้</td></tr>`;
+        if (filteredMemos.length === 0) {
+            if (memoBody) memoBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลบันทึกข้อความในระบบขณะนี้</td></tr>`;
+            if (memoMobileBody) memoMobileBody.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-bold shadow-xs">ไม่พบข้อมูลบันทึกข้อความในระบบขณะนี้</div>`;
         } else {
-            memoBody.innerHTML = filteredMemos.map(item => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-3 px-4 font-bold text-slate-900">${item.docNo || ''}</td>
-                    <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                    <td class="py-3 px-4 text-slate-700">${item.title || ''}</td>
-                    <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department || ''}</span></td>
-                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
-                    <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="editMemo('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
-                        <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
-                    </td>
-                </tr>
-            `).join('');
+            if (memoBody) {
+                memoBody.innerHTML = filteredMemos.map(item => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-900">${item.docNo || ''}</td>
+                        <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                        <td class="py-3 px-4 text-slate-700">${item.title || ''}</td>
+                        <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department || ''}</span></td>
+                        <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <button onclick="editMemo('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                            <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            if (memoMobileBody) {
+                memoMobileBody.innerHTML = filteredMemos.map(item => `
+                    <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span class="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl font-black text-xs">${item.docNo || ''}</span>
+                            <span class="px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-md font-bold text-[10px]">${item.department || ''}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-sm leading-snug">${item.title || ''}</h4>
+                        </div>
+                        <div class="text-xs text-slate-500">
+                            วันที่ลงรายการ: <span class="font-bold text-slate-700">${formatThaiDateShort(item.date)}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                            <div>
+                                ${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl font-bold text-xs inline-flex items-center gap-1">เปิดดูเอกสาร</a>` : '<span class="text-slate-300 text-xs italic">ไม่มีไฟล์แนบ</span>'}
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="editMemo('${item.firebaseId || item.id}')" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-xl font-bold text-xs cursor-pointer">แก้ไข</button>
+                                <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-xl font-bold text-xs cursor-pointer">ลบ</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
     }
 
     const genBody = document.getElementById('gendocs-table-body');
-    if(genBody) {
+    const genMobileBody = document.getElementById('gendocs-mobile-cards');
+
+    if (genBody || genMobileBody) {
         const genSearch = (document.getElementById('search-gendocs')?.value || '').toLowerCase().trim();
         const filteredGenDocs = globalGenDocsData.filter(item => 
             !genSearch ||
@@ -1056,45 +1177,89 @@ function renderNewMenusTables() {
             (item.category && item.category.toLowerCase().includes(genSearch))
         );
 
-        if(filteredGenDocs.length === 0) {
-            genBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลเอกสารทั่วไปในระบบขณะนี้</td></tr>`;
+        if (filteredGenDocs.length === 0) {
+            if (genBody) genBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลเอกสารทั่วไปในระบบขณะนี้</td></tr>`;
+            if (genMobileBody) genMobileBody.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-bold shadow-xs">ไม่พบข้อมูลเอกสารทั่วไปในระบบขณะนี้</div>`;
         } else {
-            genBody.innerHTML = filteredGenDocs.map(item => {
-                let filesArray = [];
-                
-                if (item.fileUrl && item.fileUrl.startsWith("http")) {
-                    filesArray.push(`<a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold hover:underline bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ที่ 1</a>`);
-                }
-                for (let i = 2; i <= 6; i++) {
-                    const extraUrl = item[`fileUrl${i}`];
-                    if (extraUrl && extraUrl.trim().startsWith("http")) {
-                        filesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="text-teal-700 font-bold hover:underline bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ที่ ${i}</a>`);
+            if (genBody) {
+                genBody.innerHTML = filteredGenDocs.map(item => {
+                    let filesArray = [];
+                    if (item.fileUrl && item.fileUrl.startsWith("http")) {
+                        filesArray.push(`<a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold hover:underline bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ที่ 1</a>`);
                     }
-                }
+                    for (let i = 2; i <= 6; i++) {
+                        const extraUrl = item[`fileUrl${i}`];
+                        if (extraUrl && extraUrl.trim().startsWith("http")) {
+                            filesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="text-teal-700 font-bold hover:underline bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">ไฟล์ที่ ${i}</a>`);
+                        }
+                    }
 
-                const fileListHtml = filesArray.length > 0 
-                    ? `<div class="flex flex-col gap-1 items-center justify-center">${filesArray.join('')}</div>` 
-                    : `<span class="text-slate-300 text-xs">-</span>`;
+                    const fileListHtml = filesArray.length > 0 
+                        ? `<div class="flex flex-col gap-1 items-center justify-center">${filesArray.join('')}</div>` 
+                        : `<span class="text-slate-300 text-xs">-</span>`;
 
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="py-3 px-4 text-xs font-mono text-slate-400">${(item.id || '').substring(0,8)}</td>
-                        <td class="py-3 px-4 font-bold text-slate-800">${item.docName || ''}</td>
-                        <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                        <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
-                        <td class="py-3 px-3 text-center">${fileListHtml}</td>
-                        <td class="py-3 px-4 text-right space-x-1">
-                            <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
-                            <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="py-3 px-4 text-xs font-mono text-slate-400">${(item.id || '').substring(0,8)}</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">${item.docName || ''}</td>
+                            <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                            <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
+                            <td class="py-3 px-3 text-center">${fileListHtml}</td>
+                            <td class="py-3 px-4 text-right space-x-1">
+                                <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                                <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            if (genMobileBody) {
+                genMobileBody.innerHTML = filteredGenDocs.map(item => {
+                    let mFilesArray = [];
+                    if (item.fileUrl && item.fileUrl.startsWith("http")) {
+                        mFilesArray.push(`<a href="${item.fileUrl}" target="_blank" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl font-bold text-xs inline-flex items-center gap-1">ไฟล์ที่ 1</a>`);
+                    }
+                    for (let i = 2; i <= 6; i++) {
+                        const extraUrl = item[`fileUrl${i}`];
+                        if (extraUrl && extraUrl.trim().startsWith("http")) {
+                            mFilesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="px-3 py-1.5 bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 rounded-xl font-bold text-xs inline-flex items-center gap-1">ไฟล์ที่ ${i}</a>`);
+                        }
+                    }
+
+                    const mFileListHtml = mFilesArray.length > 0
+                        ? `<div class="flex flex-wrap gap-2 mt-2">${mFilesArray.join('')}</div>`
+                        : `<span class="text-slate-300 text-xs italic">ไม่มีไฟล์แนบ</span>`;
+
+                    return `
+                        <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <span class="px-2.5 py-0.5 bg-slate-100 text-slate-500 rounded-md font-mono text-[10px]">ID: ${(item.id || '').substring(0,8)}</span>
+                                <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md font-bold text-[10px]">${item.category || ''}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-slate-800 text-sm leading-snug">${item.docName || ''}</h4>
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                วันที่จัดเก็บ: <span class="font-bold text-slate-700">${formatThaiDateShort(item.date)}</span>
+                            </div>
+                            <div>
+                                ${mFileListHtml}
+                            </div>
+                            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                                <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-xl font-bold text-xs cursor-pointer">แก้ไข</button>
+                                <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-xl font-bold text-xs cursor-pointer">ลบ</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
     }
 
     const receiptBody = document.getElementById('receipts-table-body');
-    if(receiptBody) {
+    const receiptMobileBody = document.getElementById('receipts-mobile-cards');
+
+    if (receiptBody || receiptMobileBody) {
         const receiptSearch = (document.getElementById('search-receipts')?.value || '').toLowerCase().trim();
         const filteredReceipts = globalReceiptsData.filter(item => 
             !receiptSearch ||
@@ -1103,22 +1268,51 @@ function renderNewMenusTables() {
             (item.amount && item.amount.toString().includes(receiptSearch))
         );
 
-        if(filteredReceipts.length === 0) {
-            receiptBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลใบเสร็จในระบบขณะนี้</td></tr>`;
+        if (filteredReceipts.length === 0) {
+            if (receiptBody) receiptBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">ไม่พบข้อมูลใบเสร็จในระบบขณะนี้</td></tr>`;
+            if (receiptMobileBody) receiptMobileBody.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-xs font-bold shadow-xs">ไม่พบข้อมูลใบเสร็จในระบบขณะนี้</div>`;
         } else {
-            receiptBody.innerHTML = filteredReceipts.map(item => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo || ''}</td>
-                    <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                    <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-                    <td class="py-3 px-4 text-slate-700">${item.payer || ''}</td>
-                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
-                    <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="editReceipt('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
-                        <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
-                    </td>
-                </tr>
-            `).join('');
+            if (receiptBody) {
+                receiptBody.innerHTML = filteredReceipts.map(item => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo || ''}</td>
+                        <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                        <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                        <td class="py-3 px-4 text-slate-700">${item.payer || ''}</td>
+                        <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <button onclick="editReceipt('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">แก้ไข</button>
+                            <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">ลบ</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            if (receiptMobileBody) {
+                receiptMobileBody.innerHTML = filteredReceipts.map(item => `
+                    <div class="soft-card-sm p-4 space-y-3 bg-white border border-slate-200/90 shadow-2xs">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span class="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-black text-xs">${item.receiptNo || ''}</span>
+                            <span class="font-black text-emerald-600 text-sm">฿ ${Number(item.amount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 font-bold block text-[10px]">ผู้จ่ายเงิน/บริษัทร้านค้า:</span>
+                            <h4 class="font-extrabold text-slate-800 text-sm leading-snug">${item.payer || ''}</h4>
+                        </div>
+                        <div class="text-xs text-slate-500">
+                            วันที่ทำรายการ: <span class="font-bold text-slate-700">${formatThaiDateShort(item.date)}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                            <div>
+                                ${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl font-bold text-xs inline-flex items-center gap-1">ดูหลักฐานใบเสร็จ</a>` : '<span class="text-slate-300 text-xs italic">ไม่มีไฟล์แนบ</span>'}
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="editReceipt('${item.firebaseId || item.id}')" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-xl font-bold text-xs cursor-pointer">แก้ไข</button>
+                                <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-xl font-bold text-xs cursor-pointer">ลบ</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
     }
 }

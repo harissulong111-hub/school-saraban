@@ -116,57 +116,76 @@
         </aside>
 
         <div class="flex-1 flex flex-col min-w-0">
-            <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/60 h-16 flex items-center justify-between px-4 sm:px-6 shrink-0 shadow-2xs">
-                <div class="flex items-center gap-3">
-                    <img src="https://img2.pic.in.th/logo-School-1.png" alt="logo School.jpg" class="w-9 h-9 object-contain rounded-full shadow-xs bg-white">
-                    <div>
-                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">ระบบงานโรงเรียนคลาวด์อัจฉริยะ</span>
-                        <span class="text-sm font-black text-blue-700">โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1</span>
+            <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/60 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 shrink-0 shadow-2xs">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <img src="https://img2.pic.in.th/logo-School-1.png" alt="logo School.jpg" class="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-full shadow-xs bg-white shrink-0">
+                    <div class="min-w-0">
+                        <span class="hidden sm:block text-[10px] font-bold text-slate-400 uppercase tracking-wider">ระบบงานโรงเรียนคลาวด์อัจฉริยะ</span>
+                        <span class="text-xs sm:text-sm font-black text-blue-700 truncate block max-w-[180px] xs:max-w-[240px] sm:max-w-none">โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1</span>
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="block text-xs font-extrabold text-slate-800" id="clock-display">กำลังโหลดระบบ...</span>
-                    <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md mt-0.5 inline-block" id="user-role-badge">สิทธิ์: -</span>
+                <div class="text-right shrink-0">
+                    <span class="block text-[10px] sm:text-xs font-extrabold text-slate-800" id="clock-display">กำลังโหลดระบบ...</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md mt-0.5 inline-block max-w-[140px] sm:max-w-none truncate" id="user-role-badge">สิทธิ์: -</span>
                 </div>
             </header>
 
-            <main class="flex-1 p-4 sm:p-6 pb-24 md:pb-6 overflow-y-auto flex flex-col">
+            <main class="flex-1 p-3 sm:p-6 pb-24 md:pb-6 overflow-y-auto flex flex-col">
                 <div class="w-full">
                     <section id="menu-dashboard" class="tab-content space-y-5 hidden">
                         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                            <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">หนังสือรับทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-in">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-2xs">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 12m0 0l4.5-4.5M12 12V3"/></svg>
+                            <div class="soft-card-sm p-4 sm:p-5 flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase">หนังสือรับทั้งหมด</p>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-800 mt-1" id="dash-stat-inbound">0 <span class="text-xs font-normal text-slate-400">ฉบับ</span></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
                                 </div>
                             </div>
-                            <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">หนังสือส่งทั้งหมด</p><h3 class="text-3xl font-black text-slate-800 mt-1" id="dash-out">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-2xs">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v9"/></svg>
+                            <div class="soft-card-sm p-4 sm:p-5 flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase">หนังสือส่งทั้งหมด</p>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-800 mt-1" id="dash-stat-outbound">0 <span class="text-xs font-normal text-slate-400">ฉบับ</span></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12M12 16.5V3"/></svg>
                                 </div>
                             </div>
-                            <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">เรื่องค้างดำเนินการ</p><h3 class="text-3xl font-black text-rose-600 mt-1" id="dash-pending">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-2xs">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div class="soft-card-sm p-4 sm:p-5 flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase">รอดำเนินการเกษียณ</p>
+                                    <h3 class="text-xl sm:text-2xl font-black text-amber-600 mt-1" id="dash-stat-pending">0 <span class="text-xs font-normal text-slate-400">รายการ</span></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                             </div>
-                            <div class="soft-card-sm p-5 flex items-center justify-between">
-                                <div><p class="text-[11px] font-bold text-slate-400 uppercase">คำสั่งโรงเรียนปีนี้</p><h3 class="text-3xl font-black text-purple-600 mt-1" id="dash-orders">0</h3></div>
-                                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-2xs">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                            <div class="soft-card-sm p-4 sm:p-5 flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase">คำสั่งโรงเรียน</p>
+                                    <h3 class="text-xl sm:text-2xl font-black text-purple-600 mt-1" id="dash-stat-orders">0 <span class="text-xs font-normal text-slate-400">ฉบับ</span></h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
                                 </div>
                             </div>
                         </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="soft-card-sm p-5">
-                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">สัดส่วนภาระงานเอกสารแยกตาม 4 ฝ่ายบริหารงาน</h4>
-                                <div class="h-64 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
+                                <h4 class="text-xs font-bold text-slate-700 mb-4 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1.5-3m8.25 3l1.5-3m-10.5 0h10.5"/></svg>
+                                    จำแนกหนังสือตามฝ่ายงาน
+                                </h4>
+                                <div class="h-56 relative"><canvas id="chart-departments"></canvas></div>
                             </div>
                             <div class="soft-card-sm p-5">
-                                <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">ปริมาณหนังสือราชการจำแนกตามความเร่งด่วน</h4>
-                                <div class="h-64 flex items-center justify-center"><canvas id="chart-priority"></canvas></div>
+                                <h4 class="text-xs font-bold text-slate-700 mb-4 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 005.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+                                    จำแนกตามชั้นความเร่งด่วน
+                                </h4>
+                                <div class="h-56 relative"><canvas id="chart-priority"></canvas></div>
                             </div>
                         </div>
                     </section>
@@ -174,11 +193,11 @@
                     <section id="menu-saraban" class="tab-content space-y-4 hidden">
                         <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                             <div class="flex bg-slate-100 p-1 rounded-full w-full sm:w-auto">
-                                <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="px-5 py-2 rounded-full text-xs font-bold soft-btn-primary cursor-pointer">ทะเบียนหนังสือรับ</button>
-                                <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="px-5 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer">ทะเบียนหนังสือส่ง</button>
+                                <button onclick="switchSarabanTab('inbound')" id="subtab-inbound" class="flex-1 sm:flex-initial px-5 py-2 rounded-full text-xs font-bold soft-btn-primary cursor-pointer">ทะเบียนหนังสือรับ</button>
+                                <button onclick="switchSarabanTab('outbound')" id="subtab-outbound" class="flex-1 sm:flex-initial px-5 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer">ทะเบียนหนังสือส่ง</button>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end items-center">
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-start">
                                     <span class="text-xs font-bold text-slate-600 whitespace-nowrap">จำกัดดึงข้อมูล:</span>
                                     <select id="fetch-limit-saraban" onchange="fetchSystemData()" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-blue-700 focus:outline-none focus:border-blue-500 shadow-2xs">
                                         <option value="50">50 ล่าสุด</option>
@@ -189,10 +208,15 @@
                                     </select>
                                 </div>
                                 <input type="text" id="search-saraban" onkeyup="renderSarabanTable()" placeholder="ค้นหาด่วนด้วยชื่อเรื่อง..." class="px-4 py-2 soft-input text-xs w-full sm:w-64">
-                                <button onclick="openSarabanModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer whitespace-nowrap">ลงทะเบียนเอกสารใหม่</button>
+                                <button onclick="openSarabanModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer whitespace-nowrap w-full sm:w-auto">ลงทะเบียนเอกสารใหม่</button>
                             </div>
                         </div>
-                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+
+                        <!-- Mobile Card View -->
+                        <div id="saraban-mobile-cards" class="md:hidden space-y-3"></div>
+
+                        <!-- Desktop Table View -->
+                        <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
@@ -211,14 +235,16 @@
                                     </thead>
                                     <tbody id="saraban-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
-                                <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border-t border-slate-100 text-xs font-semibold text-blue-600 mt-2">
-                                    <button type="button" onclick="jumpToPage('saraban', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
-                                    <button type="button" onclick="changeTablePage('saraban', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
-                                    <div id="saraban-page-numbers" class="flex gap-1 text-slate-500"></div>
-                                    <button type="button" onclick="changeTablePage('saraban', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
-                                    <button type="button" onclick="jumpToLastPage('saraban')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
-                                </div>
                             </div>
+                        </div>
+
+                        <!-- Pagination Controls (Both Mobile and Desktop) -->
+                        <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-blue-600 shadow-2xs">
+                            <button type="button" onclick="jumpToPage('saraban', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
+                            <button type="button" onclick="changeTablePage('saraban', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
+                            <div id="saraban-page-numbers" class="flex gap-1 text-slate-500"></div>
+                            <button type="button" onclick="changeTablePage('saraban', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
+                            <button type="button" onclick="jumpToLastPage('saraban')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
                         </div>
                     </section>
 
@@ -231,7 +257,12 @@
                                 <h4 class="text-xs font-bold text-blue-900">ระบบกล่องเสนอเกษียณและสั่งการออนไลน์ (พร้อมปุ่มกดเปิดดูไฟล์แนบ)</h4>
                             </div>
                         </div>
-                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+
+                        <!-- Mobile Card View -->
+                        <div id="workflow-mobile-cards" class="md:hidden space-y-3"></div>
+
+                        <!-- Desktop Table View -->
+                        <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
@@ -247,14 +278,16 @@
                                     </thead>
                                     <tbody id="workflow-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
-                                <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border-t border-slate-100 text-xs font-semibold text-blue-600 mt-2">
-                                    <button type="button" onclick="jumpToPage('sign', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
-                                    <button type="button" onclick="changeTablePage('sign', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
-                                    <div id="sign-page-numbers" class="flex gap-1 text-slate-500"></div>
-                                    <button type="button" onclick="changeTablePage('sign', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
-                                    <button type="button" onclick="jumpToLastPage('sign')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
-                                </div>
                             </div>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-blue-600 shadow-2xs">
+                            <button type="button" onclick="jumpToPage('sign', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
+                            <button type="button" onclick="changeTablePage('sign', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
+                            <div id="sign-page-numbers" class="flex gap-1 text-slate-500"></div>
+                            <button type="button" onclick="changeTablePage('sign', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
+                            <button type="button" onclick="jumpToLastPage('sign')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
                         </div>
                     </section>
 
@@ -263,9 +296,14 @@
                             <div>
                                 <h4 class="text-xs font-bold text-slate-800">ทะเบียนคำสั่งและประกาศโรงเรียนบ้านกาหยีประจำปี ๒๕๖๙</h4>
                             </div>
-                            <button onclick="openOrderModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
+                            <button onclick="openOrderModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer w-full sm:w-auto">ขอออกเลขและลงทะเบียนคำสั่งใหม่</button>
                         </div>
-                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+
+                        <!-- Mobile Card View -->
+                        <div id="orders-mobile-cards" class="md:hidden space-y-3"></div>
+
+                        <!-- Desktop Table View -->
+                        <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
@@ -281,36 +319,43 @@
                                     </thead>
                                     <tbody id="orders-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                                 </table>
-                                <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border-t border-slate-100 text-xs font-semibold text-blue-600 mt-2">
-                                    <button type="button" onclick="jumpToPage('orders', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
-                                    <button type="button" onclick="changeTablePage('orders', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
-                                    <div id="orders-page-numbers" class="flex gap-1 text-slate-500"></div>
-                                    <button type="button" onclick="changeTablePage('orders', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
-                                    <button type="button" onclick="jumpToLastPage('orders')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
-                                </div>
                             </div>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-blue-600 shadow-2xs">
+                            <button type="button" onclick="jumpToPage('orders', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
+                            <button type="button" onclick="changeTablePage('orders', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
+                            <div id="orders-page-numbers" class="flex gap-1 text-slate-500"></div>
+                            <button type="button" onclick="changeTablePage('orders', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
+                            <button type="button" onclick="jumpToLastPage('orders')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
                         </div>
                     </section>
 
                     <section id="menu-calendar" class="tab-content hidden">
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                        <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
                             <div class="mb-3"><h4 class="text-xs font-bold text-slate-800">ปฏิทินแสดงกำหนดส่งงานและเอกสารสำคัญโรงเรียนบ้านกาหยี</h4></div>
                             <div id="calendar-container" class="font-semibold text-sm"></div>
                         </div>
                     </section>
                 </div>
                 
-                <section id="menu-memos" class="tab-content hidden animate-fade-in">
-                    <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between mb-3">
+                <section id="menu-memos" class="tab-content hidden animate-fade-in space-y-4">
+                    <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                         <div>
                             <h4 class="text-xs font-bold text-slate-800">ระบบทะเบียนคุมเลขที่บันทึกข้อความ</h4>
                         </div>
-                        <button id="btn-add-memo" onclick="openMemoModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">ลงทะเบียนบันทึกข้อความใหม่</button>
+                        <button id="btn-add-memo" onclick="openMemoModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer w-full sm:w-auto">ลงทะเบียนบันทึกข้อความใหม่</button>
                     </div>
-                    <div class="mb-4">
+                    <div>
                         <input type="text" id="search-memos" onkeyup="renderNewMenusTables()" placeholder="ค้นหาบันทึกข้อความ (เลขที่, เรื่อง, ฝ่ายงาน)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+
+                    <!-- Mobile Card View -->
+                    <div id="memos-mobile-cards" class="md:hidden space-y-3"></div>
+
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -325,28 +370,35 @@
                                 </thead>
                                 <tbody id="memos-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                             </table>
-                            <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border-t border-slate-100 text-xs font-semibold text-blue-600 mt-2">
-                                <button type="button" onclick="jumpToPage('memos', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
-                                <button type="button" onclick="changeTablePage('memos', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
-                                <div id="memos-page-numbers" class="flex gap-1 text-slate-500"></div>
-                                <button type="button" onclick="changeTablePage('memos', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
-                                <button type="button" onclick="jumpToLastPage('memos')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
-                            </div>
                         </div>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-blue-600 shadow-2xs">
+                        <button type="button" onclick="jumpToPage('memos', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
+                        <button type="button" onclick="changeTablePage('memos', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
+                        <div id="memos-page-numbers" class="flex gap-1 text-slate-500"></div>
+                        <button type="button" onclick="changeTablePage('memos', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
+                        <button type="button" onclick="jumpToLastPage('memos')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
                     </div>
                 </section>
 
-                <section id="menu-gendocs" class="tab-content hidden animate-fade-in">
-                    <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between mb-3">
+                <section id="menu-gendocs" class="tab-content hidden animate-fade-in space-y-4">
+                    <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                         <div>
                             <h4 class="text-xs font-bold text-slate-800">ระบบสารสนเทศการคุมไฟล์เอกสารทั่วไป</h4>
                         </div>
-                        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">เพิ่มเอกสารทั่วไป</button>
+                        <button id="btn-add-gendoc" onclick="openGenDocModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer w-full sm:w-auto">เพิ่มเอกสารทั่วไป</button>
                     </div>
-                    <div class="mb-4">
+                    <div>
                         <input type="text" id="search-gendocs" onkeyup="renderNewMenusTables()" placeholder="ค้นหาเอกสารทั่วไป (รหัส, ชื่อเอกสาร, หมวดหมู่)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+
+                    <!-- Mobile Card View -->
+                    <div id="gendocs-mobile-cards" class="md:hidden space-y-3"></div>
+
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -361,28 +413,35 @@
                                 </thead>
                                 <tbody id="gendocs-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                             </table>
-                            <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border-t border-slate-100 text-xs font-semibold text-blue-600 mt-2">
-                                <button type="button" onclick="jumpToPage('gendocs', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
-                                <button type="button" onclick="changeTablePage('gendocs', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
-                                <div id="gendocs-page-numbers" class="flex gap-1 text-slate-500"></div>
-                                <button type="button" onclick="changeTablePage('gendocs', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
-                                <button type="button" onclick="jumpToLastPage('gendocs')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
-                            </div>
                         </div>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-blue-600 shadow-2xs">
+                        <button type="button" onclick="jumpToPage('gendocs', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
+                        <button type="button" onclick="changeTablePage('gendocs', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
+                        <div id="gendocs-page-numbers" class="flex gap-1 text-slate-500"></div>
+                        <button type="button" onclick="changeTablePage('gendocs', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
+                        <button type="button" onclick="jumpToLastPage('gendocs')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
                     </div>
                 </section>
 
-                <section id="menu-receipts" class="tab-content hidden animate-fade-in">
-                    <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between mb-3">
+                <section id="menu-receipts" class="tab-content hidden animate-fade-in space-y-4">
+                    <div class="soft-card-sm p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                         <div>
                             <h4 class="text-xs font-bold text-slate-800">ระบบควบคุมทะเบียนใบเสร็จและใบรับเงิน</h4>
                         </div>
-                        <button id="btn-add-receipt" onclick="openReceiptModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">ลงทะเบียนหลักฐานใบเสร็จ</button>
+                        <button id="btn-add-receipt" onclick="openReceiptModal()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer w-full sm:w-auto">ลงทะเบียนหลักฐานใบเสร็จ</button>
                     </div>
-                    <div class="mb-4">
+                    <div>
                         <input type="text" id="search-receipts" onkeyup="renderNewMenusTables()" placeholder="ค้นหาใบเสร็จ (เลขที่, ร้านค้า, หมายเหตุ)..." class="w-full sm:w-80 px-4 py-2 text-xs soft-input">
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+
+                    <!-- Mobile Card View -->
+                    <div id="receipts-mobile-cards" class="md:hidden space-y-3"></div>
+
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -397,14 +456,16 @@
                                 </thead>
                                 <tbody id="receipts-table-body" class="divide-y divide-slate-100 font-medium text-slate-600"></tbody>
                             </table>
-                            <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border-t border-slate-100 text-xs font-semibold text-blue-600 mt-2">
-                                <button type="button" onclick="jumpToPage('receipts', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
-                                <button type="button" onclick="changeTablePage('receipts', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
-                                <div id="receipts-page-numbers" class="flex gap-1 text-slate-500"></div>
-                                <button type="button" onclick="changeTablePage('receipts', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
-                                <button type="button" onclick="jumpToLastPage('receipts')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
-                            </div>
                         </div>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 bg-white px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-blue-600 shadow-2xs">
+                        <button type="button" onclick="jumpToPage('receipts', 1)" class="hover:underline cursor-pointer">&lt;หน้าแรก</button>
+                        <button type="button" onclick="changeTablePage('receipts', -1)" class="hover:underline cursor-pointer">&lt;&lt;หน้าก่อน</button>
+                        <div id="receipts-page-numbers" class="flex gap-1 text-slate-500"></div>
+                        <button type="button" onclick="changeTablePage('receipts', 1)" class="hover:underline cursor-pointer">หน้าถัดไป&gt;&gt;</button>
+                        <button type="button" onclick="jumpToLastPage('receipts')" class="hover:underline cursor-pointer">หน้าสุดท้าย&gt;</button>
                     </div>
                 </section>
 
@@ -416,8 +477,8 @@
                         <div>
                             <h4 class="text-xs font-bold text-slate-800">ระบบสถิติการมาเรียนของนักเรียนประจำวัน (ซิงค์ข้อมูล Cloud Firebase โครงสร้างใหม่)</h4>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <input type="date" id="sync-att-date" onchange="fetchFirebaseAttendanceData(this.value)" class="px-3 py-2 text-xs soft-input font-bold text-slate-700">
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <input type="date" id="sync-att-date" onchange="fetchFirebaseAttendanceData(this.value)" class="flex-1 sm:flex-initial px-3 py-2 text-xs soft-input font-bold text-slate-700">
                             <button onclick="syncAttendanceWithFirebase()" class="soft-btn-primary text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer flex items-center gap-1.5 whitespace-nowrap">ดึงข้อมูลล่าสุด</button>
                         </div>
                     </div>
@@ -465,8 +526,11 @@
                         </div>
                     </div>
 
-                    <!-- ตารางแจกแจงแยกสถิติตามหัวข้อใหม่แบบ 11 คอลลัมน์ -->
-                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                    <!-- Mobile Card View -->
+                    <div id="attendance-mobile-cards" class="md:hidden space-y-3"></div>
+
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
