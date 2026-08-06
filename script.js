@@ -862,11 +862,21 @@ function openOrderModal() {
     document.getElementById("order-form").reset(); 
     document.getElementById("order-unique-id").value = '';
     document.getElementById("order-modal-title").innerText = "📜 ขอออกเลขคำสั่งโรงเรียนใหม่";
+    
     let nextNum = 1;
     if(globalOrdersData.length > 0) {
-        const last = globalOrdersData[globalOrdersData.length - 1].orderId; const match = last ? last.match(/\d+/) : null;
-        if(match) nextNum = parseInt(match[0]) + 1;
+        // หาค่าตัวเลขสูงสุดจาก orderId ในทุกรายการ
+        const allOrderNums = globalOrdersData.map(ord => {
+            const match = String(ord.orderId).match(/\d+/);
+            return match ? parseInt(match[0], 10) : 0;
+        });
+        const maxNum = Math.max(...allOrderNums);
+        
+        if (maxNum > 0) {
+            nextNum = maxNum + 1;
+        }
     }
+    
     document.getElementById("order-form-id").value = String(nextNum);
     document.getElementById("order-modal").classList.remove("hidden");
 }
