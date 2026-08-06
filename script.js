@@ -512,13 +512,30 @@ function renderFallbackAttendanceTable(targetDate) {
 function navigateTo(targetTabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(targetTabId).classList.remove('hidden');
+
+    // Desktop sidebar active state
     document.querySelectorAll('aside nav button').forEach(btn => btn.classList.remove('sidebar-active'));
     const activeNavId = targetTabId.replace('menu-', 'nav-');
     if(document.getElementById(activeNavId)) {
         document.getElementById(activeNavId).classList.add('sidebar-active');
     }
+
+    // Mobile bottom tab bar active state
+    document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.classList.remove('mobile-tab-active'));
+    const mobileNavId = targetTabId.replace('menu-', 'mobile-nav-');
+    if(document.getElementById(mobileNavId)) {
+        document.getElementById(mobileNavId).classList.add('mobile-tab-active');
+    }
+
     if(targetTabId === 'menu-calendar' && calendarObj) {
         setTimeout(() => calendarObj.render(), 150); 
+    }
+}
+
+function toggleMobileMoreMenu() {
+    const modal = document.getElementById('mobile-more-modal');
+    if (modal) {
+        modal.classList.toggle('hidden');
     }
 }
 
@@ -621,7 +638,7 @@ function renderSarabanTable() {
                 <td class="py-3 px-3 font-bold text-blue-800">${(doc.department || '').replace("ฝ่ายบริหารงาน", "")}</td>
                 <td class="py-3 px-4 font-bold text-slate-800">${doc.title || ''}</td>
                 <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pColor}">${priority}</span></td>
-                <td class="py-3 px-3 text-center font-bold text-rose-500">${formatThaiDateShort(doc.date) || '-'}</td>
+                <td class="py-3 px-3 text-center font-bold text-rose-500">${formatThaiDateShort(doc.deadline) || '-'}</td>
                 <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${sColor}">${doc.status || 'รอดำเนินการ'}</span></td>
                 <td class="py-3 px-3 text-center">${fileLinkHtml}</td>
                 <td class="py-3 px-4 text-right space-x-2 font-bold">
@@ -1002,71 +1019,107 @@ function formatThaiDateFull(dateString) {
 function renderNewMenusTables() {
     const memoBody = document.getElementById('memos-table-body');
     if(memoBody) {
-        memoBody.innerHTML = globalMemosData.map(item => `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${item.docNo || ''}</td>
-                <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                <td class="py-3 px-4 text-slate-700">${item.title || ''}</td>
-                <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department || ''}</span></td>
-                <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editMemo('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                </td>
-            </tr>
-        `).join('');
+        const memoSearch = (document.getElementById('search-memos')?.value || '').toLowerCase().trim();
+        const filteredMemos = globalMemosData.filter(item => 
+            !memoSearch ||
+            (item.docNo && item.docNo.toLowerCase().includes(memoSearch)) ||
+            (item.title && item.title.toLowerCase().includes(memoSearch)) ||
+            (item.department && item.department.toLowerCase().includes(memoSearch))
+        );
+
+        if(filteredMemos.length === 0) {
+            memoBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลบันทึกข้อความในระบบขณะนี้</td></tr>`;
+        } else {
+            memoBody.innerHTML = filteredMemos.map(item => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-4 font-bold text-slate-900">${item.docNo || ''}</td>
+                    <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                    <td class="py-3 px-4 text-slate-700">${item.title || ''}</td>
+                    <td class="py-3 px-4"><span class="px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 text-slate-600 rounded-md">${item.department || ''}</span></td>
+                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 เปิดดู</a>` : '<span class="text-slate-300">-</span>'}</td>
+                    <td class="py-3 px-4 text-right space-x-1">
+                        <button onclick="editMemo('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                        <button onclick="deleteFirestoreDocument('memos', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     const genBody = document.getElementById('gendocs-table-body');
     if(genBody) {
-        genBody.innerHTML = globalGenDocsData.map(item => {
-            let filesArray = [];
-            
-            if (item.fileUrl && item.fileUrl.startsWith("http")) {
-                filesArray.push(`<a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold hover:underline bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📂 ไฟล์ที่ 1</a>`);
-            }
-            for (let i = 2; i <= 6; i++) {
-                const extraUrl = item[`fileUrl${i}`];
-                if (extraUrl && extraUrl.trim().startsWith("http")) {
-                    filesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="text-teal-700 font-bold hover:underline bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📁 ไฟล์ที่ ${i}</a>`);
+        const genSearch = (document.getElementById('search-gendocs')?.value || '').toLowerCase().trim();
+        const filteredGenDocs = globalGenDocsData.filter(item => 
+            !genSearch ||
+            (item.id && item.id.toLowerCase().includes(genSearch)) ||
+            (item.docName && item.docName.toLowerCase().includes(genSearch)) ||
+            (item.category && item.category.toLowerCase().includes(genSearch))
+        );
+
+        if(filteredGenDocs.length === 0) {
+            genBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลเอกสารทั่วไปในระบบขณะนี้</td></tr>`;
+        } else {
+            genBody.innerHTML = filteredGenDocs.map(item => {
+                let filesArray = [];
+                
+                if (item.fileUrl && item.fileUrl.startsWith("http")) {
+                    filesArray.push(`<a href="${item.fileUrl}" target="_blank" class="text-emerald-700 font-bold hover:underline bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📂 ไฟล์ที่ 1</a>`);
                 }
-            }
+                for (let i = 2; i <= 6; i++) {
+                    const extraUrl = item[`fileUrl${i}`];
+                    if (extraUrl && extraUrl.trim().startsWith("http")) {
+                        filesArray.push(`<a href="${extraUrl.trim()}" target="_blank" class="text-teal-700 font-bold hover:underline bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">📁 ไฟล์ที่ ${i}</a>`);
+                    }
+                }
 
-            const fileListHtml = filesArray.length > 0 
-                ? `<div class="flex flex-col gap-1 items-center justify-center">${filesArray.join('')}</div>` 
-                : `<span class="text-slate-300 text-xs">-</span>`;
+                const fileListHtml = filesArray.length > 0 
+                    ? `<div class="flex flex-col gap-1 items-center justify-center">${filesArray.join('')}</div>` 
+                    : `<span class="text-slate-300 text-xs">-</span>`;
 
-            return `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-3 px-4 text-xs font-mono text-slate-400">${(item.id || '').substring(0,8)}</td>
-                    <td class="py-3 px-4 font-bold text-slate-800">${item.docName || ''}</td>
-                    <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                    <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
-                    <td class="py-3 px-3 text-center">${fileListHtml}</td>
-                    <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                        <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 text-xs font-mono text-slate-400">${(item.id || '').substring(0,8)}</td>
+                        <td class="py-3 px-4 font-bold text-slate-800">${item.docName || ''}</td>
+                        <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                        <td class="py-3 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-xs font-bold">${item.category || ''}</span></td>
+                        <td class="py-3 px-3 text-center">${fileListHtml}</td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <button onclick="editGenDoc('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                            <button onclick="deleteFirestoreDocument('gendocs', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
     }
 
     const receiptBody = document.getElementById('receipts-table-body');
     if(receiptBody) {
-        receiptBody.innerHTML = globalReceiptsData.map(item => `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo || ''}</td>
-                <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
-                <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-                <td class="py-3 px-4 text-slate-700">${item.payer || ''}</td>
-                <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="editReceipt('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
-                    <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
-                </td>
-            </tr>
-        `).join('');
+        const receiptSearch = (document.getElementById('search-receipts')?.value || '').toLowerCase().trim();
+        const filteredReceipts = globalReceiptsData.filter(item => 
+            !receiptSearch ||
+            (item.receiptNo && item.receiptNo.toLowerCase().includes(receiptSearch)) ||
+            (item.payer && item.payer.toLowerCase().includes(receiptSearch)) ||
+            (item.amount && item.amount.toString().includes(receiptSearch))
+        );
+
+        if(filteredReceipts.length === 0) {
+            receiptBody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-xs">🔍 ไม่พบข้อมูลใบเสร็จในระบบขณะนี้</td></tr>`;
+        } else {
+            receiptBody.innerHTML = filteredReceipts.map(item => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-4 font-bold text-slate-900">${item.receiptNo || ''}</td>
+                    <td class="py-3 px-3">${formatThaiDate(item.date)}</td>
+                    <td class="py-3 px-3 font-bold text-emerald-600">${Number(item.amount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                    <td class="py-3 px-4 text-slate-700">${item.payer || ''}</td>
+                    <td class="py-3 px-3 text-center">${item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="text-blue-600 font-extrabold hover:underline">📂 ดูหลักฐาน</a>` : '<span class="text-slate-300">-</span>'}</td>
+                    <td class="py-3 px-4 text-right space-x-1">
+                        <button onclick="editReceipt('${item.firebaseId || item.id}')" class="text-amber-600 font-bold hover:underline text-xs cursor-pointer">✏️ แก้ไข</button>
+                        <button onclick="deleteFirestoreDocument('receipts', '${item.firebaseId || item.id}')" class="text-rose-600 font-bold hover:underline text-xs cursor-pointer">🗑️ ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 }
 
@@ -1975,8 +2028,17 @@ async function downloadStampedPDF() {
             const deltaX = touch.clientX - startX;
             const deltaY = touch.clientY - startY;
 
-            box.style.left = (initialLeft + deltaX) + 'px';
-            box.style.top = (initialTop + deltaY) + 'px';
+            const wrapper = document.getElementById('canvas-wrapper');
+            let newLeft = initialLeft + deltaX;
+            let newTop = initialTop + deltaY;
+
+            if (wrapper) {
+                newTop = Math.max(0, Math.min(newTop, wrapper.clientHeight - box.clientHeight));
+                newLeft = Math.max(0, Math.min(newLeft, wrapper.clientWidth - box.clientWidth));
+            }
+
+            box.style.left = newLeft + 'px';
+            box.style.top = newTop + 'px';
 
             e.preventDefault();
         }, { passive: false });
