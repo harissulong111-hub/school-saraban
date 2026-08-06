@@ -660,8 +660,61 @@
                     </div>
                 </section>
                 
-                <footer class="mt-8 text-center text-xs font-medium text-slate-400 pt-4 border-t border-slate-200/60">
-                    @ Copyright ฮาริส สุหลง  ติดต่อ 0924291775 
+                <!-- Modern School Footer -->
+                <footer class="mt-12 mb-20 md:mb-8 bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-2xs p-6 md:p-8 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-600">
+                        <!-- Brand & School Info -->
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-3">
+                                <img src="https://std.pattani1.go.th/saraban/logo.png" alt="โลโก้โรงเรียน" class="w-9 h-9 object-contain drop-shadow-xs" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2991/2991106.png'">
+                                <div>
+                                    <h3 class="font-black text-slate-800 text-sm leading-tight">ระบบสารบรรณอิเล็กทรอนิกส์</h3>
+                                    <p class="text-xs font-bold text-blue-700">โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 leading-relaxed font-medium pt-1">
+                                ระบบบริหารจัดการเอกสารราชการ หนังสือรับ-ส่ง เสนอเกษียณคำสั่ง ออกเลขคำสั่งโรงเรียน และจัดเก็บคลังเอกสารดิจิทัล
+                            </p>
+                        </div>
+
+                        <!-- Navigation Shortcuts -->
+                        <div class="space-y-2">
+                            <h4 class="font-extrabold text-slate-800 text-xs uppercase tracking-wider">เมนูระบบสารบรรณ</h4>
+                            <ul class="grid grid-cols-2 gap-2 text-xs font-bold text-slate-600">
+                                <li><button onclick="navigateTo('menu-dashboard')" class="hover:text-blue-600 transition-colors flex items-center gap-1.5 cursor-pointer"><span>•</span> หน้าแรกสารบรรณ</button></li>
+                                <li><button onclick="navigateTo('menu-saraban')" class="hover:text-blue-600 transition-colors flex items-center gap-1.5 cursor-pointer"><span>•</span> หนังสือรับ - ส่ง</button></li>
+                                <li><button onclick="navigateTo('menu-workflow')" class="hover:text-blue-600 transition-colors flex items-center gap-1.5 cursor-pointer"><span>•</span> ระบบเสนอเกษียณ</button></li>
+                                <li><button onclick="navigateTo('menu-orders')" class="hover:text-blue-600 transition-colors flex items-center gap-1.5 cursor-pointer"><span>•</span> ออกเลขคำสั่งโรงเรียน</button></li>
+                                <li><button onclick="navigateTo('menu-memos')" class="hover:text-blue-600 transition-colors flex items-center gap-1.5 cursor-pointer"><span>•</span> บันทึกข้อความ</button></li>
+                                <li><button onclick="navigateTo('menu-calendar')" class="hover:text-blue-600 transition-colors flex items-center gap-1.5 cursor-pointer"><span>•</span> ปฏิทินปฏิบัติงาน</button></li>
+                            </ul>
+                        </div>
+
+                        <!-- Developer Credit & Support -->
+                        <div class="space-y-2 md:text-right">
+                            <h4 class="font-extrabold text-slate-800 text-xs uppercase tracking-wider">พัฒนาและดูแลระบบ</h4>
+                            <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-200/80 px-3 py-1.5 rounded-xl">
+                                <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
+                                <span class="text-xs font-black text-blue-900">ผู้พัฒนาระบบ: Haris Sulong (ฮาริส สุหลง)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 font-medium">
+                                เบอร์โทรติดต่อ / สอบถามระบบ: <a href="tel:0924291775" class="font-bold text-slate-700 hover:text-blue-600 underline">092-429-1775</a>
+                            </p>
+                            <div class="text-[11px] text-slate-400">
+                                เวอร์ชันระบบ 2.0 (Google Apps Script & Firebase Cloud)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Line -->
+                    <div class="pt-4 border-t border-slate-200/70 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 font-medium gap-2">
+                        <div>
+                            © 2026 โรงเรียนบ้านกาหยี สพป.ปัตตานี เขต 1 สงวนลิขสิทธิ์ตามกฎหมาย
+                        </div>
+                        <div>
+                            Designed & Developed by <strong class="text-slate-600 font-bold">Haris Sulong</strong>
+                        </div>
+                    </div>
                 </footer>
             </main>
         </div>
